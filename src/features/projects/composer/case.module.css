@@ -252,6 +252,38 @@
 }
 
 /* ─────────────────────────────────────────
+   Composer pin — sticky-док с композером.
+   Композер находится в обычном потоке сразу после
+   прозы (отсюда нет «провала» от 100svh-дока),
+   но при скролле прилипает к нижней кромке
+   вьюпорта через sticky-bottom. На мобильных
+   sticky отключаем — карточка идёт обычным потоком.
+   ───────────────────────────────────────── */
+.composerPin {
+  position: relative;
+  width: 100%;
+  margin-top: clamp(20px, 2.4vw, 32px);
+}
+
+.composerPinDock {
+  position: sticky;
+  bottom: clamp(16px, 2.4vw, 32px);
+  display: flex;
+  justify-content: center;
+}
+
+.composerPinFrame {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .composerPinDock {
+    position: static;
+    bottom: auto;
+  }
+}
+
+/* ─────────────────────────────────────────
    Pull quote — выделение цитаты в общем
    ритме страницы. Без серифа и курсива:
    акцент держится размером, не сменой

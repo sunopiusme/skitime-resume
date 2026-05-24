@@ -10,6 +10,7 @@ import {
   LabWorkflowDisk,
 } from "@/features/projects/composer/parts/ResearchFigures";
 import ThinkingModel from "@/features/projects/composer/live/thinking-model/ThinkingModel";
+import ComposerInput from "@/features/projects/composer/live/composer-input/ComposerInput";
 import AgenticWorkflowLab from "@/features/projects/composer/live/agentic-workflow-lab/AgenticWorkflowLab";
 import caseStyles from "@/features/projects/composer/case.module.css";
 
@@ -200,6 +201,20 @@ export default function ComposerCase() {
               </p>
             </div>
           </div>
+
+          {/* Pinned scene: композер прилипает к нижней кромке экрана,
+              пока проходим лабораторию 04. Анимация состояний
+              компонента подключится следующим шагом. */}
+          <section
+            className={caseStyles.composerPin}
+            aria-label="Композер: разбор слоёв"
+          >
+            <div className={caseStyles.composerPinDock} aria-hidden="false">
+              <div className={caseStyles.composerPinFrame}>
+                <ComposerInput />
+              </div>
+            </div>
+          </section>
 
           <div className={caseStyles.wide}>
             <CodeBlock
