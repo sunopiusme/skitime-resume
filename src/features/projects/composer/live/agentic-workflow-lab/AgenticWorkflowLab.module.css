@@ -1,0 +1,434 @@
+/* ─────────────────────────────────────────
+   Agentic Workflow Lab — лабораторный
+   осциллограф, а не "ввод с двумя ящиками".
+   Один контур, hairline-разметка, дорожки
+   с заполнением, моноширинная шкала. Намеренно
+   расходимся с языком Composer Input.
+   ───────────────────────────────────────── */
+.root {
+  --c-line: var(--composer-hairline);
+  --c-line-soft: rgba(255, 255, 255, 0.06);
+  --c-ink: var(--composer-ink);
+  --c-ink-muted: var(--composer-ink-muted);
+  --c-ink-subtle: var(--composer-ink-subtle);
+  --c-surface: var(--composer-surface-raised);
+  --c-grid: rgba(255, 255, 255, 0.05);
+
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  font-family: var(--font-sans), sans-serif;
+  color: var(--c-ink);
+}
+
+/* ── Корпус прибора ───────────────────── */
+.frame {
+  position: relative;
+  display: grid;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: 4px; /* подчёркнуто меньший радиус, чем в композере (18) */
+  overflow: hidden;
+  background-image:
+    linear-gradient(to right, var(--c-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
+}
+
+/* ── Шильдик прибора ──────────────────── */
+.bezel {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--c-line);
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(2px);
+}
+
+.bezelMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--c-ink);
+  font-size: 12px;
+  line-height: 1;
+  animation: bezelMark 4.5s linear infinite;
+}
+
+.bezelTitle {
+  font-family: var(--composer-font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--c-ink);
+}
+
+.bezelTrace {
+  font-family: var(--composer-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-ink-subtle);
+  padding: 2px 8px;
+  border: 1px solid var(--c-line);
+  border-radius: 999px;
+}
+
+.bezelClock {
+  font-family: var(--composer-font-mono);
+  font-size: 0.78rem;
+  color: var(--c-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Шкала фаз ────────────────────────── */
+.scaleRow {
+  padding: 28px 20px 36px;
+  border-bottom: 1px solid var(--c-line);
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(2px);
+}
+
+.scaleTrack {
+  position: relative;
+  height: 1px;
+  background: var(--c-line);
+  margin: 0 8px;
+}
+
+.scaleFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  background: var(--c-ink);
+  transition: width 480ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.scaleTicks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tick {
+  position: absolute;
+  top: -4px;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  font-family: var(--composer-font-mono);
+  font-size: 0.7rem;
+  color: var(--c-ink-subtle);
+  text-transform: lowercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.tickMark {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--c-surface);
+  box-shadow: inset 0 0 0 1px var(--c-line);
+  transition: background 200ms ease, box-shadow 200ms ease;
+}
+
+.tickLabel {
+  display: block;
+}
+
+.tick[data-state="active"] .tickMark {
+  background: var(--c-ink);
+  box-shadow:
+    inset 0 0 0 1px var(--c-ink),
+    0 0 0 4px rgba(255, 255, 255, 0.08);
+}
+
+.tick[data-state="active"] .tickLabel {
+  color: var(--c-ink);
+}
+
+.tick[data-state="done"] .tickMark {
+  background: var(--c-ink);
+  box-shadow: inset 0 0 0 1px var(--c-ink);
+}
+
+.tick[data-state="done"] .tickLabel {
+  color: var(--c-ink-muted);
+}
+
+/* ── Дорожки ──────────────────────────── */
+.lanes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(2px);
+}
+
+.lane {
+  display: grid;
+  grid-template-columns: minmax(160px, 1.2fr) 3fr minmax(120px, auto);
+  align-items: center;
+  gap: 16px 20px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-line-soft);
+}
+
+.lane:last-child {
+  border-bottom: 1px solid var(--c-line);
+}
+
+.laneMeta {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.laneRole {
+  font-family: var(--composer-font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--c-ink);
+}
+
+.laneWorkspace {
+  font-family: var(--composer-font-mono);
+  font-size: 0.7rem;
+  color: var(--c-ink-subtle);
+  letter-spacing: 0.02em;
+}
+
+.laneTrack {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px var(--c-line-soft);
+  overflow: hidden;
+}
+
+.laneFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 999px;
+  background: var(--c-ink);
+  transition: width 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.lane[data-status="idle"] .laneFill {
+  background: var(--c-ink-subtle);
+}
+
+.lane[data-status="active"] .laneFill {
+  background: var(--c-ink);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(0, 0, 0, 0.35) 0,
+    rgba(0, 0, 0, 0.35) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  animation: laneStripes 1.6s linear infinite;
+}
+
+.lane[data-status="complete"] .laneFill {
+  background: var(--c-ink);
+}
+
+.laneSide {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  font-family: var(--composer-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.laneStatus {
+  font-size: 0.72rem;
+  color: var(--c-ink-muted);
+  letter-spacing: 0.04em;
+}
+
+.lane[data-status="active"] .laneStatus {
+  color: var(--c-ink);
+}
+
+.lanePct {
+  font-size: 0.78rem;
+  color: var(--c-ink);
+  white-space: pre;
+}
+
+.laneObservation {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--c-ink-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+/* ── Подвал прибора ───────────────────── */
+.foot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(2px);
+}
+
+.footColumn {
+  padding: 18px 20px 20px;
+}
+
+.footColumn + .footColumn {
+  border-left: 1px solid var(--c-line);
+}
+
+.footTitle {
+  margin: 0 0 12px;
+  font-family: var(--composer-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-ink-subtle);
+}
+
+.footList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.footRow {
+  display: grid;
+  grid-template-columns: 10px 90px 1fr;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--c-line-soft);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.footRow:last-child {
+  border-bottom: none;
+}
+
+.footMark {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px; /* квадратные, не круглые — отстраиваемся от чипов */
+  background: var(--c-ink-subtle);
+  align-self: center;
+}
+
+.footRow[data-state="complete"] .footMark {
+  background: var(--c-ink);
+}
+
+.footRow[data-state="static"] .footMark {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--c-ink-subtle);
+}
+
+.footLabel {
+  font-family: var(--composer-font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: var(--c-ink-subtle);
+}
+
+.footRow[data-state="complete"] .footLabel {
+  color: var(--c-ink-muted);
+}
+
+.footValue {
+  color: var(--c-ink);
+}
+
+.footRow[data-state="pending"] .footValue {
+  color: var(--c-ink-subtle);
+}
+
+/* ── Адаптация ────────────────────────── */
+@media (max-width: 720px) {
+  .bezel {
+    grid-template-columns: auto 1fr auto;
+  }
+  .bezelTrace {
+    display: none;
+  }
+  .scaleRow {
+    padding: 24px 16px 32px;
+  }
+  .tickLabel {
+    font-size: 0.62rem;
+  }
+  .lane {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+  .laneSide {
+    justify-items: start;
+    flex-direction: row;
+  }
+  .foot {
+    grid-template-columns: 1fr;
+  }
+  .footColumn + .footColumn {
+    border-left: none;
+    border-top: 1px solid var(--c-line);
+  }
+  .footRow {
+    grid-template-columns: 10px 80px 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scaleFill,
+  .laneFill {
+    transition: none;
+  }
+  .lane[data-status="active"] .laneFill {
+    animation: none;
+    background-image: none;
+  }
+  .bezelMark {
+    animation: none;
+  }
+}
+
+@keyframes laneStripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 32px 0;
+  }
+}
+
+@keyframes bezelMark {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

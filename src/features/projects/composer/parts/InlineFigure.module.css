@@ -1,0 +1,45 @@
+/* ─────────────────────────────────────────
+   Inline figure — gold standard
+   Воздух между лейблом, сценой и подписью:
+   24 (компактно) → 32 (вокруг сцены).
+   ───────────────────────────────────────── */
+.figure {
+  margin: 0;
+  display: grid;
+  gap: clamp(20px, 2vw, 28px);
+}
+
+.label {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+}
+
+.stage {
+  border: 1px solid var(--composer-hairline);
+  border-radius: var(--composer-radius-md);
+  background: var(--composer-surface-raised);
+  padding: clamp(16px, 2.2vw, 24px);
+  overflow: hidden;
+}
+
+.stagePlain {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.caption {
+  font-size: 0.92rem;
+  color: var(--composer-ink-muted);
+  line-height: 1.55;
+  max-width: 64ch;
+  text-wrap: pretty;
+}
+
+.wide .stage {
+  padding: clamp(20px, 2.8vw, 32px);
+}

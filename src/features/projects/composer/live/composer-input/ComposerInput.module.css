@@ -1,0 +1,268 @@
+/* ─────────────────────────────────────────
+   Composer input — повторяет композицию
+   референса (Codex). Тёмная монохромная
+   палитра, без цветовых акцентов.
+   Сетка отступов: 4 / 8 / 12 / 16 / 20
+   ───────────────────────────────────────── */
+.root {
+  --c-line: var(--composer-hairline);
+  --c-line-soft: rgba(255, 255, 255, 0.06);
+  --c-ink: var(--composer-ink);
+  --c-ink-muted: var(--composer-ink-muted);
+  --c-ink-subtle: var(--composer-ink-subtle);
+  --c-surface: var(--composer-surface-raised);
+  --c-surface-soft: var(--composer-surface-sunken);
+
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+  font-family: var(--font-sans), sans-serif;
+  color: var(--c-ink);
+}
+
+/* ── Stack: warning (top) + card + context (bottom) ─ */
+/* Обе плашки «выдвигаются» из-под карточки:
+   уже по бокам на 12px, чуть темнее по фону.
+   Карточка перекрывает их радиусами по z. */
+.stack {
+  position: relative;
+  display: grid;
+}
+
+/* ── Warning row (top drawer) ──────────── */
+/* Открытые углы = радиус card (18), чтобы
+   ящик читался как часть одной оболочки. */
+.warning {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 12px -16px;
+  padding: 14px 20px 22px;
+  border-radius: 18px 18px 0 0;
+  background: var(--c-surface-soft);
+  font-size: 0.85rem;
+  position: relative;
+  z-index: 0;
+}
+
+/* ── Context row (bottom drawer) ───────── */
+/* x-inset: 0 → радиус = радиусу card (18) */
+.context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: -16px 0 0;
+  padding: 22px 12px 12px;
+  border-radius: 0 0 18px 18px;
+  background: var(--c-surface-soft);
+  position: relative;
+  z-index: 0;
+}
+
+.warningIcon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  color: var(--c-ink);
+  flex-shrink: 0;
+}
+
+.warningIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.warningText {
+  flex: 1;
+  color: var(--c-ink);
+  line-height: 1.4;
+}
+
+.warningAction {
+  color: var(--c-ink-muted);
+  font-size: 0.85rem;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Card (input + toolbar) ────────────── */
+.card {
+  display: grid;
+  gap: 16px;
+  padding: 18px 20px 14px;
+  border: 1px solid var(--c-line);
+  border-radius: 18px;
+  background: var(--c-surface);
+  position: relative;
+  z-index: 1;
+}
+
+.placeholder {
+  margin: 0;
+  padding: 4px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--c-ink-subtle);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.toolbarLeft,
+.toolbarRight {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Generic icon button (square, ghost) ─ */
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--c-ink-muted);
+  cursor: default;
+  pointer-events: none;
+}
+
+.iconBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Permission pill ───────────────────── */
+.permission {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: var(--c-ink);
+  cursor: default;
+  pointer-events: none;
+}
+
+.permissionIcon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--c-ink-muted);
+}
+
+.permissionIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Model chip (5.5 High) ─────────────── */
+.modelChip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 8px 6px 10px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: var(--c-ink);
+  cursor: default;
+  pointer-events: none;
+}
+
+.modelValue {
+  color: var(--c-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.modelLabel {
+  color: var(--c-ink);
+}
+
+/* ── Chevron (общий) ───────────────────── */
+.chevron {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  color: var(--c-ink-subtle);
+  align-self: center;
+}
+
+.chevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Send button — круглая, инверсная ─── */
+.sendBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: var(--c-ink);
+  color: var(--composer-surface);
+  cursor: default;
+  pointer-events: none;
+}
+
+.sendBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Footer chips (repo / env / branch) ─ */
+.footChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: var(--c-ink-muted);
+  cursor: default;
+  pointer-events: none;
+}
+
+.footIcon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  color: var(--c-ink-subtle);
+}
+
+.footIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Адаптация ─────────────────────────── */
+@media (max-width: 560px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+  .context {
+    gap: 0;
+  }
+  .footChip {
+    padding: 6px 8px;
+    font-size: 0.78rem;
+  }
+  .warning {
+    margin: 0 8px -16px;
+  }
+  .context {
+    margin: -16px 0 0;
+  }
+}

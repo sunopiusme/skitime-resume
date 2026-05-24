@@ -1,0 +1,359 @@
+.root {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--composer-ink);
+  font-family: var(--font-sans), sans-serif;
+  container-type: inline-size;
+  width: 100%;
+  max-width: none;
+}
+
+.hero {}
+.inline {}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.phaseLabel {
+  font-family: inherit;
+  font-size: 0.96rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--composer-ink-subtle);
+}
+
+.phaseLabelShimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.45) 42%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.45) 58%,
+    rgba(255, 255, 255, 0.45) 100%
+  );
+  background-size: 400% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: phaseShimmer 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phaseLabelShimmer {
+    animation: none;
+    background: none;
+    color: var(--composer-ink);
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
+.retry {
+  padding: 4px 8px;
+  border-radius: var(--composer-radius-xs);
+  border: 1px solid var(--composer-hairline-strong);
+  background: transparent;
+  color: var(--composer-ink-muted);
+  font-family: inherit;
+  font-size: 0.76rem;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Two-column layout: thoughts left, tools right.
+   Колонка инструментов фиксирована по минимуму, чтобы пути
+   путей не уезжали на вторую строку и не «прыгали» по строкам. */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+  gap: clamp(40px, 5vw, 64px);
+  align-items: start;
+}
+
+/* В hero держим минимальную высоту, чтобы во время анимации
+   первый кадр (один шаг и пустой стрим) не выглядел провалом.
+   В inline резервировать высоту не нужно: блок раскрывается
+   разово и весь контент уже виден. */
+.hero .columns {
+  min-height: 280px;
+}
+
+/* Thought stream — typing text with scroll + fade */
+.thoughtStream {
+  position: relative;
+  padding: 0;
+  max-height: calc(1.7em * 6); /* ~6 lines */
+  overflow: hidden;
+  font-size: clamp(0.95rem, 1.1vw, 1.08rem);
+  line-height: 1.7;
+}
+
+/* Viewport — clips content, no native scroll */
+.thoughtStreamInner {
+  position: relative;
+  height: calc(1.7em * 6);
+  overflow: hidden;
+  padding-right: 16px;
+  contain: layout paint style;
+
+  /* Fade bottom edge */
+  mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
+}
+
+/* Content — translated via transform for smooth scroll */
+.thoughtStreamContent {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  padding-bottom: 20px;
+}
+
+/* Custom scrollbar track — sits on top of everything */
+.scrollTrack {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.scrollThumb {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  min-height: 12px;
+  border-radius: 4px;
+  background: var(--composer-ink-subtle);
+  pointer-events: auto;
+  cursor: grab;
+  will-change: transform, height;
+  transition: opacity 150ms ease;
+}
+
+.thoughtText {
+  margin: 0;
+  font-family: var(--font-sans), sans-serif;
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--composer-ink-muted);
+  white-space: pre-wrap;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.thoughtTextVisual {
+  white-space: pre-wrap;
+}
+
+.thoughtChar {
+  display: inline;
+  opacity: 0;
+  animation: charFadeIn 200ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thoughtChar {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@keyframes charFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Tools column */
+.steps {
+  list-style: none;
+  margin: 0;
+  display: grid;
+  gap: 20px;
+  padding: 0 0 0 20px;
+  border-left: 1px solid var(--composer-hairline);
+  align-content: start;
+}
+
+.step {
+  display: block;
+  transition:
+    opacity 360ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.step[data-revealed="false"] {
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+  pointer-events: none;
+}
+
+.step[data-revealed="true"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.inline .step[data-revealed="true"] {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step {
+    transition: none;
+  }
+  .step[data-revealed="false"] {
+    transform: none;
+  }
+}
+
+.stepBody {
+  /* Один шаг — одна строка. Op фиксированной шириной слева,
+     target забирает остаток и при нехватке места режется
+     многоточием, а не уезжает вниз. */
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.stepOp {
+  font-family: var(--composer-font-mono);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--composer-ink-muted);
+  white-space: nowrap;
+}
+
+.stepTarget {
+  font-family: var(--composer-font-mono);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--composer-ink);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Усечение слева: видим имя файла, не префикс пути. */
+  direction: rtl;
+  text-align: left;
+}
+
+.doneSummary {
+  display: none;
+}
+
+@keyframes phaseShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@container (max-width: 540px) {
+  .columns {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* ─────────────────────────────────────────
+   Disclosure — заголовок-фаза становится
+   кнопкой, контент сворачивается. Анимация
+   композитная: grid-template-rows + opacity,
+   без измерений и без рывков на больших блоках.
+   ───────────────────────────────────────── */
+.toggle {
+  appearance: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--composer-hairline-strong);
+  outline-offset: 4px;
+}
+
+.chevron {
+  display: inline-flex;
+  width: 1em;
+  height: 1em;
+  font-size: 0.96rem;
+  color: var(--composer-ink-subtle);
+  transform: rotate(-90deg);
+  transition: transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  align-self: center;
+}
+
+.chevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+.chevronOpen {
+  transform: rotate(0deg);
+}
+
+.toggle:hover .chevron,
+.toggle:focus-visible .chevron {
+  color: var(--composer-ink);
+}
+
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition:
+    grid-template-rows 280ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 200ms ease;
+  opacity: 0;
+}
+
+.collapseOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.collapseInner {
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron,
+  .collapse {
+    transition: none;
+  }
+}

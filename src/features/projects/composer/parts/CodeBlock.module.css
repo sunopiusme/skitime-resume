@@ -1,0 +1,418 @@
+/* ─────────────────────────────────────────
+   Code block — gold standard
+   Frame matches InlineFigure stage.
+   Grid: 4 / 8 / 10 / 14 / 16 / 20
+   ───────────────────────────────────────── */
+.block {
+  --code-ink: rgba(255, 255, 255, 0.92);
+  --code-ink-muted: rgba(255, 255, 255, 0.6);
+  --code-ink-subtle: rgba(255, 255, 255, 0.42);
+  --code-hairline: rgba(255, 255, 255, 0.12);
+  --code-gutter: rgba(255, 255, 255, 0.28);
+  --code-bg: var(--composer-surface-raised);
+  --code-head-bg: rgba(255, 255, 255, 0.04);
+  --code-hover: rgba(255, 255, 255, 0.08);
+
+  /* Diff tints — мягкие зелёный/красный для тёмного фона.
+     Фон строки даёт цветовой сигнал, синтаксические токены Shiki сохраняются. */
+  --code-diff-add-bg: rgba(46, 160, 67, 0.18);
+  --code-diff-add-bg-strong: rgba(46, 160, 67, 0.28);
+  --code-diff-add-ink: #aff5b4;
+  --code-diff-add-bar: #3fb950;
+
+  --code-diff-remove-bg: rgba(248, 81, 73, 0.18);
+  --code-diff-remove-bg-strong: rgba(248, 81, 73, 0.28);
+  --code-diff-remove-ink: #ffa198;
+  --code-diff-remove-bar: #f85149;
+
+  margin: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border: 1px solid var(--code-hairline);
+  border-radius: var(--composer-radius-sm);
+  background: var(--code-bg);
+  font-family: var(--composer-font-mono);
+  color: var(--code-ink);
+  color-scheme: dark;
+  isolation: isolate;
+}
+
+/* ──────── Head ──────── */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 36px;
+  padding: 6px 14px 6px 16px;
+  border-bottom: 1px solid var(--code-hairline);
+  border-radius: calc(var(--composer-radius-sm) - 1px) calc(var(--composer-radius-sm) - 1px) 0 0;
+  background: var(--code-head-bg);
+}
+
+.headPath {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  gap: 8px;
+  font-family: var(--composer-font-mono);
+  font-size: 0.78rem;
+  line-height: 1;
+  overflow: hidden;
+}
+
+.pathDir {
+  min-width: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  /* Truncate from the start so the deepest folder stays visible */
+  direction: rtl;
+  text-align: left;
+  color: var(--code-ink-subtle);
+}
+
+.pathFile {
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: var(--code-ink);
+  font-weight: 500;
+}
+
+.headMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--code-ink-subtle);
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.lang {
+  font-family: var(--composer-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--code-ink-muted);
+}
+
+.metaDot {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.lines {
+  color: var(--code-ink-subtle);
+}
+
+.diffStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--composer-font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.diffStatAdd {
+  color: var(--code-diff-add-bar);
+}
+
+.diffStatRemove {
+  color: var(--code-diff-remove-bar);
+}
+
+/* ──────── Copy button — fixed footprint, no layout shift ──────── */
+.copy {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-left: 4px;
+  margin-right: -4px;
+  padding: 0;
+  border: none;
+  /* Aligned with the code block radius scale (md=14, sm=10, xs=6).
+     xs reads as a subordinate inner control of the figure. */
+  border-radius: var(--composer-radius-xs);
+  background: transparent;
+  color: var(--code-ink-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--composer-duration-hover) ease,
+    color var(--composer-duration-hover) ease,
+    transform var(--composer-duration-hover) ease;
+}
+
+.copy:hover {
+  background: var(--code-hover);
+  color: var(--code-ink);
+}
+
+.copy:active {
+  transform: scale(0.94);
+}
+
+.copy:focus-visible {
+  outline: 2px solid var(--composer-focus);
+  outline-offset: 2px;
+}
+
+.copyIconStack {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+}
+
+.copyIcon {
+  position: absolute;
+  inset: 0;
+  width: 16px;
+  height: 16px;
+  transition:
+    opacity var(--composer-duration-reveal) ease,
+    transform var(--composer-duration-reveal) cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.copyIconCheck {
+  opacity: 0;
+  transform: scale(0.5) rotate(-12deg);
+  color: var(--composer-ink);
+}
+
+.copy[data-state="copied"] {
+  color: var(--composer-ink);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.copy[data-state="copied"] .copyIconCopy {
+  opacity: 0;
+  transform: scale(0.5) rotate(8deg);
+}
+
+.copy[data-state="copied"] .copyIconCheck {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* ──────── Tooltip ──────── */
+.copyTooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  padding: 5px 9px;
+  border-radius: var(--composer-radius-xs);
+  background: #ffffff;
+  color: #0a0a0a;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-variant-numeric: normal;
+  letter-spacing: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 2px);
+  transition:
+    opacity var(--composer-duration-hover) ease,
+    transform var(--composer-duration-hover) ease;
+  transition-delay: 0ms;
+  z-index: 3;
+}
+
+.copyTooltip::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.copy:hover .copyTooltip,
+.copy:focus-visible .copyTooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 350ms;
+}
+
+.copy[data-state="copied"] .copyTooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 0ms;
+}
+
+.copySrOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ──────── Body ──────── */
+.body {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: var(--code-bg);
+  border-radius: 0 0 calc(var(--composer-radius-sm) - 1px) calc(var(--composer-radius-sm) - 1px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.body::-webkit-scrollbar {
+  height: 8px;
+}
+
+.body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+}
+
+.body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pre {
+  margin: 0;
+  padding: 10px 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  white-space: pre;
+  font-feature-settings: "calt" 0, "liga" 0;
+}
+
+.pre :global(pre) {
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.pre :global(code) {
+  display: inline-block;
+  min-width: 100%;
+  font-family: inherit;
+  background: transparent;
+  padding: 0;
+  white-space: pre;
+}
+
+.pre :global(.line) {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  padding: 0 20px 0 0;
+}
+
+.pre :global(.line)::before {
+  content: attr(data-line-no);
+  display: inline-block;
+  width: 56px;
+  padding-right: 20px;
+  margin-right: 4px;
+  text-align: right;
+  color: var(--code-gutter);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.74rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Hunk gap — subtle skip indicator between non-adjacent diff regions.
+   Tinted band with ellipsis aligned to the gutter column, preserving rhythm. */
+.pre :global(.hunk-gap) {
+  display: block;
+  box-sizing: border-box;
+  padding: 0 20px 0 32px;
+  font-family: var(--composer-font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--code-ink-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  border-top: 1px solid var(--code-hairline);
+  border-bottom: 1px solid var(--code-hairline);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ──────── Diff highlighting ──────── */
+/* Whole line gets a tinted band so the change reads as a row,
+   not just a side-bar. Tints are tuned for a dark background:
+   dim enough for syntax legibility, contrasted enough to register. */
+.pre :global(.line[data-diff="add"]) {
+  background: var(--code-diff-add-bg);
+}
+
+.pre :global(.line[data-diff="add"])::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: var(--code-diff-add-bar);
+}
+
+.pre :global(.line[data-diff="add"])::before {
+  color: var(--code-diff-add-bar);
+  font-weight: 600;
+}
+
+.pre :global(.line[data-diff="remove"]) {
+  background: var(--code-diff-remove-bg);
+}
+
+.pre :global(.line[data-diff="remove"])::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: var(--code-diff-remove-bar);
+}
+
+.pre :global(.line[data-diff="remove"])::before {
+  color: var(--code-diff-remove-bar);
+  font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .head {
+    padding: 6px 10px 6px 12px;
+  }
+
+  .pre {
+    font-size: 0.74rem;
+  }
+
+  .pre :global(.line)::before {
+    width: 44px;
+    padding-right: 14px;
+  }
+}

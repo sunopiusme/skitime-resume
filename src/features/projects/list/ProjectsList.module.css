@@ -1,0 +1,330 @@
+/* ─────────────────────────────────────────
+   Projects list — каталожная таблица.
+   • Тон/chrome — с главной (топбар, футер, паддинги).
+   • Таблица закрыта рамкой по периметру.
+   • Внутри — только горизонтальные хайрлайны строк.
+     Никаких вертикальных линий и заливок шапки —
+     сетку держат типографика и колонки.
+   ───────────────────────────────────────── */
+.page {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding:
+    clamp(20px, 2.6vw, 32px)
+    clamp(20px, 4vw, 48px)
+    clamp(24px, 2.6vw, 32px);
+  color: var(--composer-ink);
+  background: var(--composer-surface);
+}
+
+/* ─────────────────────────────────────────
+   Top bar
+   ───────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: clamp(14px, 1.4vw, 20px);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--composer-ink-muted);
+}
+
+.brand {
+  color: var(--composer-ink);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 0.6vw, 8px);
+}
+
+.navLinks a {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--composer-ink-muted);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.navLinks a[aria-current="page"] {
+  color: var(--composer-ink);
+}
+
+.navLinks a:hover,
+.navLinks a:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--composer-ink);
+}
+
+/* ─────────────────────────────────────────
+   Section
+   ───────────────────────────────────────── */
+.section {
+  display: grid;
+  gap: clamp(40px, 6vw, 80px);
+  padding: clamp(48px, 8vw, 112px) 0 clamp(40px, 6vw, 80px);
+}
+
+.heroHead {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: clamp(20px, 2.4vw, 32px);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 56px);
+}
+
+.title {
+  margin: 0;
+  max-width: 24ch;
+  color: var(--composer-ink);
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-wrap: balance;
+  font-kerning: normal;
+  font-feature-settings: "ss01", "cv11";
+  text-rendering: optimizeLegibility;
+}
+
+.lede {
+  max-width: 46ch;
+  color: var(--composer-ink-muted);
+  font-size: clamp(0.98rem, 1.15vw, 1.1rem);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+/* ─────────────────────────────────────────
+   Table
+   Колонки: index 56 / cover 220 / title 1fr / year 88 / tags 240.
+   ───────────────────────────────────────── */
+.tableWrap {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  border-top: 1px solid var(--composer-hairline-strong);
+  border-bottom: 1px solid var(--composer-hairline-strong);
+}
+
+.tableHead,
+.rowLink {
+  display: grid;
+  grid-template-columns:
+    56px
+    220px
+    minmax(0, 1fr)
+    88px
+    minmax(180px, 240px);
+  gap: clamp(20px, 2.4vw, 36px);
+  align-items: stretch;
+}
+
+/* ── Header — одна тонкая капс-строка ── */
+.tableHead {
+  padding: clamp(10px, 0.9vw, 14px) clamp(16px, 1.6vw, 24px);
+  border-bottom: 1px solid var(--composer-hairline-strong);
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+  align-items: center;
+}
+
+/* Шапка перебивает любое наследие .colXxx из строки:
+   у неё нет min-height, нет flex-direction column,
+   только горизонтальные капс-метки. */
+.tableHead > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 0;
+  height: auto;
+  flex-direction: row;
+  gap: 0;
+  padding: 0;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  font-weight: 400;
+}
+
+/* ── Rows ── */
+.table {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.row {
+  border-bottom: 1px solid var(--composer-hairline);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowLink {
+  padding: clamp(20px, 2.4vw, 28px) clamp(16px, 1.6vw, 24px);
+  color: inherit;
+  transition: background 180ms ease;
+}
+
+.rowLink:hover,
+.rowLink:focus-visible {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Cells ── */
+.colIndex {
+  display: flex;
+  align-items: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.colCover {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  min-height: clamp(160px, 16vw, 220px);
+}
+
+.colCover > * {
+  width: 100%;
+}
+
+.colTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.rowTitle {
+  font-size: clamp(1.4rem, 2vw, 1.85rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--composer-ink);
+}
+
+.rowSummary {
+  color: var(--composer-ink-muted);
+  font-size: clamp(0.95rem, 1.05vw, 1.05rem);
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.colYear {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--composer-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.colTags {
+  display: flex;
+  align-items: center;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+  text-wrap: balance;
+}
+
+/* ─────────────────────────────────────────
+   Footer
+   ───────────────────────────────────────── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: clamp(14px, 1.4vw, 20px);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: var(--composer-ink-subtle);
+}
+
+.footerMeta {
+  color: var(--composer-ink-subtle);
+}
+
+/* ─────────────────────────────────────────
+   Responsive
+   ≤ 1100px — прячем колонку тем
+   ≤ 720px  — карточный режим
+   ───────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .tableHead,
+  .rowLink {
+    grid-template-columns:
+      56px
+      200px
+      minmax(0, 1fr)
+      88px;
+  }
+
+  .colTags,
+  .tableHead .colTags {
+    display: none;
+  }
+}
+
+@media (max-width: 840px) {
+  .topbar {
+    font-size: 0.66rem;
+  }
+
+  .footer {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .tableHead {
+    display: none;
+  }
+
+  .rowLink {
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .colIndex,
+  .rowLink .colYear {
+    display: none;
+  }
+
+  .colCover {
+    min-height: 0;
+  }
+}

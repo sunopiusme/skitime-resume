@@ -1,0 +1,261 @@
+/* ─────────────────────────────────────────
+   Home — Antigravity-style центрированный постер
+   • чёрный холст, белая типографика
+   • спокойный размер дисплея, профессиональный ритм
+   ───────────────────────────────────────── */
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding:
+    clamp(20px, 2.6vw, 32px)
+    clamp(20px, 4vw, 48px)
+    clamp(24px, 2.6vw, 32px);
+  color: var(--composer-ink);
+  background: var(--composer-surface);
+}
+
+/* ---------------- Top bar ---------------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: clamp(14px, 1.4vw, 20px);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--composer-ink-muted);
+}
+
+.brand {
+  color: var(--composer-ink);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 0.6vw, 8px);
+}
+
+/* Hover-«таблетка» — мягкая нейтральная подложка вокруг ссылки.
+   Высота фиксирована, чтобы шапка не «прыгала» при наведении. */
+.navLinks a {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--composer-ink-muted);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.navLinks a:hover,
+.navLinks a:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--composer-ink);
+}
+
+.navLinks a[aria-current="page"] {
+  color: var(--composer-ink);
+}
+
+/* ---------------- Hero — центрированная композиция ---------------- */
+
+.hero {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  text-align: center;
+  gap: clamp(20px, 2.4vw, 32px);
+  padding: clamp(48px, 8vw, 112px) clamp(16px, 4vw, 56px);
+}
+
+/* ---------------- Display title ---------------- */
+
+.title {
+  margin: 0;
+  /* 24ch держит композицию в двух строках на типичных дисплеях
+     и даёт профессиональный, не «постерный» масштаб. */
+  max-width: 24ch;
+  color: var(--composer-ink);
+  font-family: var(--font-sans), sans-serif;
+  /* Спокойнее, чем раньше: на 1440px примерно 4.25rem ≈ 68px. */
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-wrap: balance;
+  font-kerning: normal;
+  font-feature-settings: "ss01", "cv11";
+  text-rendering: optimizeLegibility;
+}
+
+.accent {
+  /* Тот же sans, что и у заголовка, но в тонком начертании и без курсива.
+     Контраст веса (200 против 600) держит акцент типографикой,
+     без смены гарнитуры и без эффектов. */
+  font-family: var(--font-sans), sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  max-width: 46ch;
+  color: var(--composer-ink-muted);
+  font-size: clamp(0.98rem, 1.15vw, 1.1rem);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+/* ---------------- Actions ---------------- */
+
+.actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: clamp(8px, 1.2vw, 14px);
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0 1.15rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.primaryAction {
+  background: var(--composer-ink);
+  color: var(--composer-surface);
+  border: 1px solid var(--composer-ink);
+}
+
+.secondaryAction {
+  background: transparent;
+  color: var(--composer-ink);
+  border: 1px solid var(--composer-hairline-strong);
+}
+
+.primaryAction:hover {
+  background: #ffffff;
+  border-color: #ffffff;
+}
+
+.secondaryAction:hover {
+  border-color: var(--composer-ink);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.actionIcon {
+  display: block;
+  transition: transform 180ms ease;
+}
+
+.primaryAction:hover .actionIcon {
+  transform: translate(2px, -2px);
+}
+
+/* ---------------- Колофон / нижняя справка ---------------- */
+
+.colophon {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 24px;
+  margin: clamp(8px, 1.6vw, 20px) 0 0;
+  padding: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+}
+
+.colophon > div {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.colophon dt {
+  color: var(--composer-ink-subtle);
+}
+
+.colophon dd {
+  margin: 0;
+  color: var(--composer-ink);
+  font-weight: 500;
+}
+
+/* ---------------- Footer ---------------- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: clamp(14px, 1.4vw, 20px);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: var(--composer-ink-subtle);
+}
+
+.footerMeta {
+  color: var(--composer-ink-subtle);
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 840px) {
+  .topbar {
+    font-size: 0.66rem;
+  }
+
+  .navLinks {
+    gap: 16px;
+  }
+
+  .actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .primaryAction {
+    grid-column: 1 / -1;
+  }
+
+  .footer {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}
