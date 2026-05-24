@@ -1,0 +1,329 @@
+/* ─────────────────────────────────────────
+   Composer case page
+   Геометрия выровнена с главной:
+   • один внешний паддинг страницы,
+   • тот же chrome (topbar/footer),
+   • та же дисплей-шкала и тот же ритм отступов.
+   Hero остаётся left-aligned (есть лид и meta-rail),
+   но размеры и spacing синхронны с home.
+   ───────────────────────────────────────── */
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding:
+    clamp(20px, 2.6vw, 32px)
+    clamp(20px, 4vw, 48px)
+    clamp(24px, 2.6vw, 32px);
+  color: var(--composer-ink);
+  background: var(--composer-surface);
+}
+
+/* ─────────────────────────────────────────
+   Top bar — идентично home
+   ───────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: clamp(14px, 1.4vw, 20px);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--composer-ink-muted);
+}
+
+.brand {
+  color: var(--composer-ink);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 0.6vw, 8px);
+}
+
+.navLinks a {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--composer-ink-muted);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.navLinks a[aria-current="page"] {
+  color: var(--composer-ink);
+}
+
+.navLinks a:hover,
+.navLinks a:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--composer-ink);
+}
+
+/* ─────────────────────────────────────────
+   Article — only vertical rhythm.
+   Боковой паддинг уже даёт .page — здесь только
+   вертикальные расстояния между секциями.
+   ───────────────────────────────────────── */
+.article {
+  display: grid;
+  gap: clamp(64px, 8vw, 120px);
+  padding-top: clamp(24px, 3vw, 40px);
+  padding-bottom: clamp(40px, 5vw, 72px);
+}
+
+.column {
+  max-width: 64ch;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.wide {
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.part {
+  display: grid;
+  gap: clamp(28px, 3.4vw, 48px);
+}
+
+/* ─────────────────────────────────────────
+   Hero — повторяет композицию home:
+   центрированный пьедестал, та же дисплей-
+   шкала и тот же ритм отступов.
+   Без подзаголовка hero держит более
+   компактный верхний воздух — заголовок
+   садится в верхнюю треть, не в середину.
+   ───────────────────────────────────────── */
+.hero {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  text-align: center;
+  gap: clamp(24px, 3vw, 40px);
+  padding: clamp(28px, 4vw, 56px) clamp(16px, 4vw, 56px) clamp(16px, 3vw, 32px);
+}
+
+.heroHead {
+  display: grid;
+  justify-items: center;
+  gap: clamp(16px, 2vw, 24px);
+  max-width: 64ch;
+}
+
+.heroTitle {
+  margin: 0;
+  /* Раскрытие на больших экранах: до 18ch, с балансом строк.
+     Размер крупнее, чем на главной, — кейс должен задавать тон,
+     а не повторять домашнюю шкалу один-в-один. */
+  max-width: 18ch;
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(2.25rem, 5.6vw, 5rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  text-wrap: balance;
+  font-kerning: normal;
+  font-feature-settings: "ss01", "cv11";
+  text-rendering: optimizeLegibility;
+}
+
+.heroTitleAccent {
+  /* Тонкое начертание держит акцент типографикой,
+     синхронно с .accent на главной. */
+  font-family: var(--font-sans), sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+.heroStage {
+  width: 100%;
+  margin-top: clamp(8px, 1.6vw, 20px);
+  padding-top: clamp(24px, 3vw, 40px);
+  border-top: 1px solid var(--composer-hairline);
+  /* Сцена с ThinkingModel — левое выравнивание;
+     центрируется только текстовая часть hero. */
+  justify-self: stretch;
+  text-align: left;
+}
+
+/* Сжатие стыка hero → первая секция.
+   Глобальный gap у .article держится крупным для ритма
+   между смысловыми секциями, но первая «Лаборатория»
+   идёт сразу за thinking model и не должна провисать.
+   Высота hero стабильна (min-height у .columns), поэтому
+   negative margin не вызывает прыжков при анимации. */
+.hero + .part {
+  margin-top: calc(-1 * clamp(40px, 5vw, 88px));
+}
+
+/* ─────────────────────────────────────────
+   Section heads — типографический ритм
+   ───────────────────────────────────────── */
+.sectionLabel {
+  margin: 0 0 12px;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+}
+
+.sectionKicker {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 450;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+}
+
+.sectionTitle {
+  margin: 0 0 20px;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.partHeader {
+  text-align: center;
+  margin-bottom: clamp(28px, 3vw, 40px);
+}
+
+.partHeader .sectionTitle {
+  margin-bottom: 0;
+}
+
+/* ─────────────────────────────────────────
+   Prose body
+   ───────────────────────────────────────── */
+.prose {
+  display: grid;
+  gap: 22px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: clamp(1rem, 1.05vw, 1.08rem);
+  line-height: 1.65;
+}
+
+.prose p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.prose em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--composer-ink);
+}
+
+.prose strong {
+  font-weight: 600;
+  color: var(--composer-ink);
+}
+
+.prose code {
+  font-family: var(--composer-font-mono);
+  font-size: 0.86em;
+  padding: 0.18em 0.5em;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--composer-ink);
+  white-space: nowrap;
+  font-feature-settings: "calt" 0, "liga" 0;
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background: var(--composer-hairline);
+}
+
+/* ─────────────────────────────────────────
+   Pull quote — выделение цитаты в общем
+   ритме страницы. Без серифа и курсива:
+   акцент держится размером, не сменой
+   гарнитуры.
+   ───────────────────────────────────────── */
+.pullQuote {
+  margin: 0;
+  padding: clamp(20px, 2.4vw, 28px) 0 clamp(20px, 2.4vw, 28px) clamp(20px, 2vw, 28px);
+  border-left: 2px solid var(--composer-hairline-strong);
+  font-family: var(--font-sans), sans-serif;
+  font-style: normal;
+  font-size: clamp(1.15rem, 1.6vw, 1.4rem);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  line-height: 1.45;
+  color: var(--composer-ink);
+  text-wrap: balance;
+}
+
+/* ─────────────────────────────────────────
+   Closing block
+   ───────────────────────────────────────── */
+.closing {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+  padding-top: clamp(16px, 2vw, 24px);
+  border-top: 1px solid var(--composer-hairline);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--composer-ink-muted);
+  transition: color 160ms ease;
+}
+
+.backLink:hover {
+  color: var(--composer-ink);
+}
+
+/* ─────────────────────────────────────────
+   Footer — идентично home
+   ───────────────────────────────────────── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: clamp(14px, 1.4vw, 20px);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: var(--composer-ink-subtle);
+}
+
+.footerDivider {
+  flex: 1 1 auto;
+  height: 1px;
+  max-width: 32px;
+  background: var(--composer-hairline-strong);
+}
+
+@media (max-width: 840px) {
+  .topbar {
+    font-size: 0.66rem;
+  }
+
+  .footer {
+    font-size: 0.75rem;
+  }
+}

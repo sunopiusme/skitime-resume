@@ -1,0 +1,26 @@
+.skipLink {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem;
+  background: var(--composer-ink);
+  color: var(--composer-surface);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  border-radius: 999px;
+  transform: translateY(-200%);
+  transition: transform 160ms ease;
+}
+
+.skipLink:focus,
+.skipLink:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--composer-focus);
+  outline-offset: 3px;
+}
