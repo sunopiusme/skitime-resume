@@ -79,7 +79,20 @@ export default function ProjectsList() {
 
       <footer className={styles.footer} aria-label="Подвал">
         <span>© {new Date().getFullYear()} {siteConfig.name}</span>
-        <span className={styles.footerMeta}>Все права защищены</span>
+
+        {siteConfig.socials.length > 0 ? (
+          <ul className={styles.socials} aria-label="Профили в других сервисах">
+            {siteConfig.socials
+              .filter((s) => s.url.trim().length > 0)
+              .map((s) => (
+                <li key={s.url}>
+                  <a href={s.url} rel="noopener noreferrer me" target="_blank">
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+          </ul>
+        ) : null}
       </footer>
     </main>
   );

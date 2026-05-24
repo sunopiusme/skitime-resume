@@ -1,3 +1,5 @@
+export type SocialLink = { label: string; url: string };
+
 export const siteConfig = {
   name: "Данила Фурманов",
   shortName: "ДФ",
@@ -11,9 +13,20 @@ export const siteConfig = {
    * только если значение задано. Пустые значения исключают мёртвые CTA.
    */
   contacts: {
-    telegram: "" as const,
-    email: "" as const,
+    telegram: "" as string,
+    email: "" as string,
   },
+  /**
+   * Короткий статус «сейчас». Рендерится eyebrow-строкой над h1, если задан.
+   * Примеры: "Open to staff/senior · AI products", "Building Composer".
+   * Пустая строка — не показывать.
+   */
+  currently: "" as string,
+  /**
+   * Соц-ссылки в футере. Пустой массив — футер остаётся чистым копирайтом.
+   * Порядок сохраняется. Подписи короткие, в один-два слова.
+   */
+  socials: [] as ReadonlyArray<SocialLink>,
 } as const;
 
 export function getTelegramUrl(): string | null {

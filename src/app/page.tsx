@@ -10,7 +10,14 @@ export default function HomePage() {
   const contactUrl = telegramUrl ?? emailUrl;
   const contactLabel = telegramUrl ? "Telegram" : emailUrl ? "Написать" : null;
 
-  const sameAs = [telegramUrl, emailUrl].filter(
+  const socials = siteConfig.socials.filter((s) => s.url.trim().length > 0);
+  const currently = siteConfig.currently.trim();
+
+  const sameAs = [
+    telegramUrl,
+    emailUrl,
+    ...socials.map((s) => s.url),
+  ].filter(
     (value): value is string => typeof value === "string" && value.length > 0,
   );
 
@@ -61,6 +68,13 @@ export default function HomePage() {
       </header>
 
       <section className={styles.hero} aria-labelledby="hero-title">
+        {currently ? (
+          <p className={styles.eyebrow} aria-label="Текущий статус">
+            <span className={styles.eyebrowDot} aria-hidden="true" />
+            {currently}
+          </p>
+        ) : null}
+
         <h1 id="hero-title" className={styles.title}>
           Продуктовый и UI-дизайн с <em className={styles.accent}>AI-native</em> процессом
         </h1>
@@ -115,6 +129,22 @@ export default function HomePage() {
 
       <footer className={styles.footer} aria-label="Подвал">
         <span>© {new Date().getFullYear()} {siteConfig.name}</span>
+
+        {socials.length > 0 ? (
+          <ul className={styles.socials} aria-label="Профили в других сервисах">
+            {socials.map((s) => (
+              <li key={s.url}>
+                <a
+                  href={s.url}
+                  rel="noopener noreferrer me"
+                  target="_blank"
+                >
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </footer>
     </main>
   );
