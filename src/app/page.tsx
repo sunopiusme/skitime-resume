@@ -115,7 +115,6 @@ export default function HomePage() {
 
       <footer className={styles.footer} aria-label="Подвал">
         <span>© {new Date().getFullYear()} {siteConfig.name}</span>
-        <span className={styles.footerMeta}>Все права защищены</span>
       </footer>
     </main>
   );
