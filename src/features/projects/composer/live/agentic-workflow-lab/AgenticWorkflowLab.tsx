@@ -100,9 +100,9 @@ function NavIcon({ kind }: { kind: (typeof NAV_ITEMS)[number]["icon"] }) {
 
 function FolderIcon() {
   return (
-    <svg viewBox="0 0 16 16" width="13" height="13" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
       <path
-        d="M2.5 4.4c0-.5.4-.9.9-.9h2.6l1.3 1.3h5.4c.5 0 .9.4.9.9v6.5c0 .5-.4.9-.9.9H3.4a.9.9 0 0 1-.9-.9V4.4Z"
+        d="M2.2 4.4c0-.55.45-1 1-1h2.5l1.4 1.4h5.7c.55 0 1 .45 1 1v6.3c0 .55-.45 1-1 1H3.2c-.55 0-1-.45-1-1V4.4Z"
         stroke="currentColor"
       />
     </svg>
@@ -179,21 +179,23 @@ function SidebarBody() {
 
       <div className={styles.footer}>
         <span className={styles.footerSettings}>
-          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" aria-hidden="true">
-            <circle cx="8" cy="8" r="2" stroke="currentColor" />
-            <path
-              d="M8 1.5v2M8 12.5v2M14.5 8h-2M3.5 8h-2M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4M12.6 12.6l-1.4-1.4M4.8 4.8 3.4 3.4"
-              stroke="currentColor"
-              strokeLinecap="round"
-            />
-          </svg>
+          <span className={styles.footerIcon}>
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
+              <circle cx="8" cy="8" r="2" stroke="currentColor" />
+              <path
+                d="M8 1.5v2M8 12.5v2M14.5 8h-2M3.5 8h-2M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4M12.6 12.6l-1.4-1.4M4.8 4.8 3.4 3.4"
+                stroke="currentColor"
+                strokeLinecap="round"
+              />
+            </svg>
+          </span>
           <span>Settings</span>
         </span>
         <span className={styles.footerActions}>
           <span className={styles.footerPhone} aria-hidden="true">
-            <svg viewBox="0 0 16 16" width="12" height="20" fill="none">
-              <rect x="3.5" y="1.5" width="9" height="13" rx="1.6" stroke="currentColor" />
-              <path d="M7 12.5h2" stroke="currentColor" strokeLinecap="round" />
+            <svg viewBox="0 0 12 18" width="11" height="16" fill="none">
+              <rect x="0.6" y="0.6" width="10.8" height="16.8" rx="1.8" stroke="currentColor" />
+              <path d="M4.6 14.6h2.8" stroke="currentColor" strokeLinecap="round" />
             </svg>
           </span>
           <span className={styles.upgrade}>Upgrade</span>

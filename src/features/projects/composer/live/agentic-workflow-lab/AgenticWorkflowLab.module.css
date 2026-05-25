@@ -1,20 +1,32 @@
 /* ─────────────────────────────────────────
    Sidebar preview — две карточки бок о бок.
-   Каждый блок сам по себе уходит в пустоту:
-   у левой карточки растворяется низ, у правой —
-   верх. Никаких внутренних градиентов в виде
-   тёмной заливки: мы маскируем сам элемент,
-   и вместе с содержимым исчезает контур, фон
-   и тень. На пустом месте остаётся фон страницы.
+   Геометрия выровнена по золотому сечению:
+   • базовый ритм: 8 → 13 → 21 → 34,
+   • иконки и системные кнопки одного калибра
+     с traffic lights, чтобы они читались как
+     один уровень иерархии,
+   • тексты на половину ступени крупнее иконок —
+     системные кнопки остаются служебными,
+     а лейблы держат смысл.
+   Каждая карточка уходит в пустоту страницы
+   через mask-image: вместе с содержимым
+   исчезают контур, фон и тень.
    ───────────────────────────────────────── */
 .root {
   --sb-bg: #1d1d1d;
-  --sb-ink: rgba(255, 255, 255, 0.94);
+  --sb-ink: rgba(255, 255, 255, 0.95);
   --sb-ink-muted: rgba(255, 255, 255, 0.72);
   --sb-ink-subtle: rgba(255, 255, 255, 0.5);
-  --sb-ink-faint: rgba(255, 255, 255, 0.32);
+  --sb-ink-faint: rgba(255, 255, 255, 0.34);
   --sb-hairline: rgba(255, 255, 255, 0.07);
   --sb-row-hover: rgba(255, 255, 255, 0.05);
+
+  /* ритмическая шкала на основе fib/φ */
+  --sb-pad: 13px;
+  --sb-row-pad-x: 8px;
+  --sb-row-pad-y: 7px;
+  --sb-gap-icon: 13px;
+  --sb-indent: 34px; /* отступ chat-row под папкой = φ-ступень */
 
   width: 100%;
   max-width: 720px;
@@ -40,8 +52,6 @@
   box-shadow: 0 20px 56px rgba(0, 0, 0, 0.45);
 }
 
-/* Маска применяется ко всей карточке: исчезает не
-   содержимое внутри, а сам блок — фон, рамка и тень. */
 .paneTop {
   -webkit-mask-image: linear-gradient(
     to bottom,
@@ -72,14 +82,12 @@
   );
 }
 
-/* Левая панель показывает верх сайдбара */
 .paneTop .sidebar {
   position: absolute;
   inset: 0 0 auto 0;
   top: 0;
 }
 
-/* Правая панель — низ сайдбара (футер прилипает к низу) */
 .paneBottom .sidebar {
   position: absolute;
   inset: auto 0 0 0;
@@ -88,10 +96,10 @@
 
 .sidebar {
   width: 100%;
-  padding: 14px 16px 14px;
+  padding: var(--sb-pad) var(--sb-pad) calc(var(--sb-pad) - 4px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 13px;
   background: var(--sb-bg);
 }
 
@@ -99,13 +107,12 @@
   /* зарезервировано */
 }
 
-/* ── Хром-шапка: traffic lights + toggle + arrows ── */
+/* ── Хром: traffic lights + toggle + arrows ── */
 .chrome {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 0 6px;
-  /* без border-bottom: разделитель ломал ровную композицию */
+  padding: 2px 2px 4px;
   color: var(--sb-ink-faint);
 }
 
@@ -128,40 +135,45 @@
   background: #28c840;
 }
 
-.toggleSidebar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 8px;
-  color: var(--sb-ink-muted);
-}
-
+/* системные кнопки одного калибра с traffic lights */
+.toggleSidebar,
 .chromeArrow {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--sb-ink-faint);
+  width: 16px;
+  height: 16px;
+}
+
+.toggleSidebar {
+  margin-left: 10px;
+  color: var(--sb-ink-muted);
+}
+
+.chromeArrow {
+  color: var(--sb-ink-subtle);
 }
 
 /* ── Верхняя навигация ─────────────────── */
 .nav {
   margin: 0;
-  padding: 6px 0 0;
+  padding: 4px 0 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .navItem {
-  display: flex;
+  display: grid;
+  grid-template-columns: 16px 1fr;
   align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
+  gap: var(--sb-gap-icon);
+  padding: var(--sb-row-pad-y) var(--sb-row-pad-x);
   border-radius: 7px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: var(--sb-ink);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .navItem:hover {
@@ -170,8 +182,8 @@
 
 .navIcon {
   display: inline-flex;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   align-items: center;
   justify-content: center;
   color: var(--sb-ink-muted);
@@ -179,14 +191,15 @@
 
 .navLabel {
   font-weight: 500;
+  letter-spacing: -0.005em;
 }
 
 /* ── Заголовок секции ──────────────────── */
 .sectionTitle {
-  margin: 10px 10px 2px;
-  font-size: 0.82rem;
+  margin: 13px var(--sb-row-pad-x) 2px;
+  font-size: 0.78rem;
   color: var(--sb-ink-subtle);
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   font-weight: 500;
 }
 
@@ -197,7 +210,7 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .project {
@@ -206,10 +219,11 @@
 }
 
 .projectHead {
-  display: flex;
+  display: grid;
+  grid-template-columns: 16px 1fr;
   align-items: center;
-  gap: 12px;
-  padding: 7px 10px;
+  gap: var(--sb-gap-icon);
+  padding: var(--sb-row-pad-y) var(--sb-row-pad-x);
   border-radius: 7px;
   color: var(--sb-ink);
 }
@@ -222,17 +236,18 @@
 }
 
 .projectName {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 500;
+  letter-spacing: -0.005em;
 }
 
 .chats {
   margin: 0;
-  padding: 0 0 0 6px;
+  padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 0;
 }
 
 .chatRow {
@@ -240,11 +255,11 @@
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 10px;
-  padding: 7px 10px 7px 28px;
+  padding: 5px var(--sb-row-pad-x) 5px var(--sb-indent);
   border-radius: 7px;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--sb-ink-muted);
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 .chatTitle {
@@ -255,21 +270,22 @@
 }
 
 .chatAge {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--sb-ink-faint);
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
 
 .showMore {
-  padding: 7px 10px 7px 28px;
-  font-size: 0.88rem;
+  padding: 5px var(--sb-row-pad-x) 5px var(--sb-indent);
+  font-size: 0.84rem;
   color: var(--sb-ink-subtle);
 }
 
 .projectEmpty {
   margin: 0;
-  padding: 7px 10px 7px 28px;
-  font-size: 0.88rem;
+  padding: 5px var(--sb-row-pad-x) 5px var(--sb-indent);
+  font-size: 0.84rem;
   color: var(--sb-ink-faint);
 }
 
@@ -279,22 +295,31 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 10px 4px;
+  padding: 13px var(--sb-row-pad-x) 2px;
   border-top: 1px solid var(--sb-hairline);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--sb-ink-muted);
 }
 
 .footerSettings {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sb-gap-icon);
 }
 
 .footerActions {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
+  gap: 13px;
+}
+
+.footerIcon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: var(--sb-ink-muted);
 }
 
 .footerPhone {
@@ -305,10 +330,10 @@
 }
 
 .upgrade {
-  padding: 6px 14px;
+  padding: 5px 13px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   color: var(--sb-ink);
   background: transparent;
 }
