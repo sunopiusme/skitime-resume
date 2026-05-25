@@ -1,268 +1,245 @@
 "use client";
 
-import { useMemo } from "react";
-
-import { useInView } from "@/lib/motion/useInView";
-import { usePrefersReducedMotion } from "@/lib/motion/usePrefersReducedMotion";
+import type { ReactNode } from "react";
 
 import styles from "./AgenticWorkflowLab.module.css";
-import {
-  useAgenticWorkflowTimeline,
-  workflowPhases,
-  type WorkflowPhase,
-} from "./useAgenticWorkflowTimeline";
 
 /* ─────────────────────────────────────────
-   Метафора: лабораторный осциллограф процесса.
-   Одна обведённая рамка, hairline-разметка,
-   горизонтальные дорожки с заливкой, сплошная
-   шкала фаз. Никаких "выдвинутых ящиков" — это
-   язык Composer Input, и мы намеренно от него
-   отстраиваемся.
+   Превью сайдбара ADE. Один длинный сайдбар
+   мысленно режется по горизонтали пополам и
+   раскладывается в две колонки: слева верх,
+   справа низ. На месте реза — мягкий уход
+   панели в фон, без рамки и без анимации.
    ───────────────────────────────────────── */
 
-type LaneStatus =
-  | "idle"
-  | "active"
-  | "complete";
+type ChatItem = { id: string; label: string; age: string };
 
-type LabLane = {
-  id: string;
-  role: string;
-  workspace: string;
-  observation: string;
-  /** В какой фазе линия становится активной (первая работа) */
-  startsAt: WorkflowPhase;
-  /** В какой фазе линия завершает свою работу */
-  endsAt: WorkflowPhase;
-  /** Целевое заполнение дорожки в процентах после endsAt */
-  target: number;
-};
+type SidebarFolder =
+  | {
+      id: string;
+      name: string;
+      open: true;
+      items: readonly ChatItem[];
+      showMore?: boolean;
+    }
+  | {
+      id: string;
+      name: string;
+      open: false;
+      empty?: boolean;
+    };
 
-const LANES: readonly LabLane[] = [
+const ACTIONS = [
+  { id: "new", icon: "pencil", label: "New chat" },
+  { id: "search", icon: "search", label: "Search" },
+  { id: "plugins", icon: "plugins", label: "Plugins" },
+  { id: "automations", icon: "clock", label: "Automations" },
+] as const;
+
+const TOP_FOLDERS: readonly SidebarFolder[] = [
   {
-    id: "spec",
-    role: "спека",
-    workspace: "kiro-style/spec",
-    observation: "переводит задачу в план, допущения и критерии готовности",
-    startsAt: "planning",
-    endsAt: "planning",
-    target: 100,
+    id: "zenpulse",
+    name: "ZenPulse",
+    open: true,
+    items: [
+      { id: "z1", label: "Quick setup — if you've don…", age: "2mo" },
+      { id: "z2", label: "в chatinput в настрой дня е…", age: "2mo" },
+      { id: "z3", label: "после ввода в инпут в наст…", age: "2mo" },
+      { id: "z4", label: "нужно пересмотреть дизай…", age: "2mo" },
+      { id: "z5", label: "[Image #1] на главной стра…", age: "2mo" },
+    ],
+    showMore: true,
   },
-  {
-    id: "implementation",
-    role: "реализация",
-    workspace: "worktree/feature-slice",
-    observation: "вносит diff в изолированной рабочей копии",
-    startsAt: "executing",
-    endsAt: "verifying",
-    target: 100,
-  },
-  {
-    id: "verification",
-    role: "проверка",
-    workspace: "sandbox/tests-browser",
-    observation: "собирает команды, тесты, снимки и артефакты ревью",
-    startsAt: "executing",
-    endsAt: "reviewing",
-    target: 100,
-  },
+  { id: "horizon-top", name: "horizon-sprint", open: false },
 ];
 
-const EVIDENCE = [
-  { label: "команды", value: "lint · typecheck · build" },
-  { label: "diff", value: "срез функции и схемы" },
-  { label: "снимки", value: "desktop и mobile" },
-  { label: "ревью", value: "человек принимает или возвращает" },
-] as const;
+const BOTTOM_FOLDERS: readonly SidebarFolder[] = [
+  {
+    id: "horizon-bottom",
+    name: "horizon-sprint",
+    open: true,
+    items: [
+      { id: "h1", label: "Найди физику бега персон…", age: "2mo" },
+      { id: "h2", label: "Найди практики для ТМА и…", age: "2mo" },
+      { id: "h3", label: "Fix missing initTelegram mo…", age: "2mo" },
+      { id: "h4", label: "Переработать UI 456 Runner…", age: "2mo" },
+      { id: "h5", label: "Интегрировать Telegram Mi…", age: "2mo" },
+    ],
+    showMore: true,
+  },
+  { id: "cmux", name: "cmux", open: false, empty: true },
+  { id: "glim", name: "Glim", open: false },
+];
 
-const GUARDRAILS = [
-  { label: "песочница", value: "workspace-write" },
-  { label: "доступ", value: "сеть — по запросу" },
-  { label: "контекст", value: "репо · источники · инструкции" },
-  { label: "память", value: "явные заметки исследования" },
-] as const;
-
-const PHASE_LABELS: Record<WorkflowPhase, string> = {
-  queued: "очередь",
-  planning: "план",
-  executing: "исполнение",
-  verifying: "проверка",
-  reviewing: "ревью",
-};
-
-const PHASE_INDEX: Record<WorkflowPhase, number> = {
-  queued: 0,
-  planning: 1,
-  executing: 2,
-  verifying: 3,
-  reviewing: 4,
-};
-
-function laneFill(lane: LabLane, phase: WorkflowPhase): number {
-  const current = PHASE_INDEX[phase];
-  const start = PHASE_INDEX[lane.startsAt];
-  const end = PHASE_INDEX[lane.endsAt];
-  if (current < start) return 0;
-  if (current >= end) return lane.target;
-  // Линейная интерполяция между start и end
-  const span = end - start;
-  if (span === 0) return lane.target;
-  const t = (current - start) / span;
-  return Math.round(lane.target * t);
+function Icon({ name }: { name: string }) {
+  const common = {
+    width: 14,
+    height: 14,
+    viewBox: "0 0 16 16",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.4,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true,
+  };
+  switch (name) {
+    case "pencil":
+      return (
+        <svg {...common}>
+          <path d="M11.5 2.5l2 2-8 8H3.5v-2z" />
+          <path d="M10 4l2 2" />
+        </svg>
+      );
+    case "search":
+      return (
+        <svg {...common}>
+          <circle cx="7" cy="7" r="4.2" />
+          <path d="M10.2 10.2L13.5 13.5" />
+        </svg>
+      );
+    case "plugins":
+      return (
+        <svg {...common}>
+          <rect x="2.5" y="2.5" width="4" height="4" rx="0.8" />
+          <rect x="9.5" y="2.5" width="4" height="4" rx="0.8" />
+          <rect x="2.5" y="9.5" width="4" height="4" rx="0.8" />
+          <rect x="9.5" y="9.5" width="4" height="4" rx="0.8" />
+        </svg>
+      );
+    case "clock":
+      return (
+        <svg {...common}>
+          <circle cx="8" cy="8" r="5.5" />
+          <path d="M8 5v3l2 1.4" />
+        </svg>
+      );
+    case "folder":
+      return (
+        <svg {...common}>
+          <path d="M2.5 5l2-2h3l1.5 1.5h4.5v7a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1z" />
+        </svg>
+      );
+    case "gear":
+      return (
+        <svg {...common}>
+          <circle cx="8" cy="8" r="2" />
+          <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" />
+        </svg>
+      );
+    case "phone":
+      return (
+        <svg {...common}>
+          <rect x="5" y="2" width="6" height="12" rx="1.2" />
+          <path d="M7.5 12.5h1" />
+        </svg>
+      );
+    default:
+      return null;
+  }
 }
 
-function laneStatus(lane: LabLane, phase: WorkflowPhase): LaneStatus {
-  const current = PHASE_INDEX[phase];
-  if (current < PHASE_INDEX[lane.startsAt]) return "idle";
-  if (current >= PHASE_INDEX[lane.endsAt] && phase === "reviewing") return "complete";
-  if (current > PHASE_INDEX[lane.endsAt]) return "complete";
-  return "active";
+function Folder({ folder }: { folder: SidebarFolder }) {
+  return (
+    <div className={styles.folder}>
+      <div className={styles.folderHead}>
+        <span className={styles.folderIcon} aria-hidden="true">
+          <Icon name="folder" />
+        </span>
+        <span className={styles.folderName}>{folder.name}</span>
+      </div>
+      {folder.open ? (
+        <ul className={styles.chatList}>
+          {folder.items.map((item) => (
+            <li key={item.id} className={styles.chatItem}>
+              <span className={styles.chatLabel}>{item.label}</span>
+              <span className={styles.chatAge}>{item.age}</span>
+            </li>
+          ))}
+          {folder.showMore ? (
+            <li className={styles.chatMore}>
+              <span>Show more</span>
+            </li>
+          ) : null}
+        </ul>
+      ) : folder.empty ? (
+        <p className={styles.chatEmpty}>No chats</p>
+      ) : null}
+    </div>
+  );
 }
 
-const STATUS_LABELS: Record<LaneStatus, string> = {
-  idle: "ожидает",
-  active: "работает",
-  complete: "готово",
-};
-
-function completedEvidenceCount(phase: WorkflowPhase) {
-  if (phase === "reviewing") return EVIDENCE.length;
-  if (phase === "verifying") return 3;
-  if (phase === "executing") return 1;
-  return 0;
+function SidebarShell({
+  variant,
+  showChrome,
+  showFooter,
+  children,
+}: {
+  variant: "top" | "bottom";
+  showChrome?: boolean;
+  showFooter?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className={styles.shell} data-variant={variant}>
+      {showChrome ? (
+        <div className={styles.chrome} aria-hidden="true">
+          <span className={`${styles.dot} ${styles.dotRed}`} />
+          <span className={`${styles.dot} ${styles.dotYellow}`} />
+          <span className={`${styles.dot} ${styles.dotGreen}`} />
+          <span className={styles.chromeSpacer} />
+          <span className={styles.chromeArrow}>‹</span>
+          <span className={styles.chromeArrow}>›</span>
+        </div>
+      ) : null}
+      <div className={styles.body}>{children}</div>
+      {showFooter ? (
+        <div className={styles.footer}>
+          <span className={styles.footerItem}>
+            <Icon name="gear" />
+            <span>Settings</span>
+          </span>
+          <span className={styles.footerIcon} aria-hidden="true">
+            <Icon name="phone" />
+          </span>
+          <span className={styles.upgrade}>Upgrade</span>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export default function AgenticWorkflowLab() {
-  const reducedMotion = usePrefersReducedMotion();
-  const { ref, inView } = useInView<HTMLDivElement>({ once: true });
-  const { phase } = useAgenticWorkflowTimeline({ autoplay: inView, reducedMotion });
-
-  const phaseProgress = useMemo(() => {
-    const idx = PHASE_INDEX[phase];
-    return (idx / (workflowPhases.length - 1)) * 100;
-  }, [phase]);
-
-  const evidenceCount = useMemo(() => completedEvidenceCount(phase), [phase]);
-
   return (
-    <div
-      ref={ref}
-      className={styles.root}
-      data-phase={phase}
-      aria-label="Agentic Workflow Lab"
-      aria-live="polite"
-    >
-      {/* ── Прибор: рамка, единая поверхность ── */}
-      <div className={styles.frame}>
-        {/* верхний "шильдик" прибора */}
-        <div className={styles.bezel}>
-          <span className={styles.bezelMark} aria-hidden="true">
-            ◐
-          </span>
-          <span className={styles.bezelTitle}>Agentic Workflow Lab</span>
-          <span className={styles.bezelTrace}>trace · live</span>
-          <span className={styles.bezelClock} aria-hidden="true">
-            {String(PHASE_INDEX[phase] + 1).padStart(2, "0")}
-            /{workflowPhases.length}
-          </span>
-        </div>
-
-        {/* шкала фаз — сплошная линия с заливкой */}
-        <div className={styles.scaleRow}>
-          <div className={styles.scaleTrack} aria-hidden="true">
-            <div
-              className={styles.scaleFill}
-              style={{ width: `${phaseProgress}%` }}
-            />
-            <ol className={styles.scaleTicks}>
-              {workflowPhases.map((item, index) => {
-                const state =
-                  index < PHASE_INDEX[phase]
-                    ? "done"
-                    : index === PHASE_INDEX[phase]
-                      ? "active"
-                      : "idle";
-                return (
-                  <li
-                    key={item}
-                    className={styles.tick}
-                    data-state={state}
-                    style={{
-                      left: `${(index / (workflowPhases.length - 1)) * 100}%`,
-                    }}
-                  >
-                    <span className={styles.tickMark} aria-hidden="true" />
-                    <span className={styles.tickLabel}>{PHASE_LABELS[item]}</span>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-        </div>
-
-        {/* линии работы — горизонтальные дорожки */}
-        <ul className={styles.lanes}>
-          {LANES.map((lane) => {
-            const fill = laneFill(lane, phase);
-            const status = laneStatus(lane, phase);
-            return (
-              <li key={lane.id} className={styles.lane} data-status={status}>
-                <div className={styles.laneMeta}>
-                  <span className={styles.laneRole}>{lane.role}</span>
-                  <span className={styles.laneWorkspace}>{lane.workspace}</span>
-                </div>
-                <div className={styles.laneTrack} aria-hidden="true">
-                  <div
-                    className={styles.laneFill}
-                    style={{ width: `${fill}%` }}
-                  />
-                </div>
-                <div className={styles.laneSide}>
-                  <span className={styles.laneStatus}>{STATUS_LABELS[status]}</span>
-                  <span className={styles.lanePct}>
-                    {String(fill).padStart(3, " ")}%
-                  </span>
-                </div>
-                <p className={styles.laneObservation}>{lane.observation}</p>
-              </li>
-            );
-          })}
+    <div className={styles.root} aria-label="Превью сайдбара ADE">
+      <SidebarShell variant="top" showChrome>
+        <ul className={styles.actions}>
+          {ACTIONS.map((action) => (
+            <li key={action.id} className={styles.action}>
+              <span className={styles.actionIcon} aria-hidden="true">
+                <Icon name={action.icon} />
+              </span>
+              <span className={styles.actionLabel}>{action.label}</span>
+            </li>
+          ))}
         </ul>
 
-        {/* подвал прибора: доказательства и ограничения в одной рамке */}
-        <div className={styles.foot}>
-          <section className={styles.footColumn}>
-            <p className={styles.footTitle}>Доказательная база</p>
-            <ul className={styles.footList}>
-              {EVIDENCE.map((item, index) => (
-                <li
-                  key={item.label}
-                  className={styles.footRow}
-                  data-state={index < evidenceCount ? "complete" : "pending"}
-                >
-                  <span className={styles.footMark} aria-hidden="true" />
-                  <span className={styles.footLabel}>{item.label}</span>
-                  <span className={styles.footValue}>{item.value}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
+        <p className={styles.sectionLabel}>Projects</p>
 
-          <section className={styles.footColumn}>
-            <p className={styles.footTitle}>Ограничения</p>
-            <ul className={styles.footList}>
-              {GUARDRAILS.map((item) => (
-                <li key={item.label} className={styles.footRow} data-state="static">
-                  <span className={styles.footMark} aria-hidden="true" />
-                  <span className={styles.footLabel}>{item.label}</span>
-                  <span className={styles.footValue}>{item.value}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
+        <div className={styles.folderList}>
+          {TOP_FOLDERS.map((folder) => (
+            <Folder key={folder.id} folder={folder} />
+          ))}
         </div>
-      </div>
+      </SidebarShell>
+
+      <SidebarShell variant="bottom" showFooter>
+        <div className={styles.folderList}>
+          {BOTTOM_FOLDERS.map((folder) => (
+            <Folder key={folder.id} folder={folder} />
+          ))}
+        </div>
+      </SidebarShell>
     </div>
   );
 }

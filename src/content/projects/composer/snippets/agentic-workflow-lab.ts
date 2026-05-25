@@ -5,43 +5,37 @@ export const agenticWorkflowLabSnippet: {
   lang: SupportedLanguage;
   path: string;
 } = {
-  path: "src/features/projects/composer/live/agentic-workflow-lab/useAgenticWorkflowTimeline.ts",
+  path: "src/features/projects/composer/live/agentic-workflow-lab/AgenticWorkflowLab.tsx",
   lang: "typescript",
   code: `"use client";
 
-export type WorkflowPhase = "queued" | "planning" | "executing" | "verifying" | "reviewing";
+// Один сайдбар, мысленно разрезанный пополам и
+// разложенный в две колонки. По линии реза каждая
+// половина уходит в фон через mask-image — без рамок,
+// прогрессов и анимаций.
 
-const PHASES: readonly WorkflowPhase[] = [
-  "queued",
-  "planning",
-  "executing",
-  "verifying",
-  "reviewing",
-];
-
-export function useAgenticWorkflowTimeline({ autoplay, reducedMotion }: Options): TimelineState {
-  const [state, setState] = useState<TimelineState>(() =>
-    reducedMotion ? { phase: "reviewing", stepIndex: PHASES.length - 1 } : { phase: "queued", stepIndex: 0 },
+function SidebarShell({ variant, children }: Props) {
+  return (
+    <div className={styles.shell} data-variant={variant}>
+      {children}
+    </div>
   );
+}
 
-  useEffect(() => {
-    if (!autoplay) return;
-    if (reducedMotion) {
-      setState({ phase: "reviewing", stepIndex: PHASES.length - 1 });
-      return;
-    }
+export default function AgenticWorkflowLab() {
+  return (
+    <div className={styles.root} aria-label="Превью сайдбара ADE">
+      <SidebarShell variant="top">
+        <Actions />
+        <p className={styles.sectionLabel}>Projects</p>
+        <FolderList folders={TOP_FOLDERS} />
+      </SidebarShell>
 
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    let cursor = 0;
-
-    PHASES.forEach((phase, index) => {
-      timers.push(setTimeout(() => setState({ phase, stepIndex: index }), cursor));
-      cursor += STEP_DELAYS_MS[phase];
-    });
-
-    return () => timers.forEach((timer) => clearTimeout(timer));
-  }, [autoplay, reducedMotion]);
-
-  return state;
+      <SidebarShell variant="bottom">
+        <FolderList folders={BOTTOM_FOLDERS} />
+        <Footer />
+      </SidebarShell>
+    </div>
+  );
 }`,
 };

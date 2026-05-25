@@ -1,434 +1,290 @@
 /* ─────────────────────────────────────────
-   Agentic Workflow Lab — лабораторный
-   осциллограф, а не "ввод с двумя ящиками".
-   Один контур, hairline-разметка, дорожки
-   с заполнением, моноширинная шкала. Намеренно
-   расходимся с языком Composer Input.
+   Превью сайдбара ADE. Один сайдбар поделён
+   по горизонтали пополам: слева — верх, справа
+   — низ. По линии реза каждая половина уходит
+   в фон через mask-image, без рамок и подложек.
    ───────────────────────────────────────── */
+
 .root {
-  --c-line: var(--composer-hairline);
-  --c-line-soft: rgba(255, 255, 255, 0.06);
-  --c-ink: var(--composer-ink);
-  --c-ink-muted: var(--composer-ink-muted);
-  --c-ink-subtle: var(--composer-ink-subtle);
-  --c-surface: var(--composer-surface-raised);
-  --c-grid: rgba(255, 255, 255, 0.05);
+  --side-fg: var(--composer-ink);
+  --side-fg-muted: var(--composer-ink-muted);
+  --side-fg-subtle: var(--composer-ink-subtle);
+  --side-hover: rgba(255, 255, 255, 0.05);
+  --side-line: rgba(255, 255, 255, 0.06);
+  --side-bg: #161616;
 
   width: 100%;
-  max-width: 880px;
+  max-width: 720px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 2.4vw, 32px);
   font-family: var(--font-sans), sans-serif;
-  color: var(--c-ink);
+  color: var(--side-fg);
 }
 
-/* ── Корпус прибора ───────────────────── */
-.frame {
+/* ── Корпус половинки сайдбара ─────────── */
+.shell {
   position: relative;
-  display: grid;
-  background: var(--c-surface);
-  border: 1px solid var(--c-line);
-  border-radius: 4px; /* подчёркнуто меньший радиус, чем в композере (18) */
+  display: flex;
+  flex-direction: column;
+  background: var(--side-bg);
+  border-radius: 14px;
+  min-height: 360px;
+  padding: 10px 8px;
   overflow: hidden;
-  background-image:
-    linear-gradient(to right, var(--c-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--c-grid) 1px, transparent 1px);
-  background-size: 32px 32px;
-  background-position: -1px -1px;
 }
 
-/* ── Шильдик прибора ──────────────────── */
-.bezel {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
+.shell[data-variant="top"] {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 78%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 78%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  padding-bottom: 36px;
+}
+
+.shell[data-variant="bottom"] {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    #000 22%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    #000 22%,
+    #000 100%
+  );
+  padding-top: 36px;
+}
+
+/* ── Шапка macOS ───────────────────────── */
+.chrome {
+  display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--c-line);
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(2px);
+  gap: 6px;
+  padding: 4px 6px 14px;
 }
 
-.bezelMark {
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.dotRed {
+  background: #ff5f57;
+}
+
+.dotYellow {
+  background: #febc2e;
+}
+
+.dotGreen {
+  background: #28c840;
+}
+
+.chromeSpacer {
+  width: 10px;
+}
+
+.chromeArrow {
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 14px;
+  font-family: var(--composer-font-mono);
+  line-height: 1;
+  padding: 0 2px;
+}
+
+/* ── Тело ──────────────────────────────── */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ── Верхние действия ──────────────────── */
+.actions {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 0.86rem;
+  color: var(--side-fg);
+  line-height: 1.2;
+}
+
+.actionIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
-  color: var(--c-ink);
-  font-size: 12px;
-  line-height: 1;
-  animation: bezelMark 4.5s linear infinite;
+  color: var(--side-fg);
+  width: 16px;
+  height: 16px;
 }
 
-.bezelTitle {
-  font-family: var(--composer-font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  color: var(--c-ink);
+.actionLabel {
+  font-weight: 400;
 }
 
-.bezelTrace {
-  font-family: var(--composer-font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--c-ink-subtle);
-  padding: 2px 8px;
-  border: 1px solid var(--c-line);
-  border-radius: 999px;
+/* ── Заголовок секции ──────────────────── */
+.sectionLabel {
+  margin: 12px 10px 6px;
+  font-size: 0.72rem;
+  color: var(--side-fg-subtle);
+  letter-spacing: 0.01em;
 }
 
-.bezelClock {
-  font-family: var(--composer-font-mono);
-  font-size: 0.78rem;
-  color: var(--c-ink-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ── Шкала фаз ────────────────────────── */
-.scaleRow {
-  padding: 28px 20px 36px;
-  border-bottom: 1px solid var(--c-line);
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(2px);
-}
-
-.scaleTrack {
-  position: relative;
-  height: 1px;
-  background: var(--c-line);
-  margin: 0 8px;
-}
-
-.scaleFill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 1px;
-  background: var(--c-ink);
-  transition: width 480ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.scaleTicks {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.tick {
-  position: absolute;
-  top: -4px;
-  transform: translateX(-50%);
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  font-family: var(--composer-font-mono);
-  font-size: 0.7rem;
-  color: var(--c-ink-subtle);
-  text-transform: lowercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-
-.tickMark {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: var(--c-surface);
-  box-shadow: inset 0 0 0 1px var(--c-line);
-  transition: background 200ms ease, box-shadow 200ms ease;
-}
-
-.tickLabel {
-  display: block;
-}
-
-.tick[data-state="active"] .tickMark {
-  background: var(--c-ink);
-  box-shadow:
-    inset 0 0 0 1px var(--c-ink),
-    0 0 0 4px rgba(255, 255, 255, 0.08);
-}
-
-.tick[data-state="active"] .tickLabel {
-  color: var(--c-ink);
-}
-
-.tick[data-state="done"] .tickMark {
-  background: var(--c-ink);
-  box-shadow: inset 0 0 0 1px var(--c-ink);
-}
-
-.tick[data-state="done"] .tickLabel {
-  color: var(--c-ink-muted);
-}
-
-/* ── Дорожки ──────────────────────────── */
-.lanes {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(2px);
-}
-
-.lane {
-  display: grid;
-  grid-template-columns: minmax(160px, 1.2fr) 3fr minmax(120px, auto);
-  align-items: center;
-  gap: 16px 20px;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--c-line-soft);
-}
-
-.lane:last-child {
-  border-bottom: 1px solid var(--c-line);
-}
-
-.laneMeta {
-  display: grid;
+/* ── Папки ─────────────────────────────── */
+.folderList {
+  display: flex;
+  flex-direction: column;
   gap: 2px;
+}
+
+.folder {
+  display: flex;
+  flex-direction: column;
+}
+
+.folderHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 0.86rem;
+  color: var(--side-fg);
+}
+
+.folderIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--side-fg-muted);
+}
+
+.folderName {
+  font-weight: 400;
+}
+
+/* ── Список чатов ──────────────────────── */
+.chatList {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0 0 0 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.chatItem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: var(--side-fg-muted);
+}
+
+.chatLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   min-width: 0;
 }
 
-.laneRole {
-  font-family: var(--composer-font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  color: var(--c-ink);
-}
-
-.laneWorkspace {
-  font-family: var(--composer-font-mono);
-  font-size: 0.7rem;
-  color: var(--c-ink-subtle);
-  letter-spacing: 0.02em;
-}
-
-.laneTrack {
-  position: relative;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 0 0 1px var(--c-line-soft);
-  overflow: hidden;
-}
-
-.laneFill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  border-radius: 999px;
-  background: var(--c-ink);
-  transition: width 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.lane[data-status="idle"] .laneFill {
-  background: var(--c-ink-subtle);
-}
-
-.lane[data-status="active"] .laneFill {
-  background: var(--c-ink);
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgba(0, 0, 0, 0.35) 0,
-    rgba(0, 0, 0, 0.35) 4px,
-    transparent 4px,
-    transparent 8px
-  );
-  animation: laneStripes 1.6s linear infinite;
-}
-
-.lane[data-status="complete"] .laneFill {
-  background: var(--c-ink);
-}
-
-.laneSide {
-  display: grid;
-  justify-items: end;
-  gap: 2px;
-  font-family: var(--composer-font-mono);
+.chatAge {
+  color: var(--side-fg-subtle);
+  font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
 }
 
-.laneStatus {
-  font-size: 0.72rem;
-  color: var(--c-ink-muted);
-  letter-spacing: 0.04em;
-}
-
-.lane[data-status="active"] .laneStatus {
-  color: var(--c-ink);
-}
-
-.lanePct {
+.chatMore {
+  padding: 6px 10px;
   font-size: 0.78rem;
-  color: var(--c-ink);
-  white-space: pre;
+  color: var(--side-fg-subtle);
 }
 
-.laneObservation {
-  grid-column: 1 / -1;
-  margin: 0;
-  color: var(--c-ink-muted);
-  font-size: 0.86rem;
-  line-height: 1.5;
+.chatEmpty {
+  margin: 0 0 4px;
+  padding: 6px 10px 6px 36px;
+  font-size: 0.78rem;
+  color: var(--side-fg-subtle);
 }
 
-/* ── Подвал прибора ───────────────────── */
-.foot {
+/* ── Подвал сайдбара ───────────────────── */
+.footer {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(2px);
-}
-
-.footColumn {
-  padding: 18px 20px 20px;
-}
-
-.footColumn + .footColumn {
-  border-left: 1px solid var(--c-line);
-}
-
-.footTitle {
-  margin: 0 0 12px;
-  font-family: var(--composer-font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--c-ink-subtle);
-}
-
-.footList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 8px;
-}
-
-.footRow {
-  display: grid;
-  grid-template-columns: 10px 90px 1fr;
-  align-items: baseline;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
   gap: 10px;
-  padding: 6px 0;
-  border-bottom: 1px dashed var(--c-line-soft);
+  padding: 10px 10px 4px;
+  margin-top: 10px;
+  border-top: 1px solid var(--side-line);
   font-size: 0.84rem;
-  line-height: 1.4;
 }
 
-.footRow:last-child {
-  border-bottom: none;
+.footerItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--side-fg);
 }
 
-.footMark {
-  width: 6px;
-  height: 6px;
-  border-radius: 1px; /* квадратные, не круглые — отстраиваемся от чипов */
-  background: var(--c-ink-subtle);
-  align-self: center;
+.footerIcon {
+  color: var(--side-fg-muted);
+  display: inline-flex;
 }
 
-.footRow[data-state="complete"] .footMark {
-  background: var(--c-ink);
+.upgrade {
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--side-fg);
 }
 
-.footRow[data-state="static"] .footMark {
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--c-ink-subtle);
-}
-
-.footLabel {
-  font-family: var(--composer-font-mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.04em;
-  color: var(--c-ink-subtle);
-}
-
-.footRow[data-state="complete"] .footLabel {
-  color: var(--c-ink-muted);
-}
-
-.footValue {
-  color: var(--c-ink);
-}
-
-.footRow[data-state="pending"] .footValue {
-  color: var(--c-ink-subtle);
-}
-
-/* ── Адаптация ────────────────────────── */
+/* ── Адаптация ─────────────────────────── */
 @media (max-width: 720px) {
-  .bezel {
-    grid-template-columns: auto 1fr auto;
-  }
-  .bezelTrace {
-    display: none;
-  }
-  .scaleRow {
-    padding: 24px 16px 32px;
-  }
-  .tickLabel {
-    font-size: 0.62rem;
-  }
-  .lane {
+  .root {
     grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 14px 16px;
+    max-width: 360px;
+    gap: 0;
   }
-  .laneSide {
-    justify-items: start;
-    flex-direction: row;
-  }
-  .foot {
-    grid-template-columns: 1fr;
-  }
-  .footColumn + .footColumn {
-    border-left: none;
-    border-top: 1px solid var(--c-line);
-  }
-  .footRow {
-    grid-template-columns: 10px 80px 1fr;
-  }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .scaleFill,
-  .laneFill {
-    transition: none;
+  .shell[data-variant="top"] {
+    padding-bottom: 28px;
   }
-  .lane[data-status="active"] .laneFill {
-    animation: none;
-    background-image: none;
-  }
-  .bezelMark {
-    animation: none;
-  }
-}
 
-@keyframes laneStripes {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 32px 0;
-  }
-}
-
-@keyframes bezelMark {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+  .shell[data-variant="bottom"] {
+    padding-top: 28px;
+    margin-top: -16px;
   }
 }
