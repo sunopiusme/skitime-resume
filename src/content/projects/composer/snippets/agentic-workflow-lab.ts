@@ -5,43 +5,62 @@ export const agenticWorkflowLabSnippet: {
   lang: SupportedLanguage;
   path: string;
 } = {
-  path: "src/features/projects/composer/live/agentic-workflow-lab/useAgenticWorkflowTimeline.ts",
-  lang: "typescript",
+  path: "src/features/projects/composer/live/agentic-workflow-lab/AgenticWorkflowLab.tsx",
+  lang: "tsx",
   code: `"use client";
 
-export type WorkflowPhase = "queued" | "planning" | "executing" | "verifying" | "reviewing";
+import styles from "./AgenticWorkflowLab.module.css";
 
-const PHASES: readonly WorkflowPhase[] = [
-  "queued",
-  "planning",
-  "executing",
-  "verifying",
-  "reviewing",
+type ChatItem = { title: string; age: string };
+type ProjectGroup = { name: string; chats: ChatItem[]; more?: boolean; empty?: boolean };
+
+const NAV_ITEMS = [
+  { icon: "edit", label: "New chat" },
+  { icon: "search", label: "Search" },
+  { icon: "grid", label: "Plugins" },
+  { icon: "clock", label: "Automations" },
+] as const;
+
+const PROJECTS: readonly ProjectGroup[] = [
+  { name: "ZenPulse", chats: [/* ... */], more: true },
+  { name: "horizon-sprint", chats: [/* ... */], more: true },
+  { name: "cmux", chats: [], empty: true },
+  { name: "Glim", chats: [] },
 ];
 
-export function useAgenticWorkflowTimeline({ autoplay, reducedMotion }: Options): TimelineState {
-  const [state, setState] = useState<TimelineState>(() =>
-    reducedMotion ? { phase: "reviewing", stepIndex: PHASES.length - 1 } : { phase: "queued", stepIndex: 0 },
+function SidebarBody() {
+  return (
+    <>
+      <div className={styles.chrome} aria-hidden="true">{/* dots + tab + arrows */}</div>
+      <ul className={styles.nav}>
+        {NAV_ITEMS.map((item) => (
+          <li key={item.label} className={styles.navItem}>
+            <span className={styles.navIcon}><NavIcon kind={item.icon} /></span>
+            <span className={styles.navLabel}>{item.label}</span>
+          </li>
+        ))}
+      </ul>
+      <p className={styles.sectionTitle}>Projects</p>
+      <ul className={styles.projects}>{/* проекты и чаты */}</ul>
+      <div className={styles.footer}>{/* Settings · Upgrade */}</div>
+    </>
   );
+}
 
-  useEffect(() => {
-    if (!autoplay) return;
-    if (reducedMotion) {
-      setState({ phase: "reviewing", stepIndex: PHASES.length - 1 });
-      return;
-    }
-
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    let cursor = 0;
-
-    PHASES.forEach((phase, index) => {
-      timers.push(setTimeout(() => setState({ phase, stepIndex: index }), cursor));
-      cursor += STEP_DELAYS_MS[phase];
-    });
-
-    return () => timers.forEach((timer) => clearTimeout(timer));
-  }, [autoplay, reducedMotion]);
-
-  return state;
+export default function AgenticWorkflowLab() {
+  return (
+    <div className={styles.root}>
+      <div className={styles.split}>
+        <div className={\`\${styles.pane} \${styles.paneTop}\`}>
+          <div className={styles.sidebar}><SidebarBody /></div>
+          <div className={styles.fadeBottom} aria-hidden="true" />
+        </div>
+        <div className={\`\${styles.pane} \${styles.paneBottom}\`} aria-hidden="true">
+          <div className={styles.sidebar}><SidebarBody /></div>
+          <div className={styles.fadeTop} aria-hidden="true" />
+        </div>
+      </div>
+    </div>
+  );
 }`,
 };
