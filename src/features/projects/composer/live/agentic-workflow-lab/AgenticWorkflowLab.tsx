@@ -116,10 +116,24 @@ function SidebarBody() {
         <span className={`${styles.dot} ${styles.dotRed}`} />
         <span className={`${styles.dot} ${styles.dotYellow}`} />
         <span className={`${styles.dot} ${styles.dotGreen}`} />
-        <span className={styles.chromeSpacer} />
-        <span className={styles.chromeTab} />
-        <span className={styles.chromeArrow}>‹</span>
-        <span className={styles.chromeArrow}>›</span>
+        <span className={styles.toggleSidebar}>
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
+            <rect x="1.6" y="2.8" width="12.8" height="10.4" rx="2" stroke="currentColor" />
+            <path d="M6 3v10" stroke="currentColor" />
+          </svg>
+        </span>
+        <span className={styles.chromeArrow}>
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
+            <path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5.5 8h7" stroke="currentColor" strokeLinecap="round" />
+          </svg>
+        </span>
+        <span className={styles.chromeArrow}>
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
+            <path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M3.5 8h7" stroke="currentColor" strokeLinecap="round" />
+          </svg>
+        </span>
       </div>
 
       <ul className={styles.nav}>
@@ -197,13 +211,11 @@ export default function AgenticWorkflowLab() {
           <div className={styles.sidebar}>
             <SidebarBody />
           </div>
-          <div className={styles.fadeBottom} aria-hidden="true" />
         </div>
         <div className={`${styles.pane} ${styles.paneBottom}`} aria-hidden="true">
-          <div className={`${styles.sidebar} ${styles.sidebarShiftUp}`}>
+          <div className={styles.sidebar}>
             <SidebarBody />
           </div>
-          <div className={styles.fadeTop} aria-hidden="true" />
         </div>
       </div>
     </div>

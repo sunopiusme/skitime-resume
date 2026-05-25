@@ -53,14 +53,18 @@ export default function AgenticWorkflowLab() {
       <div className={styles.split}>
         <div className={\`\${styles.pane} \${styles.paneTop}\`}>
           <div className={styles.sidebar}><SidebarBody /></div>
-          <div className={styles.fadeBottom} aria-hidden="true" />
         </div>
         <div className={\`\${styles.pane} \${styles.paneBottom}\`} aria-hidden="true">
           <div className={styles.sidebar}><SidebarBody /></div>
-          <div className={styles.fadeTop} aria-hidden="true" />
         </div>
       </div>
     </div>
   );
-}`,
+}
+
+// Маска применяется к каждому .pane: верхняя карточка
+// растворяется снизу, нижняя — сверху. Контур, фон и тень
+// исчезают вместе с содержимым, открывая фон страницы.
+// .paneTop { mask-image: linear-gradient(to bottom, #000 58%, transparent); }
+// .paneBottom { mask-image: linear-gradient(to top, #000 58%, transparent); }`,
 };
