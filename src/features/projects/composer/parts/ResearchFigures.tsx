@@ -189,49 +189,47 @@ export function LabFrictionRadar({ caption }: { caption?: string }) {
 }
 
 export function LabWorkflowDisk() {
+  /* Горизонтальная лента-петля. Замена круглого блюпринта:
+     круг плохо ложился в широкий wide-контейнер (большие
+     пустые бока) и читался как «вечная карусель», тогда как
+     процесс направленный — от намерения к ревью. Лента
+     использует всю ширину блока, идёт слева направо и
+     замыкается короткой возвратной дугой снизу.
+
+     Геометрия в системе координат viewBox 1200×360:
+     - track Y=160, станции равномерно от X=80 до X=1120;
+     - leader-линии уходят вверх к ярусу подписей (Y≈70);
+     - возвратная дуга идёт ниже track'а через Y≈260 и
+       соединяет правую крайнюю станцию с левой крайней. */
   const total = workflowSteps.length;
-  const stepAngle = 360 / total;
   const activeIndex = 1;
 
-  /* Геометрия сцены.
-     viewBox -230..230 (=460), сфера R=120 в центре (0,0).
-     Станции лежат на orbit-окружности R_ORBIT=120; их
-     leader-линии уходят радиально наружу до R_LEAD=180,
-     где приземляется anchor для подписи. Подписи в DOM
-     позиционируются от центра .disk через CSS-%: SVG 1:1
-     мапится в квадратный .disk, поэтому ratio считается
-     от полной диагонали viewBox (460), а не от её половины. */
-  const R_ORBIT = 120;
-  const R_LEAD = 136;
-  const LABEL_R_RATIO = R_LEAD / 460;
-
-  /* Leader стартует не из центра bullet'а, а с небольшим
-     зазором за его внешней кромкой — иначе линия и точка
-     визуально «сшиваются» и выноска теряется. */
-  const BULLET_GAP = 5;
+  const W = 1200;
+  const H = 360;
+  const padX = 80;
+  const trackY = 160;
+  const labelAnchorY = 70;
+  const innerW = W - padX * 2;
 
   const stations = workflowSteps.map((step, index) => {
-    const angleDeg = -90 + index * stepAngle;
-    const angleRad = (angleDeg * Math.PI) / 180;
-    const cosA = Math.cos(angleRad);
-    const sinA = Math.sin(angleRad);
-    const bullet = { x: cosA * R_ORBIT, y: sinA * R_ORBIT };
-    const leaderStart = {
-      x: cosA * (R_ORBIT + BULLET_GAP),
-      y: sinA * (R_ORBIT + BULLET_GAP),
-    };
-    const anchor = { x: cosA * R_LEAD, y: sinA * R_LEAD };
-    return { step, index, angleDeg, cosA, sinA, bullet, leaderStart, anchor };
+    const x = padX + (innerW * index) / (total - 1);
+    return { step, index, x };
   });
 
-  /* Активная станция и следующая по обходу — между ними
-     рисуем короткую arc-стрелку (flow indicator). */
   const active = stations[activeIndex]!;
-  const nextIndex = (activeIndex + 1) % total;
-  const next = stations[nextIndex]!;
+  const first = stations[0]!;
+  const last = stations[total - 1]!;
+
+  /* Возвратная дуга: уходит вниз от последней станции,
+     проходит под track'ом и приходит сверху к первой.
+     Через два control-point'а: квадратичная Безье через
+     общую нижнюю точку (mid, Y=260) даёт плавную ёмкую
+     дугу, не перекрывающую сам track. */
+  const loopMidY = 260;
+  const loopPath = `M ${last.x} ${trackY + 14} C ${last.x} ${loopMidY}, ${first.x} ${loopMidY}, ${first.x} ${trackY + 14}`;
 
   return (
-    <div className={styles.figure} aria-label="Этап 04: блюпринт-сфера процесса">
+    <div className={styles.figure} aria-label="Этап 04: лента работы">
       <header className={styles.stageHeader}>
         <p className={styles.stageEyebrow}>Этап 04</p>
         <div className={styles.stageHeadline}>
@@ -239,35 +237,34 @@ export function LabWorkflowDisk() {
         </div>
       </header>
 
-      {/* Blueprint orbital sphere.
-          Палитра solid greys (без alpha) — линии не
-          накапливают плотность на пересечениях:
+      {/* Blueprint ribbon.
+          Палитра solid greys (без alpha), как и в прошлой
+          версии диска — линии не накапливают плотность на
+          пересечениях:
           • #2c2c2c — major grid;
-          • #555555 — bounding chrome и сноска;
-          • #6e6e6e — wireframe сферы;
-          • #aaaaaa — leader-линии и mono-метки;
-          • #f5f5f5 — активная станция и flow-стрелка. */}
-      <div className={styles.diskFrame}>
-      <div className={styles.disk} aria-hidden="false">
+          • #6e6e6e — track и возвратная дуга;
+          • #5a5a5a — пассивные leader'ы;
+          • #f5f5f5 — активная станция, активный leader,
+            стрелка возврата. */}
+      <div className={styles.ribbonFrame}>
         <svg
-          className={styles.diskRings}
-          viewBox="-230 -230 460 460"
+          className={styles.ribbonSvg}
+          viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="xMidYMid meet"
-          aria-hidden="true"
+          role="img"
+          aria-label="Лента: семь шагов процесса"
         >
           <defs>
-            {/* Только major-сетка: minor-grid убран,
-                чтобы за wireframe'ом не «звенел» шум. */}
             <pattern
-              id="diskGridMajor"
-              width="100"
-              height="100"
+              id="ribbonGridMajor"
+              width="60"
+              height="60"
               patternUnits="userSpaceOnUse"
               x="0"
               y="0"
             >
               <path
-                d="M 100 0 L 0 0 0 100"
+                d="M 60 0 L 0 0 0 60"
                 fill="none"
                 stroke="#2c2c2c"
                 strokeWidth="0.75"
@@ -275,7 +272,7 @@ export function LabWorkflowDisk() {
               />
             </pattern>
             <marker
-              id="diskFlowArrow"
+              id="ribbonLoopArrow"
               viewBox="0 0 10 10"
               refX="8"
               refY="5"
@@ -287,89 +284,44 @@ export function LabWorkflowDisk() {
             </marker>
           </defs>
 
-          <rect x="-230" y="-230" width="460" height="460" fill="url(#diskGridMajor)" />
+          <rect x="0" y="0" width={W} height={H} fill="url(#ribbonGridMajor)" />
 
-          {/* Wireframe сферы — три параллели и три
-              меридиана. Equator чуть толще: это
-              единственная линия, которая принимает
-              на себя bullet-маркеры станций. */}
-          <ellipse
-            cx="0"
-            cy="-90"
-            rx="79.4"
-            ry="16"
-            fill="none"
-            stroke="#6e6e6e"
-            strokeWidth="1"
-            vectorEffect="non-scaling-stroke"
-          />
-          <ellipse
-            cx="0"
-            cy="0"
-            rx="120"
-            ry="32"
-            fill="none"
-            stroke="#6e6e6e"
-            strokeWidth="1.2"
-            vectorEffect="non-scaling-stroke"
-          />
-          <ellipse
-            cx="0"
-            cy="90"
-            rx="79.4"
-            ry="16"
-            fill="none"
-            stroke="#6e6e6e"
-            strokeWidth="1"
-            vectorEffect="non-scaling-stroke"
-          />
-
-          <ellipse
-            cx="0"
-            cy="0"
-            rx="120"
-            ry="120"
-            fill="none"
+          {/* Основной track — единая горизонтальная линия,
+              на которой сидят все станции. */}
+          <line
+            x1={first.x}
+            y1={trackY}
+            x2={last.x}
+            y2={trackY}
             stroke="#6e6e6e"
             strokeWidth="1.4"
             vectorEffect="non-scaling-stroke"
           />
-          <ellipse
-            cx="0"
-            cy="0"
-            rx="40"
-            ry="120"
+
+          {/* Возвратная дуга — закрывает петлю снизу:
+              от ревью обратно к намерению. */}
+          <path
+            d={loopPath}
             fill="none"
-            stroke="#6e6e6e"
-            strokeWidth="0.9"
+            stroke="#f5f5f5"
+            strokeWidth="1.2"
+            strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
-            transform="rotate(60)"
-          />
-          <ellipse
-            cx="0"
-            cy="0"
-            rx="40"
-            ry="120"
-            fill="none"
-            stroke="#6e6e6e"
-            strokeWidth="0.9"
-            vectorEffect="non-scaling-stroke"
-            transform="rotate(-60)"
+            markerEnd="url(#ribbonLoopArrow)"
           />
 
-          {/* Leader-линии: радиальный отрезок от внешней
-              кромки bullet'а до подписи-anchor. Активный
-              leader — белый и толще. */}
+          {/* Leader-линии: вверх от каждой станции к ярусу
+              подписей. Активный leader белый и толще. */}
           <g>
             {stations.map((s) => {
               const isActive = s.index === activeIndex;
               return (
                 <line
                   key={`leader-${s.index}`}
-                  x1={s.leaderStart.x}
-                  y1={s.leaderStart.y}
-                  x2={s.anchor.x}
-                  y2={s.anchor.y}
+                  x1={s.x}
+                  y1={trackY - 9}
+                  x2={s.x}
+                  y2={labelAnchorY + 6}
                   stroke={isActive ? "#f5f5f5" : "#5a5a5a"}
                   strokeWidth={isActive ? 1.4 : 0.9}
                   vectorEffect="non-scaling-stroke"
@@ -377,20 +329,6 @@ export function LabWorkflowDisk() {
               );
             })}
           </g>
-
-          {/* Flow-индикатор: тонкая дуга по orbit'у от
-              активной станции к следующей со стрелкой.
-              Это превращает «семь точек по кругу» в
-              ориентированную петлю. */}
-          <path
-            d={`M ${active.bullet.x.toFixed(2)} ${active.bullet.y.toFixed(2)} A ${R_ORBIT} ${R_ORBIT} 0 0 1 ${next.bullet.x.toFixed(2)} ${next.bullet.y.toFixed(2)}`}
-            fill="none"
-            stroke="#f5f5f5"
-            strokeWidth="2"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
-            markerEnd="url(#diskFlowArrow)"
-          />
 
           {/* Bullet-маркеры станций. У активной — halo. */}
           <g>
@@ -400,9 +338,9 @@ export function LabWorkflowDisk() {
                 <g key={`bullet-${s.index}`}>
                   {isActive && (
                     <circle
-                      cx={s.bullet.x}
-                      cy={s.bullet.y}
-                      r="8.5"
+                      cx={s.x}
+                      cy={trackY}
+                      r="10"
                       fill="none"
                       stroke="#f5f5f5"
                       strokeWidth="1"
@@ -411,9 +349,9 @@ export function LabWorkflowDisk() {
                     />
                   )}
                   <circle
-                    cx={s.bullet.x}
-                    cy={s.bullet.y}
-                    r={isActive ? 4.4 : 3}
+                    cx={s.x}
+                    cy={trackY}
+                    r={isActive ? 5 : 3.4}
                     fill={isActive ? "#f5f5f5" : "#0a0a0a"}
                     stroke={isActive ? "#f5f5f5" : "#cccccc"}
                     strokeWidth={isActive ? 0 : 1.4}
@@ -423,43 +361,34 @@ export function LabWorkflowDisk() {
               );
             })}
           </g>
-
-          {/* Центральная точка без дополнительной подписи:
-              сам контур уже несёт идею петли. */}
-          <circle cx="0" cy="-4" r="1.8" fill="#aaaaaa" />
         </svg>
 
-        {/* 7 станций с подписями шагов: index + label +
-            detail. Anchor по 8 направлениям — DOM-метка
-            «садится» на конец SVG-leader'а. */}
-        {stations.map(({ step, index, cosA, sinA }) => {
-          const left = `${50 + cosA * LABEL_R_RATIO * 100}%`;
-          const top = `${50 + sinA * LABEL_R_RATIO * 100}%`;
-
-          const halign: "left" | "right" | "center" =
-            cosA < -0.3 ? "right" : cosA > 0.3 ? "left" : "center";
-          const valign: "top" | "bottom" | "middle" =
-            sinA < -0.3 ? "bottom" : sinA > 0.3 ? "top" : "middle";
-
-          return (
-            <div
-              key={step.label}
-              className={styles.diskStep}
-              data-halign={halign}
-              data-valign={valign}
-              data-active={index === activeIndex}
-              style={{ left, top } as CSSProperties}
-            >
-              <span className={styles.diskStepIndex}>{String(index + 1).padStart(2, "0")}</span>
-              <strong className={styles.diskStepLabel}>{step.label}</strong>
-              <span className={styles.diskStepDetail}>{step.detail}</span>
-            </div>
-          );
-        })}
-      </div>
+        {/* DOM-подписи поверх SVG: позиционируются в %
+            от .ribbonStage. SVG масштабируется 1:1 в
+            квадрат-агностический стейдж, поэтому ratio
+            считается от полной ширины/высоты viewBox. */}
+        <div className={styles.ribbonLabels} aria-hidden="false">
+          {stations.map(({ step, index, x }) => {
+            const leftPct = `${(x / W) * 100}%`;
+            const topPct = `${(labelAnchorY / H) * 100}%`;
+            return (
+              <div
+                key={step.label}
+                className={styles.ribbonStep}
+                data-active={index === activeIndex}
+                style={{ left: leftPct, top: topPct } as CSSProperties}
+              >
+                <span className={styles.ribbonStepIndex}>{String(index + 1).padStart(2, "0")}</span>
+                <strong className={styles.ribbonStepLabel}>{step.label}</strong>
+                <span className={styles.ribbonStepDetail}>{step.detail}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* mobile fallback */}
+      {/* mobile fallback — список шагов; используется при
+         сворачивании ленты на узких экранах. */}
       <ol className={styles.diskList} aria-label="Шаги процесса">
         {workflowSteps.map((step, index) => (
           <li
