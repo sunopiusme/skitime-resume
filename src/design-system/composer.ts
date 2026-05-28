@@ -31,6 +31,17 @@ export const composerTokens = {
     lift: "var(--composer-duration-lift)",
     reveal: "var(--composer-duration-reveal)",
   },
+  measure: {
+    body: "var(--composer-measure)",
+    wide: "var(--composer-measure-wide)",
+    graphic: "var(--composer-measure-graphic)",
+    hero: "var(--composer-measure-hero)",
+  },
+  layout: {
+    pageMax: "var(--composer-page-max)",
+    sectionGap: "var(--composer-section-gap)",
+    sectionGapTight: "var(--composer-section-gap-tight)",
+  },
 } as const;
 
 /**
@@ -58,6 +69,13 @@ export const composerCssVariables = `
   --composer-duration-hover: 120ms;
   --composer-duration-lift: 160ms;
   --composer-duration-reveal: 200ms;
+  --composer-page-max: 1280px;
+  --composer-measure: 70ch;
+  --composer-measure-wide: 960px;
+  --composer-measure-graphic: 1120px;
+  --composer-measure-hero: 760px;
+  --composer-section-gap: clamp(72px, 7vw, 112px);
+  --composer-section-gap-tight: clamp(24px, 2.8vw, 40px);
 `;
 
 export const composerDarkCssVariables = composerCssVariables;

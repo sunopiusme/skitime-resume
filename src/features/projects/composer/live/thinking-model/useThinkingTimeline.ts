@@ -41,7 +41,7 @@ export type State = {
 const HOLD_BEFORE_EXPANDED_MS = 900;
 const HOLD_BEFORE_DONE_MS = 1800;
 const PAUSE_BEFORE_LOOP_MS = 1400;
-const DEFAULT_TYPING_SPEED = 110; // base chars per second — calm, deliberate stream
+const DEFAULT_TYPING_SPEED = 70; // base chars per second — calm, deliberate stream
 
 /**
  * Steady streaming cadence.

@@ -49,7 +49,7 @@ export const researchSources: readonly ResearchSource[] = [
     type: "category",
     surface: "панель управления",
     url: "https://addy.md/",
-    signal: "ADE описывается как среда для нескольких агентов, планов, браузера, консоли, MCP и памяти проекта.",
+    signal: "ADE подается как рабочее место для нескольких агентов: планы, браузер, консоль, MCP и память проекта.",
     coded: ["orchestration", "context", "parallelism", "verification"],
   },
   {
@@ -58,16 +58,16 @@ export const researchSources: readonly ResearchSource[] = [
     type: "official",
     surface: "облачная задача",
     url: "https://developers.openai.com/codex/cloud",
-    signal: "Фоновые и параллельные задачи, связка с GitHub, AGENTS.md и управляемое окружение.",
+    signal: "Фоновые задачи доходят до GitHub через AGENTS.md, управляемое окружение и параллельные сессии.",
     coded: ["parallelism", "context", "verification", "permissions"],
   },
   {
     id: "claude",
     name: "Claude Code",
     type: "official",
-    surface: "терминал / IDE",
+    surface: "терминал и IDE",
     url: "https://code.claude.com/docs/en/hooks",
-    signal: "Hooks, режимы доступа, пути к transcript, MCP и события задач/сабагентов.",
+    signal: "Права, hooks, transcript, MCP и события сабагентов делают работу наблюдаемой из терминала.",
     coded: ["permissions", "context", "verification", "orchestration"],
   },
   {
@@ -76,7 +76,7 @@ export const researchSources: readonly ResearchSource[] = [
     type: "official",
     surface: "редактор + менеджер",
     url: "https://developers.googleblog.com/build-with-google-antigravity-our-new-agentic-development-platform/",
-    signal: "Editor View и Manager Surface: асинхронные агенты, артефакты и проверка работы через результат, а не через обещания.",
+    signal: "Editor View и Manager Surface разводят написание кода, асинхронных агентов, артефакты и проверку результата.",
     coded: ["orchestration", "parallelism", "verification", "trust"],
   },
   {
@@ -85,16 +85,16 @@ export const researchSources: readonly ResearchSource[] = [
     type: "official",
     surface: "спеки в IDE",
     url: "https://aws.amazon.com/documentation-overview/kiro/",
-    signal: "Спеки, планы реализации, документация, тесты, steering-файлы и agent hooks.",
+    signal: "Спеки, планы, тесты, документация, файлы steering и hooks превращают промпт в управляемый процесс.",
     coded: ["specs", "context", "verification", "permissions"],
   },
   {
     id: "copilot",
     name: "GitHub Copilot coding agent",
     type: "official",
-    surface: "issue / PR",
+    surface: "issue и PR",
     url: "https://docs.github.com/en/copilot/using-github-copilot/coding-agent/about-assigning-tasks-to-copilot",
-    signal: "Делегирование задачи из GitHub-поверхностей: фоновая работа заканчивается pull request.",
+    signal: "Задача стартует из поверхностей GitHub, уходит в фон и возвращается как pull request.",
     coded: ["orchestration", "parallelism", "verification", "trust"],
   },
   {
@@ -103,7 +103,7 @@ export const researchSources: readonly ResearchSource[] = [
     type: "category",
     surface: "рамка категории",
     url: "https://www.augmentcode.com/guides/what-is-an-agentic-development-environment",
-    signal: "ADE объясняется через оркестрацию, жизненный цикл агентной работы и архитектурный слой управления.",
+    signal: "Категория описана через оркестрацию, жизненный цикл агентной работы и слой управления.",
     coded: ["orchestration", "permissions", "parallelism", "verification"],
   },
   {
@@ -112,16 +112,16 @@ export const researchSources: readonly ResearchSource[] = [
     type: "academic",
     surface: "дизайн системы",
     url: "https://arxiv.org/abs/2604.14228",
-    signal: "Система прав, сжатие контекста, MCP, плагины, skills, hooks, сабагенты и изоляция worktree.",
+    signal: "Права, сжатие контекста, MCP, плагины, skills, hooks, сабагенты и изоляция worktree описаны как части системы.",
     coded: ["permissions", "context", "parallelism", "trust"],
   },
   {
     id: "community",
     name: "Отзывы сообщества",
     type: "community",
-    surface: "Product Hunt / Reddit / форумы",
+    surface: "Product Hunt, Reddit, форумы",
     url: "https://www.producthunt.com/",
-    signal: "Повторяющиеся сигналы: стоимость, лимиты, потеря контекста, доверие к diff и нагрузка на ревью.",
+    signal: "Повторяются одни и те же боли: стоимость, лимиты, потерянный контекст, недоверие к diff и тяжелое ревью.",
     coded: ["friction", "trust", "context", "verification"],
   },
 ] as const;
@@ -137,52 +137,52 @@ export const capabilities: readonly Capability[] = [
 
 export const frictionSignals: readonly FrictionSignal[] = [
   {
-    label: "стоимость / лимиты",
+    label: "стоимость и лимиты",
     score: 4,
-    evidence: "В отзывах часто обсуждают цену длинных сессий, лимиты и непредсказуемый расход.",
+    evidence: "Длинная сессия быстро превращается из удобства в счетчик стоимости и лимитов.",
   },
   {
     label: "риск доверия",
     score: 5,
-    evidence: "Пользователи хотят видеть diff, тесты, trace и понятную точку человеческой проверки.",
+    evidence: "Без diff, тестов, trace и явной точки проверки агент выглядит уверенно, но не заслуживает доверия.",
   },
   {
     label: "потеря контекста",
     score: 4,
-    evidence: "Повторяется проблема: агент теряет замысел задачи или опирается на устаревший контекст.",
+    evidence: "Агент может продолжать работу с устаревшим контекстом и все равно звучать убедительно.",
   },
   {
     label: "ошибки доступа",
     score: 3,
-    evidence: "Чем шире доступ к инструментам, тем важнее песочница, подтверждения и ясные права на команды.",
+    evidence: "Широкие права без песочницы и подтверждений превращают продуктивность в операционный риск.",
   },
   {
     label: "нагрузка ревью",
     score: 5,
-    evidence: "Автономность не отменяет проверку, а переносит нагрузку в доказательства и ревью pull request.",
+    evidence: "Автономность не убирает ревью. Она переносит нагрузку в доказательства и pull request.",
   },
   {
     label: "разрыв процесса",
     score: 3,
-    evidence: "Работа разъезжается между IDE, терминалом, браузером, GitHub, облачными сессиями и чатами.",
+    evidence: "Работа расползается между IDE, терминалом, браузером, GitHub, облаком и чатами.",
   },
 ] as const;
 
 export const workflowSteps: readonly WorkflowStep[] = [
-  { label: "намерение", detail: "задача и критерий успеха" },
-  { label: "спека / план", detail: "план, декомпозиция, риски" },
+  { label: "намерение", detail: "задача, критерий успеха" },
+  { label: "спека и план", detail: "декомпозиция и риски" },
   { label: "контекст", detail: "репозиторий, файлы, память" },
   { label: "доступ", detail: "песочница, сеть, подтверждения" },
   { label: "выполнение", detail: "diff, команды, агенты" },
   { label: "проверка", detail: "тесты, логи, снимки" },
-  { label: "ревью", detail: "pull request, человек, слияние" },
+  { label: "ревью", detail: "pull request, решение человека" },
 ] as const;
 
 export const evidenceStack: readonly EvidenceItem[] = [
-  { label: "лог сессии", detail: "что агент делал и зачем", strength: 3 },
-  { label: "команды", detail: "какие команды запускались", strength: 4 },
-  { label: "тесты", detail: "какие проверки прошли", strength: 5 },
-  { label: "diff", detail: "что реально изменилось", strength: 5 },
+  { label: "лог сессии", detail: "что агент делал", strength: 3 },
+  { label: "команды", detail: "что запускалось", strength: 4 },
+  { label: "тесты", detail: "что прошло проверку", strength: 5 },
+  { label: "diff", detail: "что изменилось", strength: 5 },
   { label: "снимки", detail: "как выглядит результат", strength: 4 },
-  { label: "PR", detail: "где человек принимает решение", strength: 5 },
+  { label: "PR", detail: "где человек решает", strength: 5 },
 ] as const;

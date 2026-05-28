@@ -1,6 +1,16 @@
+/* ─────────────────────────────────────────
+   Thinking model
+   Ширина блока совпадает с ComposerInput (760px),
+   чтобы оба компонента читались как один сценарий
+   рабочей поверхности. Контент идёт одной колонкой:
+   шапка с фазой и текущим инструментом + поток
+   размышлений. Список инструментов больше не
+   распадается во вторую колонку — активный шаг
+   подсвечивается компактным маркером в шапке.
+   ───────────────────────────────────────── */
 .root {
   display: grid;
-  gap: clamp(16px, 2vw, 24px);
+  gap: clamp(12px, 1.6vw, 18px);
   padding: 0;
   border: none;
   background: transparent;
@@ -8,17 +18,36 @@
   font-family: var(--font-sans), sans-serif;
   container-type: inline-size;
   width: 100%;
-  max-width: none;
+  max-width: 760px;
+  margin: 0 auto;
+  /* Содержимое всегда читается с левого края, даже если родитель
+     центрирует текст (как .hero на странице кейса). Размышления —
+     это поток, а не баннер. */
+  text-align: left;
 }
 
-.hero {}
-.inline {}
+/* Варианты режимов: пустые маркеры, чтобы CSS-модуль выдал
+   корректные классы для `styles[mode]`. Видимые различия
+   между hero и inline выражены ниже через `.hero .thoughtStream`. */
+.hero {
+  --thinking-mode: hero;
+}
+
+.inline {
+  --thinking-mode: inline;
+}
+
+/* В hero оставляем минимальную высоту, чтобы первый кадр
+   не «прыгал» при появлении первой строки текста. */
+.hero .thoughtStream {
+  min-height: calc(1.7em * 6);
+}
 
 .header {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  min-width: 0;
 }
 
 .phaseLabel {
@@ -27,6 +56,8 @@
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--composer-ink-subtle);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .phaseLabelShimmer {
@@ -55,7 +86,14 @@
   }
 }
 
+/* Активный инструмент больше не показывается отдельной строкой:
+   фаза сама меняется по ходу выполнения («Читает foo.tsx», «Ищет
+   useThinkingTimeline», «Запускает npm run build»). Это убирает
+   визуальный дубль из «Размышляет» + «read foo.tsx», который
+   раньше выглядел как две конкурирующие подписи. */
+
 .retry {
+  margin-left: auto;
   padding: 4px 8px;
   border-radius: var(--composer-radius-xs);
   border: 1px solid var(--composer-hairline-strong);
@@ -65,27 +103,12 @@
   font-size: 0.76rem;
   cursor: default;
   pointer-events: none;
+  flex-shrink: 0;
 }
 
-/* Two-column layout: thoughts left, tools right.
-   Колонка инструментов фиксирована по минимуму, чтобы пути
-   путей не уезжали на вторую строку и не «прыгали» по строкам. */
-.columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
-  gap: clamp(40px, 5vw, 64px);
-  align-items: start;
-}
-
-/* В hero держим минимальную высоту, чтобы во время анимации
-   первый кадр (один шаг и пустой стрим) не выглядел провалом.
-   В inline резервировать высоту не нужно: блок раскрывается
-   разово и весь контент уже виден. */
-.hero .columns {
-  min-height: 280px;
-}
-
-/* Thought stream — typing text with scroll + fade */
+/* ─────────────────────────────────────────
+   Thought stream — typing text with scroll
+   ───────────────────────────────────────── */
 .thoughtStream {
   position: relative;
   padding: 0;
@@ -95,7 +118,6 @@
   line-height: 1.7;
 }
 
-/* Viewport — clips content, no native scroll */
 .thoughtStreamInner {
   position: relative;
   height: calc(1.7em * 6);
@@ -103,19 +125,18 @@
   padding-right: 16px;
   contain: layout paint style;
 
-  /* Fade bottom edge */
+  /* Мягкий fade на нижней кромке — текст утекает в страницу,
+     а не упирается в жёсткий край. */
   mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
 }
 
-/* Content — translated via transform for smooth scroll */
 .thoughtStreamContent {
   will-change: transform;
   transform: translate3d(0, 0, 0);
   padding-bottom: 20px;
 }
 
-/* Custom scrollbar track — sits on top of everything */
 .scrollTrack {
   position: absolute;
   top: 0;
@@ -161,6 +182,88 @@
   border: 0;
 }
 
+.stepsSrOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  list-style: none;
+}
+
+/* Слот лога: grid-trick для height: 0 → auto.
+   Slot всегда в DOM, но data-open контролируется одновременно
+   open-state'ом collapse'а И фазой done. Это критично: на момент
+   auto-close на done outer-collapse уже сворачивается, а slot
+   тоже остаётся 0fr → natural-content-height container'а не
+   увеличивается (нет toolList в счёт), transition стартует
+   с прежней «thoughts only» высоты. Без этой синхронизации
+   outer-collapse начинал бы свою анимацию с уже выросшей
+   высоты (thoughts+toolList), видна вспышка. */
+.toolListSlot {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.toolListSlot[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+/* Лог: тот же кегль, что у потока мыслей — читается как
+   продолжение. overflow:hidden + min-height:0 на дочернем
+   списке обязательны для работы grid-rows 0fr. */
+.toolList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  font-size: clamp(0.95rem, 1.1vw, 1.08rem);
+  line-height: 1.5;
+  color: var(--composer-ink-subtle);
+  overflow: hidden;
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toolListSlot {
+    transition: none;
+  }
+}
+
+.toolItem {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.toolVerb {
+  color: var(--composer-ink-muted);
+  flex-shrink: 0;
+}
+
+.toolTarget {
+  font-family: var(--composer-font-mono);
+  font-size: inherit;
+  color: var(--composer-ink-subtle);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toolListSlot {
+    transition: none;
+  }
+}
+
 .thoughtTextVisual {
   white-space: pre-wrap;
 }
@@ -179,91 +282,8 @@
 }
 
 @keyframes charFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Tools column */
-.steps {
-  list-style: none;
-  margin: 0;
-  display: grid;
-  gap: 20px;
-  padding: 0 0 0 20px;
-  border-left: 1px solid var(--composer-hairline);
-  align-content: start;
-}
-
-.step {
-  display: block;
-  transition:
-    opacity 360ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    transform 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.step[data-revealed="false"] {
-  opacity: 0;
-  transform: translate3d(0, 6px, 0);
-  pointer-events: none;
-}
-
-.step[data-revealed="true"] {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-.inline .step[data-revealed="true"] {
-  animation: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .step {
-    transition: none;
-  }
-  .step[data-revealed="false"] {
-    transform: none;
-  }
-}
-
-.stepBody {
-  /* Один шаг — одна строка. Op фиксированной шириной слева,
-     target забирает остаток и при нехватке места режется
-     многоточием, а не уезжает вниз. */
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  column-gap: 12px;
-  align-items: baseline;
-  min-width: 0;
-}
-
-.stepOp {
-  font-family: var(--composer-font-mono);
-  font-size: 0.86rem;
-  line-height: 1.6;
-  color: var(--composer-ink-muted);
-  white-space: nowrap;
-}
-
-.stepTarget {
-  font-family: var(--composer-font-mono);
-  font-size: 0.86rem;
-  line-height: 1.6;
-  color: var(--composer-ink);
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* Усечение слева: видим имя файла, не префикс пути. */
-  direction: rtl;
-  text-align: left;
-}
-
-.doneSummary {
-  display: none;
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes phaseShimmer {
@@ -271,18 +291,10 @@
   to { background-position: -200% 0; }
 }
 
-@container (max-width: 540px) {
-  .columns {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-}
-
 /* ─────────────────────────────────────────
    Disclosure — заголовок-фаза становится
    кнопкой, контент сворачивается. Анимация
-   композитная: grid-template-rows + opacity,
-   без измерений и без рывков на больших блоках.
+   композитная: grid-template-rows + opacity.
    ───────────────────────────────────────── */
 .toggle {
   appearance: none;
@@ -298,6 +310,8 @@
   cursor: pointer;
   border-radius: 4px;
   text-align: left;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .toggle:focus-visible {
@@ -314,6 +328,7 @@
   transform: rotate(-90deg);
   transition: transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
   align-self: center;
+  flex-shrink: 0;
 }
 
 .chevron svg {
@@ -348,7 +363,7 @@
   min-height: 0;
   overflow: hidden;
   display: grid;
-  gap: clamp(16px, 2vw, 24px);
+  gap: clamp(12px, 1.6vw, 18px);
 }
 
 @media (prefers-reduced-motion: reduce) {

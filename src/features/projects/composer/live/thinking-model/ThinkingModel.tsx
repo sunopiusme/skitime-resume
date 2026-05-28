@@ -29,42 +29,47 @@ type Props = {
 };
 
 const DEFAULT_STEPS: readonly ThinkingStep[] = [
-  { id: "list", op: "list", target: "src/features/projects/composer/live", durationMs: 400 },
-  { id: "read-ui", op: "read", target: "live/thinking-model/ThinkingModel.tsx", durationMs: 700 },
-  { id: "grep", op: "grep", target: '"useThinkingTimeline"', durationMs: 500 },
-  { id: "read-hook", op: "read", target: "live/thinking-model/useThinkingTimeline.ts", durationMs: 700 },
-  { id: "read-case", op: "read", target: "content/projects/composer/case.tsx", durationMs: 600 },
-  { id: "edit", op: "edit", target: "live/thinking-model/ThinkingModel.tsx", durationMs: 2400 },
-  { id: "run", op: "run", target: "npm run build", durationMs: 1800 },
+  /* Цели сделаны самодостаточными: имя файла или короткий идентификатор,
+     без длинного префикса пути. Это позволяет фазе вида «Читает X»
+     читаться без обрезаний и многоточий. Длительности подобраны
+     так, чтобы каждый шаг можно было успеть прочитать целиком —
+     быстрее ~1.8s глаз не успевает осознать смену статуса. */
+  { id: "list", op: "list", target: "thinking-model/", durationMs: 1800 },
+  { id: "read-ui", op: "read", target: "ThinkingModel.tsx", durationMs: 2400 },
+  { id: "grep", op: "grep", target: "useThinkingTimeline", durationMs: 2000 },
+  { id: "read-hook", op: "read", target: "useThinkingTimeline.ts", durationMs: 2400 },
+  { id: "read-case", op: "read", target: "case.tsx", durationMs: 2200 },
+  { id: "edit", op: "edit", target: "ThinkingModel.tsx", durationMs: 4200 },
+  { id: "run", op: "run", target: "npm run build", durationMs: 3600 },
 ];
 
 const DEFAULT_THOUGHTS: readonly ThoughtSegment[] = [
   {
-    text: "Сначала смотрю папку live: важно понять, какие фрагменты уже собраны и где между ними связь. ",
+    text: "Сначала смотрю папку live. Нужно понять, что уже собрано и где компоненты держатся друг за друга. ",
     revealToolAtStart: 0,
   },
   {
-    text: "Открываю ThinkingModel. Проверяю жизненный цикл: фазы, пропсы, запуск анимации. ",
+    text: "Открываю ThinkingModel. Проверяю фазы, пропсы и запуск анимации. ",
     revealToolAtStart: 1,
   },
   {
-    text: "Ищу, кто ещё использует useThinkingTimeline. Если хук общий, контракт нужно сохранить. ",
+    text: "Ищу другие вызовы useThinkingTimeline. Если хук общий, контракт трогать нельзя. ",
     revealToolAtStart: 2,
   },
   {
-    text: "Читаю хук. Фреймы идут линейно, паузы вынесены в константы. Эту логику можно расширять без лишней магии. ",
+    text: "Читаю хук. Фреймы идут линейно, паузы вынесены в константы. Хорошо: поведение можно менять без скрытой магии. ",
     revealToolAtStart: 3,
   },
   {
-    text: "Сверяю case.tsx. На первом экране нужен цикл, внутри статьи — один спокойный прогон при скролле. ",
+    text: "Сверяю case.tsx. В hero нужен цикл. Внутри статьи нужен один спокойный прогон при скролле. ",
     revealToolAtStart: 4,
   },
   {
-    text: "Собираю новый layout: поток наблюдений слева, инструменты справа. Синхронизация держится на таймингах фреймов. ",
+    text: "Собираю layout: наблюдения слева, инструменты справа. Синхронизация держится на таймингах фреймов. ",
     revealToolAtStart: 5,
   },
   {
-    text: "Запускаю сборку. Если она проходит чисто, значит типы и импорты остались на месте.",
+    text: "Запускаю сборку. Если она чистая, типы и импорты пережили правку.",
     revealToolAtStart: 6,
   },
 ];
@@ -88,7 +93,6 @@ export default function ThinkingModel({
   const autoplay = true;
   const effectiveLoop = loop ?? mode === "hero";
   const isCollapsible = collapsible ?? mode === "inline";
-  const [open, setOpen] = useState(defaultOpen);
   const contentId = useId();
 
   const { phase, revealed, typedChars, fullThoughtText, elapsedMs } = useThinkingTimeline({
@@ -99,6 +103,24 @@ export default function ThinkingModel({
     reducedMotion: reducedMotion || isStatic,
     scenario,
   });
+
+  /* open вычисляется в рендере: автозакрытие на done без useEffect
+     убирает «вспышку» высоты, которую давал двойной commit (сначала
+     рендер с phase=done + open=true, потом setOpen(false)).
+     userToggleState — явный override от пользователя; если он есть,
+     перекрывает автологику. */
+  const [userToggleState, setUserToggleState] = useState<boolean | null>(null);
+  const autoOpen = phase === "done" ? false : defaultOpen;
+  const open = userToggleState !== null ? userToggleState : autoOpen;
+  const setOpen = useCallback(
+    (next: boolean | ((v: boolean) => boolean)) => {
+      setUserToggleState((prev) => {
+        const current = prev !== null ? prev : autoOpen;
+        return typeof next === "function" ? next(current) : next;
+      });
+    },
+    [autoOpen],
+  );
 
   const visibleText = fullThoughtText.slice(0, typedChars);
 
@@ -264,18 +286,57 @@ export default function ThinkingModel({
     return `${seconds.toFixed(1)}s`;
   }, [elapsedMs]);
 
-  const phaseLabel =
-    phase === "error"
-      ? "Модель не ответила"
-      : phase === "done"
-        ? `Размышляла ${elapsedLabel}, ${steps.length} шагов`
-        : phase === "expanded"
-          ? "Готовит ответ"
-          : phase === "waiting"
-            ? "Читает"
-            : phase === "streaming"
-              ? "Размышляет"
-              : "Готова";
+  /* Активный инструмент имеет смысл только во время waiting:
+     именно тогда инструмент действительно «работает». В streaming
+     модель уже думает над прочитанным, новая сноска про read/grep
+     выглядела бы как двойная подпись. */
+  const activeStep =
+    phase === "waiting" && revealed > 0
+      ? steps[Math.min(revealed - 1, steps.length - 1)]
+      : null;
+
+  const phaseLabel = (() => {
+    if (phase === "error") return "Не ответила";
+    if (phase === "done") return `Размышляла ${elapsedLabel} · ${steps.length} шагов`;
+    if (phase === "expanded") return "Готовит ответ";
+    if (phase === "waiting" && activeStep) {
+      const verb =
+        activeStep.op === "read"
+          ? "Читает"
+          : activeStep.op === "grep"
+            ? "Ищет"
+            : activeStep.op === "list"
+              ? "Открывает"
+              : activeStep.op === "edit"
+                ? "Правит"
+                : activeStep.op === "run"
+                  ? "Запускает"
+                  : "Работает";
+      return `${verb} ${activeStep.target}`;
+    }
+    if (phase === "streaming") return "Размышляет";
+    return "Готова";
+  })();
+
+  /* Past-tense verb для итогового лога. Активный инструмент во
+     время выполнения живёт в шапке («Читает foo»), а здесь —
+     застывший след того, что уже сделано. */
+  const pastVerb = (op: ThinkingStep["op"]) => {
+    switch (op) {
+      case "read":
+        return "Прочитала";
+      case "grep":
+        return "Нашла";
+      case "list":
+        return "Открыла";
+      case "edit":
+        return "Изменила";
+      case "run":
+        return "Запустила";
+      default:
+        return "Использовала";
+    }
+  };
 
   const isThinking = phase === "streaming" || phase === "expanded" || phase === "waiting";
   const phaseClassName = `${styles.phaseLabel} ${isThinking ? styles.phaseLabelShimmer : ""}`.trim();
@@ -343,50 +404,63 @@ export default function ThinkingModel({
         }
       >
         <div className={isCollapsible ? styles.collapseInner : undefined}>
-          <div className={styles.columns}>
-            <div className={styles.thoughtStream} aria-label="Мысли модели">
-              <div ref={streamRef} className={styles.thoughtStreamInner}>
-                <div className={styles.thoughtStreamContent}>
-                  <p className={styles.thoughtText}>
-                    <span className={styles.srOnly}>{visibleText}</span>
-                    <span aria-hidden="true" className={styles.thoughtTextVisual}>
-                      {settledText}
-                      {Array.from(tailText).map((ch, i) => (
-                        <span key={tailStart + i} className={styles.thoughtChar}>
-                          {ch}
-                        </span>
-                      ))}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <div className={styles.scrollTrack} aria-hidden="true">
-                <div ref={thumbRef} className={styles.scrollThumb} />
-              </div>
-            </div>
-
-            <ol
-              className={styles.steps}
-              aria-label="Инструменты"
-            >
-              {steps.map((step, index) => {
-                const isRevealed = index < revealed;
-                return (
-                  <li
-                    key={step.id}
-                    className={styles.step}
-                    data-revealed={isRevealed}
-                    data-last={index === revealed - 1 && phase === "streaming"}
-                  >
-                    <span className={styles.stepBody}>
-                      <span className={styles.stepOp}>{step.op}</span>
-                      <span className={styles.stepTarget}>{step.target}</span>
-                    </span>
-                  </li>
-                );
-              })}
+          {/* Лог инструментов — всегда в DOM (slot со своим grid-rows),
+              открыт только когда `open && phase === "done"`. Эта связка
+              критична: на момент перехода streaming→done outer collapse
+              закрывается (open auto→false) И slot одновременно остаётся
+              data-open=false → natural height container'а не растёт
+              на toolList, transition стартует с прежней высоты thoughts.
+              Никакой «вспышки» высоты. */}
+          <div
+            className={styles.toolListSlot}
+            data-open={open && phase === "done"}
+            aria-hidden={!(open && phase === "done")}
+          >
+            <ol className={styles.toolList} aria-label="Инструменты">
+              {steps.map((step) => (
+                <li key={step.id} className={styles.toolItem}>
+                  <span className={styles.toolVerb}>{pastVerb(step.op)}</span>
+                  <span className={styles.toolTarget}>{step.target}</span>
+                </li>
+              ))}
             </ol>
           </div>
+
+          <div className={styles.thoughtStream} aria-label="Мысли модели">
+            <div ref={streamRef} className={styles.thoughtStreamInner}>
+              <div className={styles.thoughtStreamContent}>
+                <p className={styles.thoughtText}>
+                  <span className={styles.srOnly}>{visibleText}</span>
+                  <span aria-hidden="true" className={styles.thoughtTextVisual}>
+                    {settledText}
+                    {Array.from(tailText).map((ch, i) => (
+                      <span key={tailStart + i} className={styles.thoughtChar}>
+                        {ch}
+                      </span>
+                    ))}
+                  </span>
+                </p>
+              </div>
+            </div>
+            <div className={styles.scrollTrack} aria-hidden="true">
+              <div ref={thumbRef} className={styles.scrollThumb} />
+            </div>
+          </div>
+
+          <ol
+            className={styles.stepsSrOnly}
+            aria-label="Инструменты"
+            aria-hidden={phase === "done"}
+          >
+            {steps.map((step, index) => {
+              const isRevealed = index < revealed;
+              return (
+                <li key={step.id} data-revealed={isRevealed}>
+                  {step.op} {step.target}
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </div>
     </section>

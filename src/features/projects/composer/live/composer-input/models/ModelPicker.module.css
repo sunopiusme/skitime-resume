@@ -1,0 +1,243 @@
+/* ─────────────────────────────────────────
+   Model picker — chip-триггер + единый popover
+   с двумя секциями (Reasoning + Model).
+
+   Геометрия наследует токены ComposerInput:
+   радиус card-radius (18) для оболочки,
+   row-radius (12) для интерактивных строк.
+   ───────────────────────────────────────── */
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+  z-index: 10;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--c-ink);
+  cursor: pointer;
+  transition: background-color var(--composer-duration-hover) ease;
+}
+
+.trigger:hover,
+.trigger[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.triggerLabel {
+  color: var(--c-ink);
+  white-space: nowrap;
+}
+
+.triggerLevel {
+  color: var(--c-ink-muted);
+  white-space: nowrap;
+}
+
+.triggerChevron {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  color: var(--c-ink-subtle);
+}
+
+.triggerChevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Popover. Содержит секции: Reasoning, divider,
+   текущая модель → submenu Model. */
+.providers {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+  background: var(--c-surface-glass);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.32),
+    0 -24px 48px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 20;
+}
+
+.providers::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  border-radius: calc(var(--c-card-radius) + 40px);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-mask-image: radial-gradient(
+    ellipse closest-side,
+    rgba(0, 0, 0, 0.95) 30%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: radial-gradient(
+    ellipse closest-side,
+    rgba(0, 0, 0, 0.95) 30%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Заголовок секции — приглушённый, чуть мельче. */
+.sectionTitle {
+  margin: 4px 8px 2px;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--c-ink-subtle);
+  letter-spacing: 0;
+}
+
+.divider {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--c-line-soft);
+}
+
+/* Строка-триггер для submenu (текущая модель). */
+.providerRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 14px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.providerRow:hover,
+.providerRow[data-active="true"] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.providerLabel {
+  white-space: nowrap;
+}
+
+.providerChevron {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  color: var(--c-ink-subtle);
+}
+
+.providerChevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Submenu со списком моделей всех провайдеров. */
+.modelsSubmenu {
+  position: absolute;
+  bottom: calc(0px - var(--c-corner-inset));
+  left: calc(100% + 6px);
+  min-width: 200px;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+  background: var(--c-surface-glass);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.32),
+    0 -24px 48px rgba(0, 0, 0, 0.55);
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 21;
+}
+
+.modelsSubmenu::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -6px;
+  width: 6px;
+}
+
+.providerRow:hover .modelsSubmenu,
+.modelsSubmenu:hover {
+  display: flex;
+}
+
+/* Универсальная строка для уровня и модели. */
+.modelRow {
+  display: grid;
+  grid-template-columns: 1fr 16px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.modelRow:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.modelRow[data-active="true"] {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.levelRow {
+  /* keep base */
+}
+
+.modelLabel {
+  white-space: nowrap;
+}
+
+.checkIcon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--c-ink);
+}
+
+.checkIcon svg {
+  width: 100%;
+  height: 100%;
+}

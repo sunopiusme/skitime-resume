@@ -30,6 +30,13 @@
   --composer-duration-hover: 120ms;
   --composer-duration-lift: 160ms;
   --composer-duration-reveal: 200ms;
+  --composer-page-max: 1280px;
+  --composer-measure: 70ch;
+  --composer-measure-wide: 960px;
+  --composer-measure-graphic: 1120px;
+  --composer-measure-hero: 760px;
+  --composer-section-gap: clamp(72px, 7vw, 112px);
+  --composer-section-gap-tight: clamp(24px, 2.8vw, 40px);
 }
 
 html {
@@ -84,9 +91,21 @@ select {
   font: inherit;
 }
 
+/* Полупрозрачная заливка: ::selection красит только em-box строки,
+   а не весь line-height, поэтому при непрозрачном белом фоне между
+   строками с большим интерлиньяжем (например, .prose с line-height 1.65)
+   читались чёрные полосы. С прозрачностью тёмный фон просвечивает
+   одинаково и в заполнении, и в гэпах между строками — полосы исчезают. */
 ::selection {
-  background: #f5f5f5;
-  color: #0a0a0a;
+  background: rgba(245, 245, 245, 0.28);
+  color: var(--foreground);
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: rgba(245, 245, 245, 0.28);
+  color: var(--foreground);
+  text-shadow: none;
 }
 
 /* ---------------------------------------------------------------

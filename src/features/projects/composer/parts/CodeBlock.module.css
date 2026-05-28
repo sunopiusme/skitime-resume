@@ -1,36 +1,78 @@
 /* ─────────────────────────────────────────
-   Code block — gold standard
-   Frame matches InlineFigure stage.
-   Grid: 4 / 8 / 10 / 14 / 16 / 20
+   Code block — выровнен под визуальную систему
+   ComposerInput:
+   • радиус контейнера = composer card-radius (24),
+   • concentric corners: head/body наследуют
+     радиус оболочки минус 1px (компенсация
+     hairline-обводки изнутри),
+   • без border, объём держится фоном + лёгкой
+     inset-обводкой,
+   • padding-x = 16 как в composer card.
    ───────────────────────────────────────── */
 .block {
   --code-ink: rgba(255, 255, 255, 0.92);
   --code-ink-muted: rgba(255, 255, 255, 0.6);
   --code-ink-subtle: rgba(255, 255, 255, 0.42);
-  --code-hairline: rgba(255, 255, 255, 0.12);
+  /* Inner hairlines (head-bottom, hunk-gap) — лёгкие
+     внутренние разделители. Outer frame использует
+     --composer-hairline (0.14) для синхронности с
+     InlineFigure. */
+  --code-hairline: rgba(255, 255, 255, 0.08);
   --code-gutter: rgba(255, 255, 255, 0.28);
   --code-bg: var(--composer-surface-raised);
-  --code-head-bg: rgba(255, 255, 255, 0.04);
   --code-hover: rgba(255, 255, 255, 0.08);
 
-  /* Diff tints — мягкие зелёный/красный для тёмного фона.
-     Фон строки даёт цветовой сигнал, синтаксические токены Shiki сохраняются. */
-  --code-diff-add-bg: rgba(46, 160, 67, 0.18);
-  --code-diff-add-bg-strong: rgba(46, 160, 67, 0.28);
-  --code-diff-add-ink: #aff5b4;
-  --code-diff-add-bar: #3fb950;
+  /* Геометрические токены — те же концентричные углы,
+     что в ComposerInput: pane 24, inset 6, row 18. */
+  --code-card-radius: 24px;
+  --code-corner-inset: 6px;
+  --code-row-radius: calc(var(--code-card-radius) - var(--code-corner-inset)); /* 18px */
+  --code-pad-x: 16px;
 
-  --code-diff-remove-bg: rgba(248, 81, 73, 0.18);
-  --code-diff-remove-bg-strong: rgba(248, 81, 73, 0.28);
-  --code-diff-remove-ink: #ffa198;
-  --code-diff-remove-bar: #f85149;
+  /* Diff tints — насыщенные solid-цвета в стиле terminal-diff:
+     матрично-зелёный для add, кроваво-красный для remove.
+     Раньше rgba(…, 0.18) поверх #242424 давало тусклый
+     серо-зеленоватый / серо-розовый — сигнал терялся, diff
+     читался как «слегка тонированная строка». Solid hex
+     просчитан как высокоплотный композит: оттенок ярко
+     опознаётся, но синтаксические токены Shiki всё ещё
+     читаются — фон не глушит код. */
+  /* Tint-плотность подобрана так, чтобы luminance был
+     близок к --code-bg (#242424, lum≈36), но цветовой
+     канал ярко доминировал. Это даёт «впечатанный в
+     поверхность» эффект — diff читается как часть
+     карты, а не как наклейка поверх неё.
+     Бары и ink оставлены сочными (terminal phosphor),
+     чтобы сигнальные акценты (+/−, номер строки) не
+     терялись на собственном тонированном фоне. */
+  --code-diff-add-bg: #10301c;
+  --code-diff-add-bg-strong: #1a4828;
+  --code-diff-add-ink: #9dffac;
+  --code-diff-add-bar: #39e25b;
 
-  margin: 0;
+  --code-diff-remove-bg: #321010;
+  --code-diff-remove-bg-strong: #4d1a1a;
+  --code-diff-remove-ink: #ff9c95;
+  --code-diff-remove-bar: #ff3a30;
+
+  /* Ширина та же, что у ComposerInput (760px) — оба компонента
+     читаются как один стандартный контейнер «рабочей поверхности».
+     Без этого ограничения .wide-обёртка растягивает блок до 960px,
+     и code-card визуально не парный с композером. */
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
   display: grid;
   grid-template-rows: auto 1fr;
-  border: 1px solid var(--code-hairline);
-  border-radius: var(--composer-radius-sm);
+  border: none;
+  border-radius: var(--code-card-radius);
   background: var(--code-bg);
+  /* Никакой обводки и inset-frame: code block держится
+     на surface-elevation (raised поверх sunken/страницы),
+     а не на hairline-контуре. Внешняя рамка + внутренняя
+     head/body hairline вместе создавали «двойной край»,
+     при котором head визуально отрывался от body.
+     overflow:hidden не ставим — copy-tooltip уходит вверх. */
   font-family: var(--composer-font-mono);
   color: var(--code-ink);
   color-scheme: dark;
@@ -43,11 +85,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  min-height: 36px;
-  padding: 6px 14px 6px 16px;
-  border-bottom: 1px solid var(--code-hairline);
-  border-radius: calc(var(--composer-radius-sm) - 1px) calc(var(--composer-radius-sm) - 1px) 0 0;
-  background: var(--code-head-bg);
+  /* Concentric corners (Apple HIG, единый язык со ComposerInput
+     и AgenticWorkflowLab):
+     • corner_inset = 6  — зазор от угла карточки до угла кнопки,
+     • button_radius = card_radius − inset = 24 − 6 = 18.
+     Поэтому head имеет padding 6px сверху/снизу и справа: copy-
+     кнопка садится в угол ровно с этим зазором по обеим осям.
+     Слева текстовый контент (путь к файлу) сохраняет общий
+     контентный ритм 16px (--code-pad-x), как остальные строки
+     контента, — это не угловой interactive, ему 6px не нужны. */
+  padding: 6px 6px 6px var(--code-pad-x);
+  /* head и body — одна поверхность; разделитель не нужен. */
+  border-radius: var(--code-card-radius) var(--code-card-radius) 0 0;
 }
 
 .headPath {
@@ -137,15 +186,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   margin-left: 4px;
-  margin-right: -4px;
-  padding: 0;
-  border: none;
-  /* Aligned with the code block radius scale (md=14, sm=10, xs=6).
-     xs reads as a subordinate inner control of the figure. */
-  border-radius: var(--composer-radius-xs);
+  /* Concentric corners: button_radius = card_radius (24) −
+     corner_inset (6) = 18. Кнопка вписана в правый верхний
+     угол карточки, её закругление вырастает из радиуса
+     карты — тот же принцип, что у chromeSysBtn в сайдбаре
+     и у системных угловых кнопок macOS. */
+  border-radius: 18px;
   background: transparent;
   color: var(--code-ink-muted);
   cursor: pointer;
@@ -153,6 +202,8 @@
     background-color var(--composer-duration-hover) ease,
     color var(--composer-duration-hover) ease,
     transform var(--composer-duration-hover) ease;
+  border: none;
+  padding: 0;
 }
 
 .copy:hover {
@@ -207,56 +258,10 @@
   transform: scale(1) rotate(0deg);
 }
 
-/* ──────── Tooltip ──────── */
-.copyTooltip {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  padding: 5px 9px;
-  border-radius: var(--composer-radius-xs);
-  background: #ffffff;
-  color: #0a0a0a;
-  font-family: var(--font-sans), sans-serif;
-  font-size: 0.72rem;
-  font-weight: 500;
-  font-variant-numeric: normal;
-  letter-spacing: 0;
-  line-height: 1.2;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, 2px);
-  transition:
-    opacity var(--composer-duration-hover) ease,
-    transform var(--composer-duration-hover) ease;
-  transition-delay: 0ms;
-  z-index: 3;
-}
-
-.copyTooltip::before {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  background: #ffffff;
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.copy:hover .copyTooltip,
-.copy:focus-visible .copyTooltip {
-  opacity: 1;
-  transform: translate(-50%, 0);
-  transition-delay: 350ms;
-}
-
-.copy[data-state="copied"] .copyTooltip {
-  opacity: 1;
-  transform: translate(-50%, 0);
-  transition-delay: 0ms;
-}
+/* Tooltip теперь рендерится через composer'ский <Tooltip>:
+   единый pill в палитре кейса, с задержкой по Apple HIG,
+   force-видимый на copied-state. Никаких локальных стилей
+   здесь больше нет — см. ComposerInput.module.css → .tooltip. */
 
 .copySrOnly {
   position: absolute;
@@ -271,36 +276,64 @@
 }
 
 /* ──────── Body ──────── */
+/* Тот же паттерн, что в MentionPopover (.popover + .scroller):
+   внешняя оболочка не скроллит сама — внутри лежит скролл-элемент
+   с overflow. Padding = corner-inset (6px) на сторонах и снизу
+   отодвигает scrollbar от скруглённого края ровно на ту же
+   величину, что в композере. Скроллбар приходит внутрь
+   формы карты, не наезжает на 24px нижний радиус. */
 .body {
   position: relative;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   background: var(--code-bg);
-  border-radius: 0 0 calc(var(--composer-radius-sm) - 1px) calc(var(--composer-radius-sm) - 1px);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
-}
-
-.body::-webkit-scrollbar {
-  height: 8px;
-}
-
-.body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
-  border-radius: 4px;
-}
-
-.body::-webkit-scrollbar-track {
-  background: transparent;
+  border-radius: 0 0 var(--code-card-radius) var(--code-card-radius);
+  padding: 0 var(--code-corner-inset) var(--code-corner-inset);
 }
 
 .pre {
   margin: 0;
-  padding: 10px 0;
-  font-size: 0.78rem;
-  line-height: 1.5;
+  /* Head уже даёт встроенный воздух через центровку
+     в min-height. Любой padding-top сверху коду —
+     лишний. Снизу оставляем 14px для финала. */
+  padding: 0 0 14px;
+  /* mono-шрифт оптически меньше sans того же кегля,
+     поэтому поднимаем до 0.86rem — визуально
+     совпадает с весом 0.82rem sans-текста в шапке. */
+  font-size: 0.86rem;
+  line-height: 1.6;
   white-space: pre;
   font-feature-settings: "calt" 0, "liga" 0;
+  /* Горизонтальный overflow здесь, а не на .body, чтобы
+     scrollbar отступал от скруглённого края на padding
+     .body (= corner-inset). Та же связка outer-padding +
+     inner-overflow, что в MentionPopover. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Solid thumb поверх --code-bg (#242424). Полупрозрачный
+     white вёл к холодному, чуть голубому оттенку из-за
+     антиалиасинга на тонкой 6px полосе; solid #3a3a3a — это
+     ровно та же плотность, что у --sb-hairline по системе,
+     визуально нейтральный «второстепенный» элемент.
+     Hover слегка осветляет до #555 — feedback при работе. */
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a3a transparent;
+}
+
+.pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+.pre::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+  border-radius: 3px;
+}
+
+.pre::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+.pre::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .pre :global(pre) {
@@ -332,13 +365,19 @@
 .pre :global(.line)::before {
   content: attr(data-line-no);
   display: inline-block;
-  width: 56px;
-  padding-right: 20px;
+  /* width — content-area для номера + маркера «+»/«−» в diff'е.
+     content-box: visible-width = width + padding-right = 28 + 12 = 40.
+     Хватает для 3-значного номера + пробела + маркера; для
+     2-значных (типичный case в превью) ещё остаётся воздух
+     справа. Раньше 56+20=76 — это был отступ под код-репо
+     с тысячами строк, для preview overkill. */
+  width: 28px;
+  padding-right: 12px;
   margin-right: 4px;
   text-align: right;
   color: var(--code-gutter);
   font-variant-numeric: tabular-nums;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -348,7 +387,9 @@
 .pre :global(.hunk-gap) {
   display: block;
   box-sizing: border-box;
-  padding: 0 20px 0 32px;
+  /* Левый padding выровнен под новый гаттер (40 visible + 4 margin = 44),
+     эллипсис стоит ровно на колонке кода. */
+  padding: 0 20px 0 18px;
   font-family: var(--composer-font-mono);
   font-size: 0.78rem;
   line-height: 1.5;
@@ -361,24 +402,39 @@
 }
 
 /* ──────── Diff highlighting ──────── */
-/* Whole line gets a tinted band so the change reads as a row,
-   not just a side-bar. Tints are tuned for a dark background:
-   dim enough for syntax legibility, contrasted enough to register. */
+/* Стиль `git diff --color`: маркер «+»/«−» идёт ПОСЛЕ номера
+   строки в той же гаттер-колонке. Сигналов два:
+   1) фон-тинт во всю ширину строки,
+   2) цветной номер + глиф «+»/«−» суффиксом.
+   Вертикальной полосы нет — tint + цвет гаттера достаточно,
+   полоса дублировала бы левый край без пользы.
+
+   Right-align гаттера ставит глиф у правого края колонки;
+   номер строки в diff-рядах естественно уезжает влево на
+   ширину маркера (2 чара). Это та же асимметрия, что у
+   нативного `git diff` — числа в diff-рядах слегка не
+   совпадают с контекстными по правому краю. */
 .pre :global(.line[data-diff="add"]) {
   background: var(--code-diff-add-bg);
 }
 
-.pre :global(.line[data-diff="add"])::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 3px;
-  background: var(--code-diff-add-bar);
+/* На сатурированном tint'е Shiki-токены (фиолетовый,
+   циан, жёлтый) визуально дерутся с цветом фона — диф
+   читается как «цветная радуга на цветном». Внутри
+   diff-строк фасадим весь синтаксис в чистый белый:
+   фон-tint несёт цветовой сигнал (что изменилось), код
+   остаётся монохромным и не конкурирует с tint'ом.
+   Shiki вешает inline style="color:…" на спаны — без
+   !important inline-стили не перебиваются. */
+.pre :global(.line[data-diff="add"]),
+.pre :global(.line[data-diff="add"] *),
+.pre :global(.line[data-diff="remove"]),
+.pre :global(.line[data-diff="remove"] *) {
+  color: #f5f5f5 !important;
 }
 
 .pre :global(.line[data-diff="add"])::before {
+  content: attr(data-line-no) " +";
   color: var(--code-diff-add-bar);
   font-weight: 600;
 }
@@ -387,32 +443,24 @@
   background: var(--code-diff-remove-bg);
 }
 
-.pre :global(.line[data-diff="remove"])::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 3px;
-  background: var(--code-diff-remove-bar);
-}
-
 .pre :global(.line[data-diff="remove"])::before {
+  content: attr(data-line-no) " −";
   color: var(--code-diff-remove-bar);
   font-weight: 600;
 }
 
 @media (max-width: 560px) {
   .head {
-    padding: 6px 10px 6px 12px;
+    /* Тот же concentric-inset 6 справа, контент-pad-x 12 слева. */
+    padding: 6px 6px 6px 12px;
   }
 
   .pre {
-    font-size: 0.74rem;
+    font-size: 0.8rem;
   }
 
   .pre :global(.line)::before {
-    width: 44px;
-    padding-right: 14px;
+    width: 22px;
+    padding-right: 8px;
   }
 }

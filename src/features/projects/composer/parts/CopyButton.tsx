@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { Tooltip } from "@/features/projects/composer/live/composer-input/Tooltip";
+
 import styles from "./CodeBlock.module.css";
 
 type Props = {
@@ -27,24 +29,26 @@ export default function CopyButton({ source }: Props) {
   }, [copied]);
 
   return (
-    <button
-      type="button"
-      className={styles.copy}
-      data-state={copied ? "copied" : "idle"}
-      onClick={handleCopy}
-      aria-label={copied ? "Скопировано" : "Скопировать код"}
+    <Tooltip
+      label={copied ? "Скопировано" : "Скопировать"}
+      open={copied}
     >
-      <span className={styles.copyIconStack} aria-hidden="true">
-        <CopyIcon />
-        <CheckIcon />
-      </span>
-      <span className={styles.copyTooltip} aria-hidden="true">
-        {copied ? "Скопировано" : "Скопировать"}
-      </span>
-      <span className={styles.copySrOnly} role="status" aria-live="polite">
-        {copied ? "Скопировано" : ""}
-      </span>
-    </button>
+      <button
+        type="button"
+        className={styles.copy}
+        data-state={copied ? "copied" : "idle"}
+        onClick={handleCopy}
+        aria-label={copied ? "Скопировано" : "Скопировать код"}
+      >
+        <span className={styles.copyIconStack} aria-hidden="true">
+          <CopyIcon />
+          <CheckIcon />
+        </span>
+        <span className={styles.copySrOnly} role="status" aria-live="polite">
+          {copied ? "Скопировано" : ""}
+        </span>
+      </button>
+    </Tooltip>
   );
 }
 

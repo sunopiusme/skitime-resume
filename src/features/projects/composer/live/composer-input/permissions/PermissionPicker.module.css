@@ -1,0 +1,165 @@
+/* ─────────────────────────────────────────
+   Permission picker — chip-триггер + popover.
+   Геометрия наследует токены ComposerInput.
+   ───────────────────────────────────────── */
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+  z-index: 10;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--c-gap-icon);
+  padding: 6px 10px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--c-ink);
+  cursor: pointer;
+  transition: background-color var(--composer-duration-hover) ease;
+}
+
+.trigger:hover,
+.trigger[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Full access — оранжевый акцент во всём триггере. */
+.trigger[data-level="full"],
+.trigger[data-level="full"] .triggerIcon {
+  color: #ff9f0a;
+}
+
+.triggerIcon {
+  display: inline-flex;
+  width: var(--c-icon-col);
+  height: var(--c-icon-col);
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-muted);
+}
+
+.triggerIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.triggerLabel {
+  white-space: nowrap;
+}
+
+.triggerChevron {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  color: var(--c-ink-subtle);
+}
+
+.trigger[data-level="full"] .triggerChevron {
+  color: rgba(255, 159, 10, 0.7);
+}
+
+.triggerChevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+.popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  min-width: 220px;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+  background: var(--c-surface-glass);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.32),
+    0 -24px 48px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 20;
+}
+
+.popover::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  border-radius: calc(var(--c-card-radius) + 40px);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-mask-image: radial-gradient(
+    ellipse closest-side,
+    rgba(0, 0, 0, 0.95) 30%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: radial-gradient(
+    ellipse closest-side,
+    rgba(0, 0, 0, 0.95) 30%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.option {
+  display: grid;
+  grid-template-columns: 18px 1fr 16px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.option:hover,
+.option[data-active="true"] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.optionIcon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-muted);
+}
+
+.optionIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.optionLabel {
+  white-space: nowrap;
+}
+
+.checkIcon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--c-ink);
+}
+
+.checkIcon svg {
+  width: 100%;
+  height: 100%;
+}

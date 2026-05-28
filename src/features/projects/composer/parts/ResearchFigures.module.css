@@ -13,7 +13,7 @@
    ───────────────────────────────────────── */
 .stageHeader {
   display: grid;
-  gap: clamp(14px, 1.6vw, 20px);
+  gap: clamp(8px, 1vw, 12px);
   margin-bottom: clamp(20px, 2vw, 28px);
 }
 
@@ -27,10 +27,10 @@
 .stageEyebrow {
   margin: 0;
   font-family: var(--composer-font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--composer-ink-subtle);
+  color: rgba(255, 255, 255, 0.36);
 }
 
 .stageTitle {
@@ -69,8 +69,7 @@
 .toolName,
 .frictionHead,
 .diskCore,
-.diskStep,
-.stackLabel {
+.diskStep {
   font-family: var(--composer-font-mono);
 }
 
@@ -156,11 +155,14 @@
 }
 
 .sourceType {
+  min-width: 0;
   font-family: var(--font-sans), sans-serif;
   font-size: 0.85rem;
   letter-spacing: -0.005em;
   color: var(--composer-ink-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sourceType[data-type="official"],
@@ -173,14 +175,23 @@
 }
 
 .sourceSurface {
+  min-width: 0;
   font-family: var(--font-sans), sans-serif;
   color: var(--composer-ink-muted);
   font-size: 0.85rem;
   letter-spacing: -0.005em;
-  white-space: nowrap;
+  /* Раньше nowrap → длинный «Product Hunt /
+     Reddit / форумы» вылезал и наезжал на
+     соседнюю sourceSignal-колонку. Сейчас
+     wrap'имся в две строки внутри своей
+     ячейки. */
+  white-space: normal;
+  text-wrap: pretty;
+  line-height: 1.4;
 }
 
 .sourceSignal {
+  min-width: 0;
   color: var(--composer-ink-muted);
   font-family: var(--font-sans), sans-serif;
   font-size: 0.92rem;
@@ -307,18 +318,44 @@
   background: var(--composer-hairline-strong);
 }
 
+.matrixNote {
+  margin: clamp(28px, 3vw, 36px) 0 0;
+  max-width: 62ch;
+  color: var(--composer-ink-subtle);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
 .radarLayout {
   display: grid;
-  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.2fr);
-  gap: clamp(18px, 3vw, 32px);
-  align-items: center;
-  padding-top: clamp(18px, 3vw, 32px);
+  grid-template-columns: minmax(420px, 5fr) minmax(360px, 4fr);
+  gap: clamp(48px, 5vw, 64px);
+  align-items: start;
+  padding-top: clamp(28px, 3vw, 36px);
+  padding-bottom: clamp(8px, 1.2vw, 16px);
+}
+
+.radarPanel {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: clamp(20px, 2vw, 24px);
 }
 
 .radar {
-  width: min(100%, 320px);
+  width: min(100%, 440px);
   aspect-ratio: 1;
   justify-self: center;
+}
+
+.radarCaption {
+  margin: 0;
+  max-width: 40ch;
+  color: var(--composer-ink-subtle);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  text-wrap: pretty;
 }
 
 .radar circle,
@@ -336,14 +373,21 @@
 
 .frictionList {
   display: grid;
-  gap: 10px;
+  gap: 0;
+  width: 100%;
+  max-width: 460px;
+  justify-self: end;
 }
 
 .frictionItem {
   display: grid;
   gap: 6px;
-  padding-bottom: 10px;
+  padding: 0 0 13px;
   border-bottom: 1px solid var(--composer-hairline);
+}
+
+.frictionItem + .frictionItem {
+  padding-top: 13px;
 }
 
 .frictionHead {
@@ -363,16 +407,27 @@
 .frictionItem p {
   margin: 0;
   color: var(--composer-ink-muted);
-  font-size: 0.9rem;
+  font-size: 0.84rem;
   line-height: 1.45;
+  text-wrap: pretty;
+}
+
+/* Сцена чертежа занимает центральный квадрат .disk,
+   а подписи приземляются на конец leader'ов и могут
+   уезжать за внешнюю рамку. Чтобы их не клипало,
+   фигура заворачивается в .diskFrame с боковым padding'ом. */
+.diskFrame {
+  width: 100%;
+  padding: 0 clamp(40px, 5vw, 72px);
+  box-sizing: border-box;
+  margin: clamp(20px, 3vw, 36px) 0 clamp(12px, 1.8vw, 20px);
 }
 
 .disk {
   position: relative;
-  width: 100%;
-  max-width: 560px;
+  width: min(100%, 520px);
   aspect-ratio: 1;
-  margin: clamp(8px, 2vw, 20px) auto 0;
+  margin: 0 auto;
 }
 
 .diskRings {
@@ -383,94 +438,118 @@
   overflow: visible;
 }
 
-.diskRings circle,
-.diskRings line {
-  fill: none;
-  stroke: var(--composer-hairline);
-  stroke-width: 0.5;
-  vector-effect: non-scaling-stroke;
-}
-
-.diskRings circle:nth-child(2),
-.diskRings circle:nth-child(3) {
-  stroke-dasharray: 2 4;
-}
-
-.diskCore {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  width: 26%;
-  aspect-ratio: 1;
-  display: grid;
-  place-content: center;
-  gap: 4px;
-  padding: 8px;
-  border: 1px solid var(--composer-hairline);
-  border-radius: 999px;
-  background: var(--composer-surface-raised);
-  text-align: center;
-  transform: translate(-50%, -50%);
-}
-
-.diskCore span {
-  color: var(--composer-ink-subtle);
-  font-family: var(--composer-font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.diskCore strong {
-  color: var(--composer-ink);
-  font-size: clamp(0.72rem, 1.2vw, 0.85rem);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-}
-
+/* Подпись шага — голый текст, приземляется на anchor
+   в конце SVG-leader'а. Никаких margin-offset'ов: leader
+   уже даёт визуальный зазор от bullet'а до метки. */
 .diskStep {
   position: absolute;
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 8px;
-  min-width: 124px;
-  max-width: 156px;
-  padding: 8px 10px;
-  border: 1px solid var(--composer-hairline);
-  border-radius: 12px;
-  background: var(--composer-surface-raised);
+  display: grid;
+  grid-template-columns: auto;
+  gap: 2px;
+  width: 110px;
+  pointer-events: none;
+}
+
+.diskStep[data-halign="center"] {
+  text-align: center;
+  transform: translate(-50%, 0);
+}
+
+.diskStep[data-halign="left"] {
+  text-align: left;
+  margin-left: 0;
+}
+
+.diskStep[data-halign="right"] {
+  text-align: right;
+  transform: translate(-100%, 0);
+  margin-left: 0;
+}
+
+.diskStep[data-halign="center"][data-valign="middle"] {
   transform: translate(-50%, -50%);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+.diskStep[data-halign="left"][data-valign="middle"] {
+  transform: translate(0, -50%);
+}
+
+.diskStep[data-halign="right"][data-valign="middle"] {
+  transform: translate(-100%, -50%);
+}
+
+.diskStep[data-valign="top"][data-halign="center"] {
+  transform: translate(-50%, 0);
+  margin-top: 2px;
+}
+
+.diskStep[data-valign="top"][data-halign="left"] {
+  margin-top: 0;
+}
+
+.diskStep[data-valign="top"][data-halign="right"] {
+  transform: translate(-100%, 0);
+  margin-top: 0;
+}
+
+.diskStep[data-valign="bottom"][data-halign="center"] {
+  transform: translate(-50%, -100%);
+  margin-top: -2px;
+}
+
+.diskStep[data-valign="bottom"][data-halign="left"] {
+  transform: translate(0, -100%);
+  margin-top: 0;
+}
+
+.diskStep[data-valign="bottom"][data-halign="right"] {
+  transform: translate(-100%, -100%);
+  margin-top: 0;
 }
 
 .diskStepIndex {
-  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: var(--composer-ink-subtle);
   font-family: var(--composer-font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.04em;
-  padding-top: 2px;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
   font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
 }
 
-.diskStepBody {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.diskStepBody strong {
+.diskStepLabel {
+  display: block;
   color: var(--composer-ink);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  line-height: 1.25;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.18;
+  margin-top: 2px;
 }
 
-.diskStepBody span {
+.diskStepDetail {
+  display: block;
   color: var(--composer-ink-muted);
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   line-height: 1.35;
+  margin-top: 2px;
+}
+
+/* Active-station: index/label получают полный ink,
+   индекс становится «горящим» bullet'ом метки. */
+.diskStep[data-active="true"] .diskStepIndex {
+  color: var(--composer-ink);
+}
+
+.diskStep[data-active="true"] .diskStepLabel {
+  color: var(--composer-ink);
+  font-weight: 600;
+}
+
+.diskStep[data-active="true"] .diskStepDetail {
+  color: var(--composer-ink-muted);
 }
 
 .diskList {
@@ -503,68 +582,123 @@
 .diskListItem strong {
   display: block;
   color: var(--composer-ink);
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   font-weight: 600;
 }
 
 .diskListItem span {
   display: block;
   color: var(--composer-ink-muted);
-  font-size: 0.82rem;
-  line-height: 1.4;
-}
-
-.stack {
-  display: grid;
-  padding-top: 8px;
-}
-
-.stackRow {
-  display: grid;
-  grid-template-columns: minmax(120px, 0.32fr) minmax(0, 1fr) auto;
-  gap: 24px;
-  align-items: baseline;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--composer-hairline);
-}
-
-.stackRow:first-child {
-  border-top: 1px solid var(--composer-hairline);
-}
-
-.stackLabel {
-  color: var(--composer-ink);
-  font-family: var(--composer-font-mono);
   font-size: 0.78rem;
-  letter-spacing: 0.06em;
+  line-height: 1.35;
+}
+
+.diskListItem[data-active="true"] {
+  position: relative;
+  padding-left: 14px;
+}
+
+.diskListItem[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  width: 3px;
+  height: calc(100% - 28px);
+  background: var(--composer-ink);
+  border-radius: 2px;
+}
+
+.diskListItem[data-active="true"] .diskListIndex,
+.diskListItem[data-active="true"] strong {
+  color: var(--composer-ink);
+}
+
+/* ─────────────────────────────────────────
+   Evidence fan — горизонтальная фан-диаграмма
+   (этап 05). Композиция повторяет референс,
+   повёрнутый на 90°: шесть вертикальных рисок
+   слева направо, у каждой пара чисел —
+   меньшее сверху, большее снизу. Между крайними
+   рисками плотный пучок прямых линий.
+   Никаких дополнительных подписей по бокам —
+   смысл несёт заголовок и подпись фигуры,
+   диаграмма работает как графическая «обложка»
+   доказательной базы.
+   ───────────────────────────────────────── */
+.evidenceFan {
+  width: 100%;
+  padding-top: 4px;
+  color: var(--composer-ink);
+}
+
+.evidenceFanSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.evidenceFanBeam {
+  color: var(--composer-ink);
+  /* Видимая, но не доминирующая штриховка. */
+  opacity: 0.45;
+}
+
+.evidenceFanRule {
+  color: var(--composer-ink);
+}
+
+.evidenceFanLabelSvg {
+  fill: var(--composer-ink);
+  font-family: var(--composer-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-}
-
-.stackDetail {
-  color: var(--composer-ink-muted);
-  font-size: 0.95rem;
-  line-height: 1.55;
-  text-wrap: pretty;
-}
-
-.stackStrength {
-  display: inline-flex;
-  gap: 0;
-  white-space: nowrap;
-  color: var(--composer-ink);
-  font-family: var(--composer-font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
   font-variant-numeric: tabular-nums;
 }
 
-.stackStrengthDim {
-  color: var(--composer-hairline-strong);
+.evidenceFanNumberSvg {
+  fill: var(--composer-ink);
+  font-family: var(--composer-font-mono);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.evidenceFanDetailSvg {
+  fill: var(--composer-ink-muted);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 12.5px;
+  letter-spacing: -0.005em;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  list-style: none;
 }
 
 @media (max-width: 820px) {
   .radarLayout {
     grid-template-columns: 1fr;
+    gap: clamp(28px, 8vw, 40px);
+  }
+
+  .radar {
+    width: min(100%, 420px);
+  }
+
+  .radarCaption,
+  .frictionList {
+    justify-self: start;
+    max-width: 100%;
   }
 
   .sourceTableHead {
@@ -590,12 +724,7 @@
     display: grid;
   }
 
-  .stackRow {
-    grid-template-columns: 1fr;
-    gap: 4px;
-  }
-
-  .stackStrength {
-    justify-self: start;
+  .stack {
+    /* legacy: ничего не делает, оставлено для совместимости. */
   }
 }

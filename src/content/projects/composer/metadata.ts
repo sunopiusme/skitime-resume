@@ -2,12 +2,12 @@ export const composerMetadata = {
   slug: "composer" as const,
   title: "Composer",
   summary:
-    "Лабораторный кейс об ADE: источники, сигналы трения, петля работы и интерфейсы агентной разработки.",
+    "Разбор ADE через источники, трение пользователей, контроль агента и интерфейс доказательной работы.",
   year: "2026",
-  role: "Product / UI дизайн и код",
+  role: "Product, UI дизайн и код",
   tags: ["ADE Lab", "Agentic Workflow", "Research"] as const,
   metadata: {
     description:
-      "Исследовательский кейс о проектировании Agentic Development Environment: карта источников, матрица возможностей, радар трения, петля работы и доказательная база.",
+      "Кейс о проектировании Agentic Development Environment: карта источников, пользовательское трение, трейс, композер, цикл работы и доказательства для ревью.",
   },
 };

@@ -2,7 +2,16 @@
    Composer input — повторяет композицию
    референса (Codex). Тёмная монохромная
    палитра, без цветовых акцентов.
-   Сетка отступов: 4 / 8 / 12 / 16 / 20
+
+   Геометрия унифицирована с правилами sidebar
+   (AgenticWorkflowLab):
+   • card-radius 18, corner-inset 6,
+     радиус интерактивных пилюль = 18 − 6 = 12
+     (concentric corners по Apple HIG);
+   • pad-x = 16 от края до контента;
+   • иконки 18×18 в колонке 20×20;
+   • первичный текст 0.92rem / 400,
+     вторичный 0.82rem.
    ───────────────────────────────────────── */
 .root {
   --c-line: var(--composer-hairline);
@@ -12,6 +21,21 @@
   --c-ink-subtle: var(--composer-ink-subtle);
   --c-surface: var(--composer-surface-raised);
   --c-surface-soft: var(--composer-surface-sunken);
+  /* Сплошной фон для popover'ов: раньше тут жил полупрозрачный
+     glass (rgba(36, 36, 36, 0.72)) с backdrop-filter. На странице
+     с несколькими меню рядом — модели, проекты, plus, плагины —
+     сквозь полупрозрачный слой просвечивали соседние popover'ы,
+     и читалось это как «двойной» интерфейс. Делаем фон сплошным,
+     чтобы dropdown'ы перекрывали друг друга, как обычные слои. */
+  --c-surface-glass: var(--composer-surface-raised);
+
+  /* Геометрические токены — те же, что в sidebar */
+  --c-card-radius: 24px;
+  --c-corner-inset: 6px;
+  --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset)); /* 18px */
+  --c-pad-x: 16px;
+  --c-icon-col: 20px;
+  --c-gap-icon: 6px;
 
   width: 100%;
   max-width: 760px;
@@ -20,6 +44,27 @@
   gap: 12px;
   font-family: var(--font-sans), sans-serif;
   color: var(--c-ink);
+  /* Композер — превью-сцена, как sidebar в
+     AgenticWorkflowLab. Текст внутри читается как
+     «изображение интерфейса», случайное выделение
+     drag-rectangle'ом отвлекает и ломает погружение.
+     Selection отключаем целиком, кроме textarea
+     (PromptInput) — там пользователь действительно
+     печатает и редактирует, без selection поле
+     не работает. */
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+/* Единственное исключение — textarea: туда вводят
+   текст, выделяют, копируют, редактируют. UA-стиль
+   уже даёт ей user-select: text, но мы переопределяем
+   на корне, поэтому возвращаем явно. */
+.input {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
 }
 
 /* ── Stack: warning (top) + card + context (bottom) ─ */
@@ -32,80 +77,441 @@
 }
 
 /* ── Warning row (top drawer) ──────────── */
-/* Открытые углы = радиус card (18), чтобы
-   ящик читался как часть одной оболочки. */
+/* Открытые углы = радиус card, чтобы
+   ящик читался как часть одной оболочки.
+   pad-x = card pad-x для совпадения вертикали
+   контента с тем, что внутри карточки.
+
+   Padding асимметричный: визуально box частично
+   уходит под card через margin-bottom: -16px.
+   Видимая высота = top + content + bottom − 16,
+   и контент должен быть оптически по центру
+   именно ВИДИМОЙ зоны, а не всего box'а.
+   Поэтому top меньше bottom на 4px (после
+   вычета overlap получаем симметрию). */
 .warning {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--c-gap-icon);
   margin: 0 12px -16px;
-  padding: 14px 20px 22px;
-  border-radius: 18px 18px 0 0;
+  padding: 8px var(--c-pad-x) 22px;
+  border-radius: var(--c-card-radius) var(--c-card-radius) 0 0;
   background: var(--c-surface-soft);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   position: relative;
   z-index: 0;
 }
 
 /* ── Context row (bottom drawer) ───────── */
-/* x-inset: 0 → радиус = радиусу card (18) */
+/* x-inset: 0 → радиус = радиусу card.
+   z-index не задаём — DOM-order ставит drawer
+   после .card, так что popover внутри drawer'а
+   автоматически выше карточки. Любой stacking-
+   context здесь обрезал бы внутренние popover-ы. */
 .context {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
   margin: -16px 0 0;
-  padding: 22px 12px 12px;
-  border-radius: 0 0 18px 18px;
+  padding: 22px var(--c-pad-x) 12px;
+  border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
   background: var(--c-surface-soft);
-  position: relative;
-  z-index: 0;
 }
 
 .warningIcon {
   display: inline-flex;
-  width: 18px;
-  height: 18px;
-  color: var(--c-ink);
+  width: var(--c-icon-col);
+  height: var(--c-icon-col);
+  align-items: center;
+  justify-content: center;
+  /* Apple system orange — стандартный indicator-цвет
+     для предупреждений в macOS/iOS. */
+  color: #ff9f0a;
   flex-shrink: 0;
 }
 
 .warningIcon svg {
-  width: 100%;
-  height: 100%;
+  width: 18px;
+  height: 18px;
 }
 
 .warningText {
   flex: 1;
-  color: var(--c-ink);
+  color: #ff9f0a;
+  font-size: 0.82rem;
   line-height: 1.4;
 }
 
+/* Action в warning row — ghost-вариант. На
+   тонированной подложке drawer'а tonal-pill
+   читался слишком тяжело: пилюля + tint =
+   два слоя UI на короткой строке. Оставляем
+   только текст + chevron, без заливки.
+
+   Внутренний padding минимальный (4/0), но
+   видимая зона клика расширена прозрачно
+   через height и -mx — touch target ≥ 24px
+   по обеим осям без визуального шума.
+
+   Hover не меняет фон, только усиливает ink:
+   ghost-кнопке достаточно сдвига color,
+   чтобы дать тактильную обратную связь. */
 .warningAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  margin: 0 -4px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
   color: var(--c-ink-muted);
-  font-size: 0.85rem;
-  cursor: default;
-  pointer-events: none;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color var(--composer-duration-hover) ease;
+}
+
+/* Chevron как SVG, согласованный с остальными
+   иконками композера (1.5 stroke, currentColor).
+   Размер 12px — оптически совпадает с x-height
+   font-size 0.78rem (~13px при body 16). Color
+   наследуется от button, opacity 0.65 в idle —
+   стрелка не должна перетягивать на себя
+   взгляд с label'а, который и есть цель клика. */
+.warningActionChevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  opacity: 0.65;
+  transition: opacity var(--composer-duration-hover) ease,
+    transform var(--composer-duration-hover) ease;
+}
+
+.warningActionChevron svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2;
+}
+
+.warningAction:hover {
+  color: var(--c-ink);
+}
+
+.warningAction:hover .warningActionChevron {
+  opacity: 1;
+  /* Микро-сдвиг chevron'а вправо на hover —
+     reinforce'ит «дальше». Амплитуда 1px,
+     хватает чтобы заметить, и не выглядит
+     как trick. */
+  transform: translateX(1px);
+}
+
+.warningAction:active {
+  color: var(--c-ink);
 }
 
 /* ── Card (input + toolbar) ────────────── */
 .card {
   display: grid;
   gap: 16px;
-  padding: 18px 20px 14px;
-  border: 1px solid var(--c-line);
-  border-radius: 18px;
+  padding: 18px var(--c-pad-x) 14px;
+  border-radius: var(--c-card-radius);
   background: var(--c-surface);
   position: relative;
   z-index: 1;
 }
 
-.placeholder {
+.card[data-drag="true"] {
+  background: var(--c-surface-soft);
+}
+
+/* Скрытый file-input для openFilePicker(). */
+.hiddenFile {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Полоса с превью прикреплённых файлов.
+   Прижимается к углу карточки с inset = corner-inset
+   по обеим осям (concentric corners). Снизу имеет
+   увеличенный bottom-gap (через отрицательный
+   margin-bottom компенсируем gap card-grid). */
+.attachmentsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  /* card.padding = 18 var(--c-pad-x) 14:
+     top    = 18,
+     left   = 16,
+     right  = 16.
+     corner-inset нужен 6 → margin-top = 6 − 18 = −12,
+     margin-x = 6 − 16 = −10. */
+  margin: -12px -10px -8px;
+}
+
+/* ── Drop-overlay при drag-and-drop файла ──
+   Минималистичный стиль композера: ничего
+   нового — только то, что уже живёт в инпуте.
+
+   Никакого стекла, pill'ов, ауры, halo. Оверлей
+   подменяет содержимое card'а на ту же поверхность
+   (та же geometry, тот же row-radius на inset =
+   corner-inset, та же палитра hairline'ов, что у
+   attachment-плиток и mode-chip'ов).
+
+   Композиция: горизонтальная пара icon + label,
+   минус background у иконки. Иконка живёт на той
+   же высоте, что и текст — как unicode-символ
+   рядом со словом. Высота всей композиции
+   ~20px, помещается в дефолтный 1-line card
+   без перекрытия toolbar'а. ── */
+.dropOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: var(--c-card-radius);
+  /* Та же поверхность, что у card[data-drag] —
+     оверлей читается как drop-state самой карточки,
+     а не как отдельный модал. */
+  background: var(--c-surface-soft);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 30;
+  animation: dropOverlayIn 140ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Concentric inner ring. Inset = corner-inset (6),
+   радиус = card − 6 = row-radius. Тот же закон,
+   по которому строятся attachment-плитки и
+   mode-chip'ы — оверлей читается как родной
+   элемент композера. */
+.dropOverlay::before {
+  content: "";
+  position: absolute;
+  inset: var(--c-corner-inset);
+  border-radius: var(--c-row-radius);
+  box-shadow: inset 0 0 0 1px var(--c-line);
+  pointer-events: none;
+}
+
+.dropOverlayInner {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  max-width: calc(100% - 32px);
+  padding: 0 var(--c-pad-x);
+  animation: dropOverlayContent 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Иконка над текстом, без плитки. Размер
+   увеличен до 18px — так glyph не теряется
+   на пустой поверхности card'а, оставаясь
+   тем же по плотности линий, что и иконки
+   toolbar'а. Цвет — ink-muted, в паре с
+   placeholder-style label под иконкой. */
+.dropOverlayIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--c-ink-muted);
+  flex-shrink: 0;
+}
+
+.dropOverlayIcon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.5;
+}
+
+/* Single-line label. Размер и color совпадают с
+   placeholder textarea (через --c-ink-muted),
+   так что переход input → drop-state выглядит
+   как смена строки, а не как «вылез модал». */
+.dropOverlayTitle {
+  font-size: 0.92rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--c-ink-muted);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Hint больше не нужен в новой композиции —
+   inline-однострочник самодостаточен. Класс
+   оставлен в DOM на случай будущих state'ов
+   (например, отказ по типу файла). */
+.dropOverlayHint {
+  display: none;
+}
+
+.dropOverlayCopy {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+@keyframes dropOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dropOverlayContent {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropOverlay,
+  .dropOverlayInner {
+    animation: none;
+  }
+}
+
+.input {
+  display: block;
+  width: 100%;
   margin: 0;
   padding: 4px 0 0;
-  font-size: 0.95rem;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 400;
   line-height: 1.45;
+  color: var(--c-ink);
+  resize: none;
+  /* Auto-grow ограничен сверху: после ~5 строк
+     поле перестаёт расти и уходит в скролл —
+     композиция остаётся компактной даже при
+     большом промпте (важно для интерактивного
+     демо в портфолио). */
+  min-height: calc(0.92rem * 1.45 + 4px);
+  max-height: 120px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+/* Wrapper для textarea. Без position — popover
+   с @-mention позиционируется не от него, а от
+   .card (который relative). Так popover магнитится
+   к верхней кромке всей карточки и не «висит» в
+   фиксированной точке, когда меняется внутренний
+   layout (например появляется ряд вложений). */
+.inputWrap {
+  display: block;
+}
+
+/* ── Mode chip — индикатор активного режима
+   (например, «Планирование»). Стоит в toolbarLeft
+   рядом с permission, той же геометрии:
+   радиус row, padding 6/10, font 0.82.
+   Закрытие — мини-кнопка с крестиком справа. ── */
+.modeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--c-gap-icon);
+  padding: 6px 6px 6px 10px;
+  border-radius: var(--c-row-radius);
+  background: rgba(29, 58, 138, 0.18);
+  color: #c7d6ff;
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.modeChipIcon {
+  display: inline-flex;
+  width: var(--c-icon-col);
+  height: var(--c-icon-col);
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.modeChipIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.modeChipClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: background-color var(--composer-duration-hover) ease,
+              opacity var(--composer-duration-hover) ease;
+}
+
+.modeChipClose:hover {
+  background: rgba(255, 255, 255, 0.12);
+  opacity: 1;
+}
+
+.modeChipClose svg {
+  width: 12px;
+  height: 12px;
+}
+
+.input::placeholder {
   color: var(--c-ink-subtle);
+}
+
+.input::-webkit-scrollbar {
+  width: 6px;
+}
+
+.input::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 3px;
+}
+
+.input::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .toolbar {
@@ -119,20 +525,93 @@
 .toolbarRight {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
-/* ── Generic icon button (square, ghost) ─ */
+/* В recording-state toolbarLeft растягивается на
+   всё свободное пространство — чтобы VoiceRecorder
+   (внутри неё) мог стримить waveform во всю
+   ширину между Plus и Mic/Send. */
+.toolbar[data-recording="true"] .toolbarLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Generic icon button — concentric corner
+   к card, размер согласован с sidebar
+   chromeSysBtn (32×32). ── */
 .iconBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  padding: 0;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
   color: var(--c-ink-muted);
   cursor: default;
-  pointer-events: none;
+}
+
+/* Интерактивные кнопки (кнопка-триггер plus) —
+   круглый hover-фон, читается как ghost-action. */
+button.iconBtn {
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background-color var(--composer-duration-hover) ease,
+              color var(--composer-duration-hover) ease;
+}
+
+button.iconBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--c-ink);
+}
+
+button.iconBtn[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--c-ink);
+}
+
+/* Active-state mic во время записи: tonal-fill,
+   secondary visual weight. До этого было primary
+   (белый фон + тёмный glyph) — кнопка визуально
+   спорила с send. Сейчас mic в record-mode —
+   обычная iconBtn с чуть более плотным фоном,
+   send остаётся единственным primary в toolbar'е. */
+button.iconBtn[data-active="true"] {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--c-ink);
+}
+
+button.iconBtn[data-active="true"]:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--c-ink);
+}
+
+/* Loading-state mic во время processing'а.
+   Внутри сидит SpinnerIcon — крутится через
+   CSS rotate без переполнения paint'ом
+   (transform-only, GPU-friendly). */
+button.iconBtn[data-loading="true"] {
+  cursor: progress;
+}
+
+button.iconBtn[data-loading="true"] svg {
+  animation: spinnerRotate 900ms linear infinite;
+  transform-origin: center;
+}
+
+@keyframes spinnerRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.iconBtn[data-loading="true"] svg {
+    animation: none;
+  }
 }
 
 .iconBtn svg {
@@ -144,38 +623,40 @@
 .permission {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--c-gap-icon);
   padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 0.85rem;
+  border-radius: var(--c-row-radius);
+  font-size: 0.82rem;
+  font-weight: 400;
   color: var(--c-ink);
   cursor: default;
-  pointer-events: none;
 }
 
 .permissionIcon {
   display: inline-flex;
-  width: 16px;
-  height: 16px;
+  width: var(--c-icon-col);
+  height: var(--c-icon-col);
+  align-items: center;
+  justify-content: center;
   color: var(--c-ink-muted);
 }
 
 .permissionIcon svg {
-  width: 100%;
-  height: 100%;
+  width: 18px;
+  height: 18px;
 }
 
 /* ── Model chip (5.5 High) ─────────────── */
 .modelChip {
   display: inline-flex;
   align-items: baseline;
-  gap: 6px;
+  gap: var(--c-gap-icon);
   padding: 6px 8px 6px 10px;
-  border-radius: 10px;
-  font-size: 0.85rem;
+  border-radius: var(--c-row-radius);
+  font-size: 0.82rem;
+  font-weight: 400;
   color: var(--c-ink);
   cursor: default;
-  pointer-events: none;
 }
 
 .modelValue {
@@ -190,8 +671,8 @@
 /* ── Chevron (общий) ───────────────────── */
 .chevron {
   display: inline-flex;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   margin-left: 2px;
   color: var(--c-ink-subtle);
   align-self: center;
@@ -210,41 +691,457 @@
   width: 32px;
   height: 32px;
   margin-left: 4px;
+  padding: 0;
+  border: none;
   border-radius: 999px;
   background: var(--c-ink);
   color: var(--composer-surface);
-  cursor: default;
-  pointer-events: none;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.sendBtn:disabled,
+.sendBtn[data-disabled="true"] {
+  /* Ghost-пилюля поверх card: лёгкий светлый overlay
+     (а не sunken-фон темнее card, как было раньше) —
+     disabled читается как «слот недоступен», а не
+     как вдавленная в поверхность negative space. */
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.32);
+  cursor: not-allowed;
 }
 
 .sendBtn svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 /* ── Footer chips (repo / env / branch) ─ */
 .footChip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--c-gap-icon);
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: var(--c-row-radius);
   font-size: 0.82rem;
   color: var(--c-ink-muted);
   cursor: default;
-  pointer-events: none;
 }
 
 .footIcon {
+  display: inline-flex;
+  width: var(--c-icon-col);
+  height: var(--c-icon-col);
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-subtle);
+}
+
+.footIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Plus dropdown menu ────────────────── */
+/* Обёртка-якорь для плюсика и его меню.
+   Меню скрыто, появляется при :hover.
+   Геометрия наследует токены card-radius
+   и concentric inset, как и остальные части. */
+.plusMenu {
+  position: relative;
+  display: inline-flex;
+  z-index: 10;
+}
+
+/* ── Tooltip ──────────────────────────────
+   Hint над/под триггером (button, picker), pill
+   в монохромной палитре композера с label'ом
+   слева и опциональным keycap'ом справа.
+   Универсальный компонент — вокруг любого
+   элемента toolbar'а: plus, permission, model,
+   mic, send.
+
+   .tooltipWrap — обёртка-якорь (relative + inline),
+   вокруг trigger'а; tooltip позиционируется от
+   неё через top/bottom + left:50% + translate.
+   data-side управляет тем, с какой стороны
+   рисовать pill (top для toolbarLeft, bottom
+   для context-row если понадобится).
+
+   Появление — 180ms fade + 2px slide в сторону
+   trigger'а. Скрытие мгновенное. ── */
+.tooltipWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltip {
+  position: absolute;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  /* По умолчанию padding симметричный — для
+     label-only тултипов (Permission, Model, Mic
+     без shortcut, Send) пилюля стоит ровно. */
+  padding: 0 14px;
+  /* Используем composer-токены напрямую (не локальные --c-*):
+     Tooltip переиспользуется за пределами .root композера —
+     например, в CopyButton кодового блока, где локальные
+     алиасы недоступны. */
+  border: 1px solid var(--composer-hairline);
+  border-radius: 999px;
+  background: var(--composer-surface-raised);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 20;
+  /* Центрирование по X — через transform,
+     чтобы keyframe мог одновременно сдвигать
+     по Y без конфликта c left:50%. */
+  transform: translateX(-50%);
+}
+
+/* Когда внутри есть keycap, поджимаем правый
+   край: сам keycap несёт «оптическую массу»,
+   и без поджатия pill выглядит «тяжёлым»
+   слева. Селектор :has() ловит и одиночный
+   keycap, и группу. */
+.tooltip:has(.tooltipKbd) {
+  padding: 0 6px 0 12px;
+}
+
+.tooltip[data-side="top"] {
+  /* Зазор между триггером и tooltip'ом — 2px: достаточно,
+     чтобы pill не сливался с кнопкой, но без визуального
+     разрыва, который раньше делал hint оторванным. */
+  bottom: calc(100% + 2px);
+  animation: tooltipInTop 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tooltip[data-side="bottom"] {
+  top: calc(100% + 2px);
+  animation: tooltipInBottom 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tooltipLabel {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  /* composer-токен напрямую (см. .tooltip). */
+  color: var(--composer-ink);
+  line-height: 1;
+}
+
+/* Keycap — компактный rounded-rectangle pill,
+   объединяющий все глифы shortcut'a в один
+   слот (как в Apple Spotlight, Linear). Глифы
+   стоят вплотную, без separator'а — keycap
+   читается как единая клавиша-композиция
+   (например ⌃⇧D = «Control+Shift+D»).
+
+   Геометрия: высота 18, padding 0 6,
+   radius 5. Min-width только для одиночного
+   глифа — иначе подстраивается под содержимое. */
+.tooltipKbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 4px;
+  /* composer-токены напрямую (см. .tooltip). */
+  border: 1px solid var(--composer-hairline);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--composer-ink-muted);
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.tooltipKbd svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+@keyframes tooltipInTop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 2px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes tooltipInBottom {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -2px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip {
+    animation: none;
+    transform: translateX(-50%);
+  }
+}
+
+.dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: -8px;
+  min-width: 200px;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+  background: var(--c-surface-glass);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.32),
+    0 -24px 48px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 20;
+}
+
+/* Outer halo — soft progressive blur за popover'ом
+   с radial fade. Эффект Dynamic Island: контент
+   снаружи popover'а тоже блюрится, но интенсивность
+   плавно сходит на ноль к внешним краям. */
+.dropdown::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  border-radius: calc(var(--c-card-radius) + 40px);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-mask-image: radial-gradient(
+    ellipse closest-side,
+    rgba(0, 0, 0, 0.95) 30%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: radial-gradient(
+    ellipse closest-side,
+    rgba(0, 0, 0, 0.95) 30%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.dropdownGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dropdownDivider {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--c-line-soft);
+}
+
+.dropdownItem {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--c-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdownItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dropdownIcon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-muted);
+}
+
+.dropdownIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dropdownLabel {
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.dropdownChevron {
   display: inline-flex;
   width: 14px;
   height: 14px;
   color: var(--c-ink-subtle);
 }
 
-.footIcon svg {
+.dropdownChevron svg {
   width: 100%;
   height: 100%;
+}
+
+/* Plugins-пункт с side-submenu.
+   pluginsTrigger — обёртка-якорь (relative).
+   На hover триггера показываем pluginsSubmenu
+   справа от основного dropdown. ── */
+.pluginsTrigger {
+  position: relative;
+  display: block;
+}
+
+.pluginsSubmenu {
+  position: absolute;
+  /* Открывается вверх: bottom-кромка submenu
+     совпадает с bottom-кромкой строки «Плагины»,
+     submenu растёт вверх. Так оно не уезжает
+     ниже основного dropdown и не накладывается
+     на toolbar/footer карточки. */
+  bottom: calc(0px - var(--c-corner-inset));
+  left: calc(100% + 6px);
+  min-width: 220px;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+  background: var(--c-surface-glass);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.32),
+    0 -24px 48px rgba(0, 0, 0, 0.55);
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+  /* Поверх всех соседних элементов карточки. */
+  z-index: 20;
+}
+
+/* Невидимый мост: 6px зазор не должен «терять»
+   hover при движении курсора с триггера в submenu. */
+.pluginsSubmenu::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -6px;
+  width: 6px;
+}
+
+.pluginsTrigger:hover .pluginsSubmenu,
+.pluginsSubmenu:hover {
+  display: flex;
+}
+
+/* Plugin-item в submenu — карточка с brand-иконкой
+   22×22, label + description. Геометрия совпадает
+   с @-popover, чтобы оба места ощущались как один
+   и тот же реестр плагинов. */
+.pluginItem {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.pluginItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.pluginItemMain {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.pluginItemLabel {
+  font-weight: 500;
+  color: var(--c-ink);
+  white-space: nowrap;
+}
+
+.pluginItemDesc {
+  font-size: 0.74rem;
+  color: var(--c-ink-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* iOS-style toggle. Невзаимодействующий —
+   состояние держит родительская кнопка через
+   data-on. Шайба сдвигается в активное положение
+   при data-on="true". */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+  transition: background-color var(--composer-duration-hover) ease;
+}
+
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform var(--composer-duration-hover) ease;
+}
+
+.toggle[data-on="true"] {
+  background: #1d3a8a;
+}
+
+.toggle[data-on="true"]::after {
+  transform: translateX(12px);
 }
 
 /* ── Адаптация ─────────────────────────── */

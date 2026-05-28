@@ -12,7 +12,7 @@ export default function ProjectsList() {
   return (
     <main id="main" tabIndex={-1} className={styles.page}>
       <header className={styles.topbar} aria-label="Шапка сайта">
-        <Link className={styles.brand} href="/" aria-label={`${siteConfig.name} — на главную`}>
+        <Link className={styles.brand} href="/" aria-label={`${siteConfig.name}, на главную`}>
           {siteConfig.name}
         </Link>
         <nav className={styles.navLinks} aria-label="Основная навигация">
@@ -29,7 +29,7 @@ export default function ProjectsList() {
             Проекты
           </h1>
           <p className={styles.lede}>
-            Кейсы с полным путём от продуктового мышления до кода. Открываются как длинные разборы.
+            Подробные разборы: как устроена задача, где было сопротивление и какие решения дошли до кода.
           </p>
         </header>
 

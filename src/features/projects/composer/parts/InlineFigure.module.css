@@ -6,6 +6,7 @@
 .figure {
   margin: 0;
   display: grid;
+  min-width: 0;
   gap: clamp(20px, 2vw, 28px);
 }
 
@@ -19,6 +20,7 @@
 }
 
 .stage {
+  min-width: 0;
   border: 1px solid var(--composer-hairline);
   border-radius: var(--composer-radius-md);
   background: var(--composer-surface-raised);
@@ -27,6 +29,7 @@
 }
 
 .stagePlain {
+  min-width: 0;
   padding: 0;
   background: transparent;
   border: none;
@@ -42,4 +45,9 @@
 
 .wide .stage {
   padding: clamp(20px, 2.8vw, 32px);
+}
+
+.stagePlain + .caption {
+  max-width: 100%;
+  padding-top: clamp(2px, 0.5vw, 6px);
 }
