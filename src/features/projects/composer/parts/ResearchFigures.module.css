@@ -412,83 +412,15 @@
   text-wrap: pretty;
 }
 
-/* ─────────────────────────────────────────
-   Workflow ribbon — горизонтальная лента-петля
-   (этап 04). Заменяет круговой блюпринт: занимает
-   всю ширину wide-контейнера, читается слева-направо,
-   возвратная дуга снизу замыкает loop. SVG задаёт
-   соотношение сторон через viewBox 1200×360, DOM-
-   подписи позиционируются абсолютно поверх стейджа.
-   ───────────────────────────────────────── */
-.ribbonFrame {
-  position: relative;
+/* Сцена чертежа занимает центральный квадрат .disk,
+   а подписи приземляются на конец leader'ов и могут
+   уезжать за внешнюю рамку. Чтобы их не клипало,
+   фигура заворачивается в .diskFrame с боковым padding'ом. */
+.diskFrame {
   width: 100%;
-  aspect-ratio: 1200 / 360;
+  padding: 0 clamp(40px, 5vw, 72px);
+  box-sizing: border-box;
   margin: clamp(20px, 3vw, 36px) 0 clamp(12px, 1.8vw, 20px);
-}
-
-.ribbonSvg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.ribbonLabels {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.ribbonStep {
-  position: absolute;
-  display: grid;
-  gap: 2px;
-  width: 120px;
-  /* Подпись висит над якорем leader'а:
-     центрируем по X и поднимаем над линией. */
-  transform: translate(-50%, -100%);
-  text-align: center;
-  pointer-events: none;
-}
-
-.ribbonStepIndex {
-  display: inline-block;
-  color: var(--composer-ink-subtle);
-  font-family: var(--composer-font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
-  font-variant-numeric: tabular-nums;
-  text-transform: uppercase;
-}
-
-.ribbonStepLabel {
-  display: block;
-  color: var(--composer-ink);
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.18;
-  margin-top: 2px;
-}
-
-.ribbonStepDetail {
-  display: block;
-  color: var(--composer-ink-muted);
-  font-size: 0.7rem;
-  line-height: 1.35;
-  margin-top: 2px;
-  text-wrap: pretty;
-}
-
-.ribbonStep[data-active="true"] .ribbonStepIndex {
-  color: var(--composer-ink);
-}
-
-.ribbonStep[data-active="true"] .ribbonStepLabel {
-  color: var(--composer-ink);
-  font-weight: 600;
 }
 
 .disk {
@@ -504,6 +436,70 @@
   width: 100%;
   height: 100%;
   overflow: visible;
+}
+
+/* ─────────────────────────────────────────
+   Radar-language reskin для LabWorkflowDisk.
+   Форма сферы не меняется, меняется только язык
+   линий и заливки — под .radar/.radar polygon из этапа 03.
+   ───────────────────────────────────────── */
+.diskRadar {
+  color: var(--composer-ink);
+}
+
+.diskWire ellipse {
+  fill: none;
+  stroke: var(--composer-hairline-strong);
+  stroke-width: 0.6;
+}
+
+.diskDwell {
+  fill: rgba(255, 255, 255, 0.08);
+  stroke: var(--composer-ink);
+  stroke-width: 1;
+}
+
+.diskLeader {
+  stroke: var(--composer-hairline-strong);
+  stroke-width: 0.6;
+  fill: none;
+}
+
+.diskLeaderActive {
+  stroke: var(--composer-ink);
+  stroke-width: 1;
+  fill: none;
+}
+
+.diskFlow {
+  fill: none;
+  stroke: var(--composer-ink);
+  stroke-width: 1;
+  stroke-linecap: round;
+  color: var(--composer-ink);
+}
+
+.diskBullet {
+  fill: var(--composer-surface);
+  stroke: var(--composer-hairline-strong);
+  stroke-width: 0.8;
+}
+
+.diskBulletActive {
+  fill: var(--composer-ink);
+  stroke: var(--composer-ink);
+  stroke-width: 0;
+}
+
+.diskBulletHalo {
+  fill: none;
+  stroke: var(--composer-ink);
+  stroke-width: 0.6;
+  opacity: 0.45;
+}
+
+.diskCenter {
+  fill: var(--composer-ink-subtle);
 }
 
 /* Подпись шага — голый текст, приземляется на anchor
@@ -785,10 +781,6 @@
   }
 
   .disk {
-    display: none;
-  }
-
-  .ribbonFrame {
     display: none;
   }
 

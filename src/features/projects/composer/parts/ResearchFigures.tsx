@@ -189,47 +189,59 @@ export function LabFrictionRadar({ caption }: { caption?: string }) {
 }
 
 export function LabWorkflowDisk() {
-  /* Горизонтальная лента-петля. Замена круглого блюпринта:
-     круг плохо ложился в широкий wide-контейнер (большие
-     пустые бока) и читался как «вечная карусель», тогда как
-     процесс направленный — от намерения к ревью. Лента
-     использует всю ширину блока, идёт слева направо и
-     замыкается короткой возвратной дугой снизу.
-
-     Геометрия в системе координат viewBox 1200×360:
-     - track Y=160, станции равномерно от X=80 до X=1120;
-     - leader-линии уходят вверх к ярусу подписей (Y≈70);
-     - возвратная дуга идёт ниже track'а через Y≈260 и
-       соединяет правую крайнюю станцию с левой крайней. */
   const total = workflowSteps.length;
+  const stepAngle = 360 / total;
   const activeIndex = 1;
 
-  const W = 1200;
-  const H = 360;
-  const padX = 80;
-  const trackY = 160;
-  const labelAnchorY = 70;
-  const innerW = W - padX * 2;
+  /* Геометрия сцены сохранена точь-в-точь, как раньше.
+     viewBox -230..230 (=460), сфера R=120 в центре (0,0).
+     Станции лежат на orbit-окружности R_ORBIT=120; leader-линии
+     уходят радиально наружу до R_LEAD=136, где приземляется
+     anchor подписи. Подписи в DOM позиционируются от центра .disk
+     через CSS-% от полной диагонали viewBox (460). */
+  const R_ORBIT = 120;
+  const R_LEAD = 136;
+  const LABEL_R_RATIO = R_LEAD / 460;
+  const BULLET_GAP = 5;
 
   const stations = workflowSteps.map((step, index) => {
-    const x = padX + (innerW * index) / (total - 1);
-    return { step, index, x };
+    const angleDeg = -90 + index * stepAngle;
+    const angleRad = (angleDeg * Math.PI) / 180;
+    const cosA = Math.cos(angleRad);
+    const sinA = Math.sin(angleRad);
+    const bullet = { x: cosA * R_ORBIT, y: sinA * R_ORBIT };
+    const leaderStart = {
+      x: cosA * (R_ORBIT + BULLET_GAP),
+      y: sinA * (R_ORBIT + BULLET_GAP),
+    };
+    const anchor = { x: cosA * R_LEAD, y: sinA * R_LEAD };
+    return { step, index, angleDeg, cosA, sinA, bullet, leaderStart, anchor };
   });
 
   const active = stations[activeIndex]!;
-  const first = stations[0]!;
-  const last = stations[total - 1]!;
+  const nextIndex = (activeIndex + 1) % total;
+  const next = stations[nextIndex]!;
 
-  /* Возвратная дуга: уходит вниз от последней станции,
-     проходит под track'ом и приходит сверху к первой.
-     Через два control-point'а: квадратичная Безье через
-     общую нижнюю точку (mid, Y=260) даёт плавную ёмкую
-     дугу, не перекрывающую сам track. */
-  const loopMidY = 260;
-  const loopPath = `M ${last.x} ${trackY + 14} C ${last.x} ${loopMidY}, ${first.x} ${loopMidY}, ${first.x} ${trackY + 14}`;
+  /* Активная dwell-зона: дуговой сектор вокруг текущей
+     станции от центра до orbit'а. Прямая аналогия
+     radar polygon'а из этапа 03: fill rgba(255,255,255,0.08),
+     stroke ink 1px. Sector шире одного шага не делаем,
+     чтобы не уезжать в соседние станции. */
+  const dwellHalf = stepAngle / 2;
+  const dwellStart = (active.angleDeg - dwellHalf) * (Math.PI / 180);
+  const dwellEnd = (active.angleDeg + dwellHalf) * (Math.PI / 180);
+  const dwellP0 = {
+    x: Math.cos(dwellStart) * R_ORBIT,
+    y: Math.sin(dwellStart) * R_ORBIT,
+  };
+  const dwellP1 = {
+    x: Math.cos(dwellEnd) * R_ORBIT,
+    y: Math.sin(dwellEnd) * R_ORBIT,
+  };
+  const dwellPath = `M 0 0 L ${dwellP0.x.toFixed(2)} ${dwellP0.y.toFixed(2)} A ${R_ORBIT} ${R_ORBIT} 0 0 1 ${dwellP1.x.toFixed(2)} ${dwellP1.y.toFixed(2)} Z`;
 
   return (
-    <div className={styles.figure} aria-label="Этап 04: лента работы">
+    <div className={styles.figure} aria-label="Этап 04: блюпринт-сфера процесса">
       <header className={styles.stageHeader}>
         <p className={styles.stageEyebrow}>Этап 04</p>
         <div className={styles.stageHeadline}>
@@ -237,158 +249,146 @@ export function LabWorkflowDisk() {
         </div>
       </header>
 
-      {/* Blueprint ribbon.
-          Палитра solid greys (без alpha), как и в прошлой
-          версии диска — линии не накапливают плотность на
-          пересечениях:
-          • #2c2c2c — major grid;
-          • #6e6e6e — track и возвратная дуга;
-          • #5a5a5a — пассивные leader'ы;
-          • #f5f5f5 — активная станция, активный leader,
-            стрелка возврата. */}
-      <div className={styles.ribbonFrame}>
-        <svg
-          className={styles.ribbonSvg}
-          viewBox={`0 0 ${W} ${H}`}
-          preserveAspectRatio="xMidYMid meet"
-          role="img"
-          aria-label="Лента: семь шагов процесса"
-        >
-          <defs>
-            <pattern
-              id="ribbonGridMajor"
-              width="60"
-              height="60"
-              patternUnits="userSpaceOnUse"
-              x="0"
-              y="0"
-            >
-              <path
-                d="M 60 0 L 0 0 0 60"
-                fill="none"
-                stroke="#2c2c2c"
-                strokeWidth="0.75"
-                vectorEffect="non-scaling-stroke"
-              />
-            </pattern>
-            <marker
-              id="ribbonLoopArrow"
-              viewBox="0 0 10 10"
-              refX="8"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 Z" fill="#f5f5f5" />
-            </marker>
-          </defs>
+      {/* Orbital sphere — radar language.
+          Рендеринг приведён к языку радара (этап 03):
+          • wireframe-линии — единый stroke hairline-strong,
+            как кольца и спицы радара;
+          • активная dwell-зона — заливка rgba(255,255,255,0.08)
+            с белым stroke 1px, как polygon радара;
+          • никакой grid-подложки и solid-grey палитры. */}
+      <div className={styles.diskFrame}>
+        <div className={`${styles.disk} ${styles.diskRadar}`} aria-hidden="false">
+          <svg
+            className={styles.diskRings}
+            viewBox="-230 -230 460 460"
+            preserveAspectRatio="xMidYMid meet"
+            aria-hidden="true"
+          >
+            <defs>
+              <marker
+                id="diskFlowArrow"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 Z" fill="currentColor" />
+              </marker>
+            </defs>
 
-          <rect x="0" y="0" width={W} height={H} fill="url(#ribbonGridMajor)" />
+            {/* Wireframe сферы — три параллели и три
+                меридиана. Все линии выровнены по одному
+                stroke (как кольца радара): без выделения
+                экватора отдельной толщиной. */}
+            <g className={styles.diskWire}>
+              <ellipse cx="0" cy="-90" rx="79.4" ry="16" />
+              <ellipse cx="0" cy="0" rx="120" ry="32" />
+              <ellipse cx="0" cy="90" rx="79.4" ry="16" />
+              <ellipse cx="0" cy="0" rx="120" ry="120" />
+              <ellipse cx="0" cy="0" rx="40" ry="120" transform="rotate(60)" />
+              <ellipse cx="0" cy="0" rx="40" ry="120" transform="rotate(-60)" />
+            </g>
 
-          {/* Основной track — единая горизонтальная линия,
-              на которой сидят все станции. */}
-          <line
-            x1={first.x}
-            y1={trackY}
-            x2={last.x}
-            y2={trackY}
-            stroke="#6e6e6e"
-            strokeWidth="1.4"
-            vectorEffect="non-scaling-stroke"
-          />
+            {/* Dwell-сектор: эквивалент polygon'а радара. */}
+            <path
+              d={dwellPath}
+              className={styles.diskDwell}
+              vectorEffect="non-scaling-stroke"
+            />
 
-          {/* Возвратная дуга — закрывает петлю снизу:
-              от ревью обратно к намерению. */}
-          <path
-            d={loopPath}
-            fill="none"
-            stroke="#f5f5f5"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
-            markerEnd="url(#ribbonLoopArrow)"
-          />
-
-          {/* Leader-линии: вверх от каждой станции к ярусу
-              подписей. Активный leader белый и толще. */}
-          <g>
-            {stations.map((s) => {
-              const isActive = s.index === activeIndex;
-              return (
-                <line
-                  key={`leader-${s.index}`}
-                  x1={s.x}
-                  y1={trackY - 9}
-                  x2={s.x}
-                  y2={labelAnchorY + 6}
-                  stroke={isActive ? "#f5f5f5" : "#5a5a5a"}
-                  strokeWidth={isActive ? 1.4 : 0.9}
-                  vectorEffect="non-scaling-stroke"
-                />
-              );
-            })}
-          </g>
-
-          {/* Bullet-маркеры станций. У активной — halo. */}
-          <g>
-            {stations.map((s) => {
-              const isActive = s.index === activeIndex;
-              return (
-                <g key={`bullet-${s.index}`}>
-                  {isActive && (
-                    <circle
-                      cx={s.x}
-                      cy={trackY}
-                      r="10"
-                      fill="none"
-                      stroke="#f5f5f5"
-                      strokeWidth="1"
-                      vectorEffect="non-scaling-stroke"
-                      opacity="0.45"
-                    />
-                  )}
-                  <circle
-                    cx={s.x}
-                    cy={trackY}
-                    r={isActive ? 5 : 3.4}
-                    fill={isActive ? "#f5f5f5" : "#0a0a0a"}
-                    stroke={isActive ? "#f5f5f5" : "#cccccc"}
-                    strokeWidth={isActive ? 0 : 1.4}
+            {/* Leader-линии: радиальные отрезки от внешней
+                кромки bullet'а до подписи-anchor.
+                Неактивные — hairline-strong, активный — ink. */}
+            <g className={styles.diskLeaders}>
+              {stations.map((s) => {
+                const isActive = s.index === activeIndex;
+                return (
+                  <line
+                    key={`leader-${s.index}`}
+                    x1={s.leaderStart.x}
+                    y1={s.leaderStart.y}
+                    x2={s.anchor.x}
+                    y2={s.anchor.y}
+                    className={isActive ? styles.diskLeaderActive : styles.diskLeader}
                     vectorEffect="non-scaling-stroke"
                   />
-                </g>
-              );
-            })}
-          </g>
-        </svg>
+                );
+              })}
+            </g>
 
-        {/* DOM-подписи поверх SVG: позиционируются в %
-            от .ribbonStage. SVG масштабируется 1:1 в
-            квадрат-агностический стейдж, поэтому ratio
-            считается от полной ширины/высоты viewBox. */}
-        <div className={styles.ribbonLabels} aria-hidden="false">
-          {stations.map(({ step, index, x }) => {
-            const leftPct = `${(x / W) * 100}%`;
-            const topPct = `${(labelAnchorY / H) * 100}%`;
+            {/* Flow-индикатор: тонкая дуга по orbit'у от
+                активной станции к следующей со стрелкой. */}
+            <path
+              d={`M ${active.bullet.x.toFixed(2)} ${active.bullet.y.toFixed(2)} A ${R_ORBIT} ${R_ORBIT} 0 0 1 ${next.bullet.x.toFixed(2)} ${next.bullet.y.toFixed(2)}`}
+              className={styles.diskFlow}
+              vectorEffect="non-scaling-stroke"
+              markerEnd="url(#diskFlowArrow)"
+            />
+
+            {/* Bullet-маркеры станций. У активной — halo. */}
+            <g>
+              {stations.map((s) => {
+                const isActive = s.index === activeIndex;
+                return (
+                  <g key={`bullet-${s.index}`}>
+                    {isActive && (
+                      <circle
+                        cx={s.bullet.x}
+                        cy={s.bullet.y}
+                        r="8.5"
+                        className={styles.diskBulletHalo}
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    )}
+                    <circle
+                      cx={s.bullet.x}
+                      cy={s.bullet.y}
+                      r={isActive ? 4.4 : 3}
+                      className={isActive ? styles.diskBulletActive : styles.diskBullet}
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </g>
+                );
+              })}
+            </g>
+
+            {/* Центральная точка — фокус радара. */}
+            <circle cx="0" cy="-4" r="1.8" className={styles.diskCenter} />
+          </svg>
+
+          {/* 7 станций с подписями шагов: index + label +
+              detail. Anchor по 8 направлениям — DOM-метка
+              «садится» на конец SVG-leader'а. */}
+          {stations.map(({ step, index, cosA, sinA }) => {
+            const left = `${50 + cosA * LABEL_R_RATIO * 100}%`;
+            const top = `${50 + sinA * LABEL_R_RATIO * 100}%`;
+
+            const halign: "left" | "right" | "center" =
+              cosA < -0.3 ? "right" : cosA > 0.3 ? "left" : "center";
+            const valign: "top" | "bottom" | "middle" =
+              sinA < -0.3 ? "bottom" : sinA > 0.3 ? "top" : "middle";
+
             return (
               <div
                 key={step.label}
-                className={styles.ribbonStep}
+                className={styles.diskStep}
+                data-halign={halign}
+                data-valign={valign}
                 data-active={index === activeIndex}
-                style={{ left: leftPct, top: topPct } as CSSProperties}
+                style={{ left, top } as CSSProperties}
               >
-                <span className={styles.ribbonStepIndex}>{String(index + 1).padStart(2, "0")}</span>
-                <strong className={styles.ribbonStepLabel}>{step.label}</strong>
-                <span className={styles.ribbonStepDetail}>{step.detail}</span>
+                <span className={styles.diskStepIndex}>{String(index + 1).padStart(2, "0")}</span>
+                <strong className={styles.diskStepLabel}>{step.label}</strong>
+                <span className={styles.diskStepDetail}>{step.detail}</span>
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* mobile fallback — список шагов; используется при
-         сворачивании ленты на узких экранах. */}
+      {/* mobile fallback */}
       <ol className={styles.diskList} aria-label="Шаги процесса">
         {workflowSteps.map((step, index) => (
           <li
@@ -413,11 +413,7 @@ export function LabEvidenceStack() {
      Шесть рисок слева направо, каждая привязана к пункту
      evidenceStack: пара чисел (меньшее сверху, большее снизу)
      отсылает к референсу, а сверху над риской лежит caps-метка
-     класса доказательства, снизу — короткое описание. Между
-     крайними рисками плотный пучок прямых линий, который
-     передаёт «расхождение» от компактного слева к развёрнутому
-     справа. Никакой визуальной шкалы strength: разница пар
-     20→50, 30→75 ... 100→250 уже передаёт нарастание сама. */
+     класса доказательства, снизу — короткое описание. */
   const pairs: ReadonlyArray<readonly [number, number]> = [
     [20, 50],
     [30, 75],
@@ -432,36 +428,15 @@ export function LabEvidenceStack() {
   const cy = 220;
   const innerW = W - padX * 2;
 
-  /* Геометрия:
-     - риски одинаковой высоты для всех колонок (как в референсе),
-       равной размаху самой большой пары + небольшое расширение,
-       чтобы они выглядели «шире самой диаграммы»;
-     - фан таперит между колонками: его высота на конкретной колонке
-       определяется парой (lo, hi);
-     - числа ставятся в точках, где фан касается риски, поэтому
-       у маленьких колонок числа ближе к центру риски, а у самой
-       правой расходятся к краям. */
-  const maxSpan = 150; // самая большая пара: 100→250 (250 − 100)
-  const ruleSpan = maxSpan + 36; // риска чуть длиннее фана
+  const maxSpan = 150;
+  const ruleSpan = maxSpan + 36;
   const ruleTop = cy - ruleSpan / 2;
   const ruleBottom = cy + ruleSpan / 2;
 
-  /* Все подписи стоят на фиксированных горизонталях:
-       label   ─── над всем
-       number  ─── ближе к риске сверху
-       rule    ─── одинаковая высота для всех колонок
-       number  ─── ближе к риске снизу
-       detail  ─── под всем
-     Между собой выдержан стабильный зазор, чтобы цифры не
-     налезали на caps-метки и описания, как было до этого. */
-  const numberOffset = 18; // от конца риски до числа
-  const labelGap = 28; // от числа до caps-метки
-  const detailGap = 28; // от числа до description
+  const numberOffset = 18;
+  const labelGap = 28;
+  const detailGap = 28;
 
-  /* Фиксированные горизонтали под подписи: одна для верхнего числа,
-     одна для caps-метки над ним, одна для нижнего числа и одна для
-     описания под ним. Все колонки выравниваются по этим линиям,
-     никаких смещений вверх/вниз вслед за длиной фана. */
   const numberTopY = ruleTop - numberOffset;
   const labelY = numberTopY - labelGap;
   const numberBottomY = ruleBottom + numberOffset + 14;
@@ -484,9 +459,6 @@ export function LabEvidenceStack() {
   const left = columns[0]!;
   const right = columns[columns.length - 1]!;
 
-  /* Меньше линий и тоньше штрих, чем раньше: фан читается
-     как штриховка, а не серая заливка. Высокая плотность
-     забивала контраст с числами и подписями. */
   const lineCount = 56;
   const fanLines = Array.from({ length: lineCount }, (_, i) => {
     const t = i / (lineCount - 1);
@@ -512,7 +484,6 @@ export function LabEvidenceStack() {
           aria-hidden="true"
           preserveAspectRatio="xMidYMid meet"
         >
-          {/* Сам фан */}
           <g className={styles.evidenceFanBeam}>
             {fanLines.map((line, i) => (
               <line
@@ -528,11 +499,8 @@ export function LabEvidenceStack() {
             ))}
           </g>
 
-          {/* Колонки: одинаковые риски, фан таперит, числа и подписи
-              выровнены по фиксированным горизонталям. */}
           {columns.map((col, i) => (
             <g key={i} className={styles.evidenceFanRule}>
-              {/* Сама риска — единая высота для всех колонок */}
               <line
                 x1={col.x}
                 y1={ruleTop}
@@ -542,7 +510,6 @@ export function LabEvidenceStack() {
                 strokeWidth={2}
                 strokeLinecap="square"
               />
-              {/* Caps-метка */}
               <text
                 x={col.x}
                 y={labelY}
@@ -551,7 +518,6 @@ export function LabEvidenceStack() {
               >
                 {col.item.label}
               </text>
-              {/* Верхнее число */}
               <text
                 x={col.x}
                 y={numberTopY}
@@ -560,7 +526,6 @@ export function LabEvidenceStack() {
               >
                 {col.lo}
               </text>
-              {/* Нижнее число */}
               <text
                 x={col.x}
                 y={numberBottomY}
@@ -569,7 +534,6 @@ export function LabEvidenceStack() {
               >
                 {col.hi}
               </text>
-              {/* Описание */}
               <text
                 x={col.x}
                 y={detailY}
@@ -582,7 +546,6 @@ export function LabEvidenceStack() {
           ))}
         </svg>
 
-        {/* Скринридерам — структура без визуального дубля */}
         <ul className={styles.srOnly} aria-label="Доказательная база">
           {evidenceStack.map((item) => (
             <li key={item.label}>
