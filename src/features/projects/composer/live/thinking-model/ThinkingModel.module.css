@@ -7,6 +7,8 @@
    размышлений. Список инструментов больше не
    распадается во вторую колонку — активный шаг
    подсвечивается компактным маркером в шапке.
+
+   Фиксированная высота для предотвращения layout shift.
    ───────────────────────────────────────── */
 .root {
   display: grid;
@@ -20,6 +22,8 @@
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
+  /* Фиксированная минимальная высота для стабильности layout */
+  min-height: 400px;
   /* Содержимое всегда читается с левого края, даже если родитель
      центрирует текст (как .hero на странице кейса). Размышления —
      это поток, а не баннер. */
@@ -52,12 +56,23 @@
 
 .phaseLabel {
   font-family: inherit;
-  font-size: 0.96rem;
+  /* Унифицировано с размером шрифта инструментов и мыслей */
+  font-size: clamp(0.95rem, 1.1vw, 1.08rem);
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--composer-ink-subtle);
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.phaseDivider {
+  display: inline-block;
+  width: 1px;
+  height: 0.85em;
+  margin: 0 0.6em;
+  vertical-align: -0.08em;
+  background: currentColor;
+  opacity: 0.4;
 }
 
 .phaseLabelShimmer {
@@ -103,6 +118,47 @@
   font-size: 0.76rem;
   cursor: default;
   pointer-events: none;
+  flex-shrink: 0;
+}
+
+/* Play/Replay button — стиль как у send button в ComposerInput:
+   круглая, инверсная, 32×32. */
+.playButton {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--composer-ink);
+  color: var(--composer-surface);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color 160ms ease,
+    transform 120ms ease,
+    opacity 160ms ease;
+}
+
+.playButton:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.playButton:active {
+  transform: scale(0.94);
+}
+
+.playButton:focus-visible {
+  outline: 2px solid var(--composer-ink);
+  outline-offset: 2px;
+}
+
+.playButton svg {
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
 }
 
@@ -215,8 +271,23 @@
 }
 
 /* Лог: тот же кегль, что у потока мыслей — читается как
-   продолжение. overflow:hidden + min-height:0 на дочернем
-   списке обязательны для работы grid-rows 0fr. */
+   продолжение. Скроллбар идентичен thoughtStream — кастомный 4px thumb.
+
+   Структура идентична thoughtStream:
+   - toolListScrollWrap = thoughtStreamInner (viewport с overflow:hidden)
+   - toolList = thoughtStreamContent (контент с transform для скролла)
+   - кастомный thumb управляется через JS */
+.toolListScrollWrap {
+  position: relative;
+  /* max-height вместо фиксированной height: при малом числе
+     инструментов блок ровно по контенту, grid-rows анимация
+     совпадает с реальной высотой — без «доскока» в конце.
+     Скролл включается только когда инструментов больше ~7. */
+  max-height: calc(1.5em * 7);
+  overflow: hidden;
+  padding-right: 16px;
+}
+
 .toolList {
   margin: 0;
   padding: 0;
@@ -226,8 +297,33 @@
   font-size: clamp(0.95rem, 1.1vw, 1.08rem);
   line-height: 1.5;
   color: var(--composer-ink-subtle);
-  overflow: hidden;
-  min-height: 0;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Кастомный скроллбар для инструментов — идентичен thoughtStream */
+.toolListScrollTrack {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.toolListScrollThumb {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  min-height: 12px;
+  border-radius: 4px;
+  background: var(--composer-ink-subtle);
+  pointer-events: auto;
+  cursor: grab;
+  will-change: transform, height;
+  transition: opacity 150ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -323,7 +419,9 @@
   display: inline-flex;
   width: 1em;
   height: 1em;
-  font-size: 0.96rem;
+  /* Размер унифицирован с phaseLabel — иконка масштабируется
+     вместе с текстом заголовка, инструментов и мыслей. */
+  font-size: clamp(0.95rem, 1.1vw, 1.08rem);
   color: var(--composer-ink-subtle);
   transform: rotate(-90deg);
   transition: transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);

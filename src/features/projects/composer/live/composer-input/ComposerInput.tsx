@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import styles from "./ComposerInput.module.css";
+import LcdMarquee, { type LcdTone, type PetMood } from "./LcdMarquee";
 import { AttachmentTile } from "./attachments/AttachmentTile";
 import { useAttachments } from "./attachments/useAttachments";
 import { MentionPopover } from "./mentions/MentionPopover";
@@ -24,7 +25,6 @@ import { BranchPicker } from "./branches/BranchPicker";
 import { DEFAULT_BRANCH } from "./branches/data";
 import { Tooltip } from "./Tooltip";
 import { VoiceRecorder } from "./voice/VoiceRecorder";
-import { Toast } from "./voice/Toast";
 
 /* ─────────────────────────────────────────
    Иконки. Все 1.5 px stroke, currentColor.
@@ -99,16 +99,6 @@ function ChevronIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="m6 9 6 6 6-6" />
-    </svg>
-  );
-}
-
-function WarningIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7.5v5.5" strokeLinecap="round" />
-      <circle cx="12" cy="16.25" r="0.6" fill="currentColor" stroke="none" />
     </svg>
   );
 }
@@ -462,13 +452,120 @@ export default function ComposerInput() {
   const [voiceStage, setVoiceStage] = useState<"idle" | "recording" | "processing">(
     "idle",
   );
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dragCounter = useRef(0);
   const attachments = useAttachments();
 
   const recording = voiceStage === "recording";
+  const typing = prompt.trim().length > 0 && voiceStage === "idle";
+
+  /* ── LCD-статус ──────────────────────────
+     Экран в верхней плашке — приборная панель агента.
+     Статус выводится приоритетно из состояний инпута;
+     смена модели/доступа/ветки/проекта/вложений даёт
+     короткий transient (со своим текстом И настроением
+     питомца), затем экран возвращается к покою. */
+  const [transient, setTransient] = useState<{
+    text: string;
+    mood: PetMood;
+    tone?: LcdTone;
+  } | null>(null);
+  const firstRender = useRef(true);
+  const attachCount = attachments.attachments.length;
+
+  // Transient при смене конфигурации. Каждый эффект ставит
+  // короткий статус + уникальное настроение питомца, и
+  // сбрасывает их через таймер.
+  // Тексты — без букв Ж/Щ/Ш/Ю/Ц (в 5×7 слипаются, см. lcdFont).
+  useEffect(() => {
+    if (firstRender.current) return;
+    const model = selection.modelId.toUpperCase();
+    setTransient({
+      text: `СМЕНА МОДЕЛИ ${model} ${selection.levelId.toUpperCase()}`,
+      mood: "model",
+    });
+    const id = setTimeout(() => setTransient(null), 1700);
+    return () => clearTimeout(id);
+  }, [selection]);
+
+  useEffect(() => {
+    if (firstRender.current) return;
+    const map: Record<PermissionLevel, string> = {
+      standard: "ДОСТУП: СТАНДАРТ",
+      review: "ДОСТУП: ПРОВЕРКА",
+      full: "ДОСТУП: ПОЛНЫЙ",
+    };
+    setTransient({ text: map[permission], mood: "access" });
+    const id = setTimeout(() => setTransient(null), 1700);
+    return () => clearTimeout(id);
+  }, [permission]);
+
+  useEffect(() => {
+    if (firstRender.current) return;
+    setTransient({ text: `ПЕРЕХОД НА ВЕТКУ ${branch.toUpperCase()}`, mood: "branch" });
+    const id = setTimeout(() => setTransient(null), 1700);
+    return () => clearTimeout(id);
+  }, [branch]);
+
+  useEffect(() => {
+    if (firstRender.current) return;
+    setTransient({ text: planMode ? "ПЛАН: ВКЛ" : "ПЛАН: ВЫКЛ", mood: "plan" });
+    const id = setTimeout(() => setTransient(null), 1700);
+    return () => clearTimeout(id);
+  }, [planMode]);
+
+  useEffect(() => {
+    if (firstRender.current) return;
+    if (attachCount === 0) return;
+    // Склонение: 1 ФАЙЛ, 2-4 ФАЙЛА, 5+ ФАЙЛОВ.
+    const mod10 = attachCount % 10;
+    const mod100 = attachCount % 100;
+    let noun = "ФАЙЛОВ";
+    if (mod10 === 1 && mod100 !== 11) noun = "ФАЙЛ";
+    else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) noun = "ФАЙЛА";
+    setTransient({ text: `${attachCount} ${noun}`, mood: "files" });
+    const id = setTimeout(() => setTransient(null), 1700);
+    return () => clearTimeout(id);
+  }, [attachCount]);
+
+  // Снимаем флаг первого рендера после монтирования, чтобы
+  // эффекты выше не стреляли transient'ами на старте.
+  useEffect(() => {
+    firstRender.current = false;
+  }, []);
+
+  /* Итоговый статус (приоритет): голос → печать → transient → покой.
+     При печати центр намеренно пуст — текст справа от питомца
+     отвлекал от набора; «живость» дают сам питомец и «дыхание» в
+     правом слоте, а центр молчит. */
+  const lcdStatus = (() => {
+    if (voiceStage === "recording") return "ЗАПИСЫВАЕМ...";
+    if (voiceStage === "processing") return "РАСПОЗНАЕМ...";
+    if (typing) return "";
+    if (transient) return transient.text;
+    return "ПРОВЕРЬТЕ ХУКИ";
+  })();
+
+  /* Настроение питомца — тот же приоритет, что у статуса.
+     У каждого действия своя уникальная анимация (см. LcdMarquee):
+     listen — слушает (запись), think — думает (обработка),
+     type — следит за печатью, transient.mood — реакция на смену
+     конкретной настройки, idle — покой. */
+  const petMood: PetMood = (() => {
+    if (voiceStage === "recording") return "listen";
+    if (voiceStage === "processing") return "think";
+    if (typing) return "type";
+    if (transient) return transient.mood;
+    return "idle";
+  })();
+
+  /* Тон LCD: transient несёт свой (напр. danger у ошибки голоса);
+     иначе в покое горит оранжевое предупреждение «ПРОВЕРЬТЕ ХУКИ»,
+     а при печати/голосе — обычный тон. */
+  const resting =
+    voiceStage === "idle" && !typing && !transient;
+  const lcdTone: LcdTone = transient?.tone ?? (resting ? "warning" : "default");
 
   /* Кнопка отправки активна, когда есть, что отправлять:
      текст промпта, прикреплённые файлы или активная запись/обработка
@@ -479,7 +576,7 @@ export default function ComposerInput() {
     voiceStage !== "idle";
 
   // Recording flow: tap mic → recording. Tap again
-  // (or pause-glyph) → processing на ~1.2s → toast
+  // (or pause-glyph) → processing на ~1.2s → LCD-статус
   // «демо» → idle. Demo-only state machine, без
   // backend transcription.
   const handleMicToggle = () => {
@@ -494,7 +591,12 @@ export default function ComposerInput() {
     if (voiceStage !== "processing") return;
     const id = window.setTimeout(() => {
       setVoiceStage("idle");
-      setToastMsg("Это демо: транскрибация недоступна");
+      setTransient({ text: "ГОЛОС НЕДОСТУПЕН", mood: "cancel", tone: "danger" });
+      window.setTimeout(() => {
+        setTransient((current) =>
+          current?.text === "ГОЛОС НЕДОСТУПЕН" ? null : current,
+        );
+      }, 2200);
     }, 1200);
     return () => window.clearTimeout(id);
   }, [voiceStage]);
@@ -548,16 +650,11 @@ export default function ComposerInput() {
       />
       <div className={styles.stack}>
         <div className={styles.warning} role="status">
-          <span className={styles.warningIcon} aria-hidden="true">
-            <WarningIcon />
-          </span>
-          <span className={styles.warningText}>Перед запуском нужно проверить 3 хука</span>
-          <button type="button" className={styles.warningAction}>
-            Проверить хуки
-            <span className={styles.warningActionChevron} aria-hidden="true">
-              <ChevronRightIcon />
-            </span>
-          </button>
+          <LcdMarquee
+            status={lcdStatus}
+            mood={petMood}
+            tone={lcdTone}
+          />
         </div>
 
         <div
@@ -580,7 +677,10 @@ export default function ComposerInput() {
               ))}
             </div>
           ) : null}
-          <PromptInput value={prompt} onValueChange={setPrompt} />
+          <PromptInput
+            value={prompt}
+            onValueChange={setPrompt}
+          />
 
           {dragOver ? (
             <div className={styles.dropOverlay} aria-hidden="true">
@@ -701,9 +801,6 @@ export default function ComposerInput() {
           <BranchPicker branch={branch} onChange={setBranch} />
         </div>
       </div>
-      {toastMsg ? (
-        <Toast message={toastMsg} onDismiss={() => setToastMsg(null)} />
-      ) : null}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { usePrefersReducedMotion } from "@/lib/motion/usePrefersReducedMotion";
 
@@ -26,6 +26,11 @@ type Props = {
    */
   collapsible?: boolean;
   defaultOpen?: boolean;
+  /**
+   * Показывать кнопку Play для запуска анимации.
+   * Когда true, анимация не запускается автоматически.
+   */
+  showPlayButton?: boolean;
 };
 
 const DEFAULT_STEPS: readonly ThinkingStep[] = [
@@ -83,14 +88,23 @@ export default function ThinkingModel({
   className,
   collapsible,
   defaultOpen = true,
+  showPlayButton = false,
 }: Props) {
   const reducedMotion = usePrefersReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const streamRef = useRef<HTMLDivElement>(null);
   const thumbRef = useRef<HTMLDivElement>(null);
+  const toolListRef = useRef<HTMLOListElement>(null);
+  const toolThumbRef = useRef<HTMLDivElement>(null);
+  const toolListWrapRef = useRef<HTMLDivElement>(null);
+
+  // Если showPlayButton=true, начинаем с готового состояния (done)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [replayKey, setReplayKey] = useState(0);
 
   const isStatic = mode === "inline";
-  const autoplay = true;
+  // autoplay только если НЕ showPlayButton или уже нажали play
+  const autoplay = showPlayButton ? isPlaying : true;
   const effectiveLoop = loop ?? mode === "hero";
   const isCollapsible = collapsible ?? mode === "inline";
   const contentId = useId();
@@ -100,17 +114,30 @@ export default function ThinkingModel({
     thoughts,
     autoplay,
     loop: effectiveLoop,
-    reducedMotion: reducedMotion || isStatic,
+    // Если showPlayButton и не играет, показываем как reducedMotion (готовое состояние)
+    reducedMotion: reducedMotion || isStatic || (showPlayButton && !isPlaying),
     scenario,
   });
+
+  // Сброс состояния при replay
+  useEffect(() => {
+    if (replayKey > 0) {
+      // Перезапуск анимации через изменение autoplay
+      setIsPlaying(false);
+      const timer = setTimeout(() => setIsPlaying(true), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [replayKey]);
 
   /* open вычисляется в рендере: автозакрытие на done без useEffect
      убирает «вспышку» высоты, которую давал двойной commit (сначала
      рендер с phase=done + open=true, потом setOpen(false)).
      userToggleState — явный override от пользователя; если он есть,
-     перекрывает автологику. */
+     перекрывает автологику.
+
+     ВАЖНО: блок всегда раскрыт по умолчанию (defaultOpen). */
   const [userToggleState, setUserToggleState] = useState<boolean | null>(null);
-  const autoOpen = phase === "done" ? false : defaultOpen;
+  const autoOpen = defaultOpen; // Всегда используем defaultOpen (true)
   const open = userToggleState !== null ? userToggleState : autoOpen;
   const setOpen = useCallback(
     (next: boolean | ((v: boolean) => boolean)) => {
@@ -281,6 +308,146 @@ export default function ThinkingModel({
     };
   }, []);
 
+  // Кастомный скроллбар для инструментов (идентичен скроллбару мыслей)
+  // Используем transform для плавного скролла, как в thoughtStream
+  const toolOffsetRef = useRef(0);
+  const toolTargetOffsetRef = useRef(0);
+  const toolRafRef = useRef<number>(0);
+
+  const updateToolThumb = useCallback((offset: number, contentH: number, viewportH: number) => {
+    const thumb = toolThumbRef.current;
+    if (!thumb) return;
+    if (contentH <= viewportH) {
+      thumb.style.opacity = "0";
+      return;
+    }
+    const scrollTop = -offset;
+    const maxScroll = contentH - viewportH;
+    const thumbHeight = Math.max(12, (viewportH / contentH) * viewportH);
+    const thumbTop = (scrollTop / maxScroll) * (viewportH - thumbHeight);
+    thumb.style.opacity = "1";
+    thumb.style.height = `${thumbHeight}px`;
+    thumb.style.transform = `translateY(${thumbTop}px)`;
+  }, []);
+
+  // Smooth scroll loop для инструментов
+  useEffect(() => {
+    const viewport = toolListWrapRef.current;
+    if (!viewport) return;
+    const content = toolListRef.current;
+    if (!content) return;
+
+    let running = true;
+    let contentH = content.scrollHeight;
+    let viewportH = viewport.clientHeight;
+
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === content) contentH = content.scrollHeight;
+        if (entry.target === viewport) viewportH = viewport.clientHeight;
+      }
+    });
+    ro.observe(content);
+    ro.observe(viewport);
+
+    const loop = () => {
+      if (!running) return;
+      const maxOffset = Math.min(0, viewportH - contentH);
+
+      toolTargetOffsetRef.current = Math.max(maxOffset, Math.min(0, toolTargetOffsetRef.current));
+
+      const current = toolOffsetRef.current;
+      const target = toolTargetOffsetRef.current;
+      const diff = target - current;
+
+      if (Math.abs(diff) < 0.05) {
+        toolOffsetRef.current = target;
+        toolRafRef.current = requestAnimationFrame(loop);
+        return;
+      }
+
+      const next = current + diff * 0.2;
+      toolOffsetRef.current = next;
+
+      content.style.transform = `translate3d(0, ${next}px, 0)`;
+      updateToolThumb(next, contentH, viewportH);
+
+      toolRafRef.current = requestAnimationFrame(loop);
+    };
+
+    toolRafRef.current = requestAnimationFrame(loop);
+    return () => {
+      running = false;
+      ro.disconnect();
+      if (toolRafRef.current) cancelAnimationFrame(toolRafRef.current);
+    };
+  }, [updateToolThumb, revealed]);
+
+  // Manual wheel scroll для инструментов
+  useEffect(() => {
+    const viewport = toolListWrapRef.current;
+    if (!viewport) return;
+    const content = toolListRef.current;
+    if (!content) return;
+
+    const onWheel = (e: WheelEvent) => {
+      const contentH = content.scrollHeight;
+      const viewportH = viewport.clientHeight;
+      if (contentH <= viewportH) return;
+
+      e.preventDefault();
+      const maxOffset = viewportH - contentH;
+      const next = Math.max(maxOffset, Math.min(0, toolTargetOffsetRef.current - e.deltaY));
+      toolTargetOffsetRef.current = next;
+    };
+
+    viewport.addEventListener("wheel", onWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", onWheel);
+  }, [revealed]);
+
+  // Drag support для tool thumb
+  useEffect(() => {
+    const thumb = toolThumbRef.current;
+    const viewport = toolListWrapRef.current;
+    if (!thumb || !viewport) return;
+    const content = toolListRef.current;
+    if (!content) return;
+
+    let startY = 0;
+    let startOffset = 0;
+
+    const onMouseMove = (e: MouseEvent) => {
+      const contentH = content.scrollHeight;
+      const viewportH = viewport.clientHeight;
+      const maxOffset = viewportH - contentH;
+      const delta = e.clientY - startY;
+      const offsetDelta = -(delta / viewportH) * contentH;
+      const next = Math.max(maxOffset, Math.min(0, startOffset + offsetDelta));
+      toolTargetOffsetRef.current = next;
+      toolOffsetRef.current = next;
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    const onMouseDown = (e: MouseEvent) => {
+      e.preventDefault();
+      startY = e.clientY;
+      startOffset = toolTargetOffsetRef.current;
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    };
+
+    thumb.addEventListener("mousedown", onMouseDown);
+    return () => {
+      thumb.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [revealed]);
+
   const elapsedLabel = useMemo(() => {
     const seconds = Math.max(0, Math.round(elapsedMs / 100) / 10);
     return `${seconds.toFixed(1)}s`;
@@ -295,9 +462,16 @@ export default function ThinkingModel({
       ? steps[Math.min(revealed - 1, steps.length - 1)]
       : null;
 
-  const phaseLabel = (() => {
+  const phaseLabel: ReactNode = (() => {
     if (phase === "error") return "Не ответила";
-    if (phase === "done") return `Размышляла ${elapsedLabel} · ${steps.length} шагов`;
+    if (phase === "done")
+      return (
+        <>
+          Размышляла {elapsedLabel}
+          <span className={styles.phaseDivider} aria-hidden="true" />
+          {steps.length} шагов
+        </>
+      );
     if (phase === "expanded") return "Готовит ответ";
     if (phase === "waiting" && activeStep) {
       const verb =
@@ -341,6 +515,22 @@ export default function ThinkingModel({
   const isThinking = phase === "streaming" || phase === "expanded" || phase === "waiting";
   const phaseClassName = `${styles.phaseLabel} ${isThinking ? styles.phaseLabelShimmer : ""}`.trim();
 
+  const handlePlayClick = useCallback(() => {
+    if (phase === "done") {
+      // Replay: сбрасываем анимацию
+      setReplayKey((k) => k + 1);
+      setIsPlaying(false);
+      // Небольшая задержка перед перезапуском для визуального эффекта
+      setTimeout(() => setIsPlaying(true), 50);
+    } else {
+      // Первый запуск
+      setIsPlaying(true);
+    }
+    setUserToggleState(null); // Сбросить пользовательский toggle
+  }, [phase]);
+
+  const isReplay = showPlayButton && phase === "done";
+
   return (
     <section
       ref={ref}
@@ -381,6 +571,26 @@ export default function ThinkingModel({
               попробовать снова
             </button>
           ) : null}
+          {showPlayButton && (!isPlaying || isReplay) ? (
+            <button
+              type="button"
+              className={styles.playButton}
+              onClick={handlePlayClick}
+              aria-label={isReplay ? "Повторить анимацию" : "Запустить анимацию"}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                {isReplay ? (
+                  <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+                ) : (
+                  <path d="M8 5v14l11-7z" />
+                )}
+              </svg>
+            </button>
+          ) : null}
         </header>
       ) : (
         <header className={styles.header}>
@@ -390,6 +600,26 @@ export default function ThinkingModel({
           {phase === "error" ? (
             <button type="button" className={styles.retry} tabIndex={-1} aria-hidden="true">
               попробовать снова
+            </button>
+          ) : null}
+          {showPlayButton && (!isPlaying || isReplay) ? (
+            <button
+              type="button"
+              className={styles.playButton}
+              onClick={handlePlayClick}
+              aria-label={isReplay ? "Повторить анимацию" : "Запустить анимацию"}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                {isReplay ? (
+                  <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+                ) : (
+                  <path d="M8 5v14l11-7z" />
+                )}
+              </svg>
             </button>
           ) : null}
         </header>
@@ -404,28 +634,29 @@ export default function ThinkingModel({
         }
       >
         <div className={isCollapsible ? styles.collapseInner : undefined}>
-          {/* Лог инструментов — всегда в DOM (slot со своим grid-rows),
-              открыт только когда `open && phase === "done"`. Эта связка
-              критична: на момент перехода streaming→done outer collapse
-              закрывается (open auto→false) И slot одновременно остаётся
-              data-open=false → natural height container'а не растёт
-              на toolList, transition стартует с прежней высоты thoughts.
-              Никакой «вспышки» высоты. */}
+          {/* Инструменты СВЕРХУ — показываются поэтапно во время анимации,
+              а не только в конце. Открыты когда revealed > 0. */}
           <div
             className={styles.toolListSlot}
-            data-open={open && phase === "done"}
-            aria-hidden={!(open && phase === "done")}
+            data-open={open && revealed > 0}
+            aria-hidden={!(open && revealed > 0)}
           >
-            <ol className={styles.toolList} aria-label="Инструменты">
-              {steps.map((step) => (
-                <li key={step.id} className={styles.toolItem}>
-                  <span className={styles.toolVerb}>{pastVerb(step.op)}</span>
-                  <span className={styles.toolTarget}>{step.target}</span>
-                </li>
-              ))}
-            </ol>
+            <div ref={toolListWrapRef} className={styles.toolListScrollWrap}>
+              <ol ref={toolListRef} className={styles.toolList} aria-label="Инструменты">
+                {steps.slice(0, revealed).map((step) => (
+                  <li key={step.id} className={styles.toolItem}>
+                    <span className={styles.toolVerb}>{pastVerb(step.op)}</span>
+                    <span className={styles.toolTarget}>{step.target}</span>
+                  </li>
+                ))}
+              </ol>
+              <div className={styles.toolListScrollTrack} aria-hidden="true">
+                <div ref={toolThumbRef} className={styles.toolListScrollThumb} />
+              </div>
+            </div>
           </div>
 
+          {/* Мысли СНИЗУ */}
           <div className={styles.thoughtStream} aria-label="Мысли модели">
             <div ref={streamRef} className={styles.thoughtStreamInner}>
               <div className={styles.thoughtStreamContent}>

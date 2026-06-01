@@ -56,7 +56,7 @@ export const PLUGINS: MentionItem[] = [
    Достаточно представительный, чтобы поиск
    по первым буквам показывал нечто осмысленное:
    набираем @comp → все ComposerInput-файлы,
-   набираем @sidebar → AgenticWorkflowLab,
+   набираем @sidebar → ProjectSidebar,
    набираем @think → ThinkingModel и его таймлайн.
    ───────────────────────────────────────── */
 
@@ -91,17 +91,17 @@ export const PROJECT_FILES: MentionItem[] = [
   },
   {
     kind: "file",
-    id: "agentic-workflow-lab-tsx",
-    label: "AgenticWorkflowLab.tsx",
-    description: "src/features/projects/composer/live/agentic-workflow-lab",
-    keywords: ["sidebar", "agentic", "workflow", "lab"],
+    id: "project-sidebar-tsx",
+    label: "ProjectSidebar.tsx",
+    description: "src/features/projects/composer/live/project-sidebar",
+    keywords: ["sidebar", "project", "session", "archive"],
   },
   {
     kind: "file",
-    id: "agentic-workflow-lab-css",
-    label: "AgenticWorkflowLab.module.css",
-    description: "src/features/projects/composer/live/agentic-workflow-lab",
-    keywords: ["sidebar", "agentic", "workflow", "lab", "css"],
+    id: "project-sidebar-css",
+    label: "ProjectSidebar.module.css",
+    description: "src/features/projects/composer/live/project-sidebar",
+    keywords: ["sidebar", "project", "session", "css"],
   },
   {
     kind: "file",

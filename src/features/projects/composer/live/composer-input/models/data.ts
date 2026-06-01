@@ -5,7 +5,7 @@ import type { ModelSelection, Provider, ReasoningLevel } from "./types";
    reasoning. Уровни задаются на уровне
    провайдера, потому что у Claude и Codex
    они называются по-разному:
-     Claude — Low / Medium / High / Max,
+     Claude — Low / Medium / High / Max / Ultracode,
      Codex  — Low / Medium / High / XHigh.
    ───────────────────────────────────────── */
 
@@ -14,6 +14,7 @@ const CLAUDE_LEVELS: ReasoningLevel[] = [
   { id: "medium", label: "Medium" },
   { id: "high", label: "High" },
   { id: "max", label: "Max" },
+  { id: "ultracode", label: "Ultracode" },
 ];
 
 const CODEX_LEVELS: ReasoningLevel[] = [
@@ -28,6 +29,7 @@ export const PROVIDERS: Provider[] = [
     id: "claude-code",
     label: "Claude Code",
     models: [
+      { id: "opus-4.8", label: "Opus 4.8" },
       { id: "opus-4.7", label: "Opus 4.7" },
       { id: "opus-4.6", label: "Opus 4.6" },
       { id: "sonnet-4.6", label: "Sonnet 4.6" },
@@ -53,8 +55,8 @@ export const PROVIDERS: Provider[] = [
 
 export const DEFAULT_SELECTION: ModelSelection = {
   providerId: "claude-code",
-  modelId: "opus-4.7",
-  levelId: "max",
+  modelId: "opus-4.8",
+  levelId: "ultracode",
 };
 
 export function findProvider(id: string): Provider | undefined {

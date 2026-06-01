@@ -4,7 +4,7 @@
    Provider — agentic-инструмент (Claude Code,
    Codex). Внутри каждого — несколько моделей
    и набор уровней reasoning. Уровни могут
-   отличаться: у Claude — max, у Codex — xhigh.
+   отличаться: у Claude — max/ultracode, у Codex — xhigh.
    Selection хранит обе вершины: какую модель
    выбрали и на каком уровне reasoning.
    ───────────────────────────────────────── */

@@ -11,12 +11,12 @@ import {
 } from "@/features/projects/composer/parts/ResearchFigures";
 import ThinkingModel from "@/features/projects/composer/live/thinking-model/ThinkingModel";
 import ComposerInput from "@/features/projects/composer/live/composer-input/ComposerInput";
-import AgenticWorkflowLab from "@/features/projects/composer/live/agentic-workflow-lab/AgenticWorkflowLab";
+import ProjectSidebar from "@/features/projects/composer/live/project-sidebar/ProjectSidebar";
 import caseStyles from "@/features/projects/composer/case.module.css";
 
 import { thinkingModelSnippet } from "./snippets/thinking-model";
 import { composerInputSnippet } from "./snippets/composer-input";
-import { agenticWorkflowLabSnippet } from "./snippets/agentic-workflow-lab";
+import { projectSidebarSnippet } from "./snippets/project-sidebar";
 
 export default function ComposerCase() {
   return (
@@ -38,18 +38,35 @@ export default function ComposerCase() {
             та же шкала заголовка и лида, без meta-rail и тегов. */}
         <section className={`${caseStyles.hero} ${caseStyles.wide}`} aria-labelledby="case-title">
           <div className={caseStyles.heroHead}>
+            <dl className={caseStyles.heroColophon} aria-label="Краткая справка о кейсе">
+              <div>
+                <dt>Роль</dt>
+                <dd>Исследование и дизайн</dd>
+              </div>
+              <div>
+                <dt>Год</dt>
+                <dd>2025</dd>
+              </div>
+              <div>
+                <dt>Тип</dt>
+                <dd>Самостоятельный проект</dd>
+              </div>
+            </dl>
             <h1 id="case-title" className={caseStyles.heroTitle}>
-              Composer, <em className={caseStyles.heroTitleAccent}>или</em> как работает ADE
+              Composer, или как работает ADE в новых реалиях разработки
             </h1>
-          </div>
-
-          <div className={caseStyles.heroStage}>
-            <ThinkingModel mode="hero" loop />
           </div>
         </section>
 
         {/* 01 */}
         <section className={caseStyles.part}>
+          <div className={caseStyles.column}>
+            <blockquote className={caseStyles.pullQuote}>
+              ADE начинается там, где интерфейс показывает не «магический ответ», а намерение,
+              границы доступа, ход работы и следы, по которым результат можно принять или отклонить.
+            </blockquote>
+          </div>
+
           <div className={caseStyles.column}>
             <h2 className={caseStyles.sectionTitle}>Что изменилось в рабочей поверхности</h2>
             <div className={caseStyles.prose}>
@@ -84,13 +101,6 @@ export default function ComposerCase() {
               <LabSourceMap />
             </InlineFigure>
           </div>
-
-          <div className={caseStyles.column}>
-            <blockquote className={caseStyles.pullQuote}>
-              ADE начинается там, где интерфейс показывает не «магический ответ», а намерение,
-              границы доступа, ход работы и следы, по которым результат можно принять или отклонить.
-            </blockquote>
-          </div>
         </section>
 
         {/* 02 */}
@@ -113,8 +123,11 @@ export default function ComposerCase() {
             </div>
           </div>
           <div className={caseStyles.wide}>
-            <InlineFigure frame="plain">
-              <LabCapabilityMatrix caption="Матрица не ранжирует продукты. Она показывает, какие способности повторяются в категории и почему их нельзя прятать за обычным полем чата." />
+            <InlineFigure
+              frame="plain"
+              caption="Матрица не ранжирует продукты. Она показывает, какие способности повторяются в категории и почему их нельзя прятать за обычным полем чата."
+            >
+              <LabCapabilityMatrix />
             </InlineFigure>
           </div>
         </section>
@@ -144,8 +157,9 @@ export default function ComposerCase() {
           <div className={caseStyles.wide}>
             <InlineFigure
               frame="plain"
+              caption="Не статистика, а карта повторяющегося трения, из которого вырастают требования к ADE."
             >
-              <LabFrictionRadar caption="Не статистика, а карта повторяющегося трения, из которого вырастают требования к ADE." />
+              <LabFrictionRadar />
             </InlineFigure>
           </div>
 
@@ -243,10 +257,10 @@ export default function ComposerCase() {
 
           <div className={caseStyles.wide}>
             <InlineFigure
-              caption="Превью сайдбара ADE: проекты и чаты как рабочий архив, а не панель тревоги с бесконечным прогрессом."
+              caption="Превью сайдбара ADE: проекты группируют сессии с явным статусом работы (выполнение, проверка, ревью), а не бесконечный поток сообщений."
               frame="plain"
             >
-              <AgenticWorkflowLab />
+              <ProjectSidebar />
             </InlineFigure>
           </div>
 
@@ -270,10 +284,28 @@ export default function ComposerCase() {
 
           <div className={caseStyles.wide}>
             <CodeBlock
-              code={agenticWorkflowLabSnippet.code}
-              lang={agenticWorkflowLabSnippet.lang}
-              path={agenticWorkflowLabSnippet.path}
+              code={projectSidebarSnippet.code}
+              lang={projectSidebarSnippet.lang}
+              path={projectSidebarSnippet.path}
+              diff={projectSidebarSnippet.diff}
             />
+          </div>
+
+          <div className={caseStyles.column}>
+            <div className={caseStyles.prose}>
+              <p>
+                Сайдбар перестал быть списком бесед. Проекты теперь группируют сессии с явным
+                статусом работы: <code>running</code> показывает активное выполнение,{" "}
+                <code>review</code> что diff готов к проверке, <code>done</code> что работа
+                принята. Каждая сессия привязана к задаче и ветке, а не просто к истории сообщений.
+              </p>
+              <p>
+                Это не декоративное изменение. Статус делает работу наблюдаемой: человек видит,
+                на каком этапе находится каждая сессия, и может вернуться к проверке или ревью
+                в любой момент. Сайдбар становится рабочим архивом, а не панелью тревоги с
+                бесконечным прогрессом.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -282,31 +314,34 @@ export default function ComposerCase() {
           <h2 className={caseStyles.sectionTitle}>ADE как среда доказательной работы</h2>
           <div className={caseStyles.prose}>
             <p>
-              В Composer нет настоящего бэкенда LLM, очереди задач, интеграции с GitHub и MCP сервера.
-              Все поведения детерминированы. Не клон Codex, Claude Code, Antigravity или Kiro, а
-              способ проверить рамку: собрать источники, закодировать наблюдения и превратить их в
-              интерфейсные решения.
+              Composer здесь не клон Codex, Claude Code, Antigravity или Kiro. Это способ проверить
+              рамку: собрать источники, закодировать наблюдения и превратить их в интерфейсные
+              решения. Настоящего бэкенда LLM, очереди задач, интеграции с GitHub и MCP-сервера
+              здесь нет намеренно. Все поведения детерминированы, чтобы проверять интерфейс, а не
+              инфраструктуру.
             </p>
             <p>
               Полная версия потребовала бы фоновых сессий, изолированных worktrees, журнала
-              подтверждений, ревью diff, браузерных проверок и памяти проекта. Но вывод уже виден:
+              подтверждений, ревью diff, браузерных проверок и памяти проекта. Но вывод уже виден.
+            </p>
+            <p>
               ADE не место, где AI выполнил работу. Это среда, где каждый шаг можно объяснить,
               проверить и принять человеком.
             </p>
           </div>
         </section>
-
-        <section className={`${caseStyles.column} ${caseStyles.closing}`}>
-          <Link className={caseStyles.backLink} href="/projects">
-            ← ко всем проектам
-          </Link>
-        </section>
       </article>
 
-      <footer className={caseStyles.footer} aria-label="Подвал">
-        <span>© {new Date().getFullYear()} Данила Фурманов</span>
-        <span className={caseStyles.footerDivider} aria-hidden="true" />
-        <span>Кейс № 01 · Composer</span>
+      <footer className={caseStyles.sitefooter} aria-label="Подвал сайта">
+        <Link className={caseStyles.brand} href="/" aria-label="Данила Фурманов, на главную">
+          Данила Фурманов
+        </Link>
+        <nav className={caseStyles.navLinks} aria-label="Навигация подвала">
+          <Link href="/">Главная</Link>
+          <Link href="/projects" aria-current="page">
+            Проекты
+          </Link>
+        </nav>
       </footer>
     </main>
   );

@@ -1,36 +1,22 @@
 .figure {
   width: 100%;
   color: var(--composer-ink);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* ─────────────────────────────────────────
-   Stage header — editorial pattern.
-   Верхняя строка: eyebrow и counter в одной
-   моно-капс гарнитуре, на одной базовой линии.
-   Ниже — крупный sans-заголовок отдельной строкой.
-   Никаких локальных разделителей: общий хайрлайн
-   рисуется верхней границей таблицы (sourceTable).
+   Stage header — единая шапка всех фигур.
+   Только заголовок: служебный индекс «Этап 0N»
+   и счётчики убраны, чтобы данные оставались
+   главным объектом. margin-bottom — единственный
+   источник отступа «заголовок → данные» во всех
+   пяти фигурах.
    ───────────────────────────────────────── */
 .stageHeader {
   display: grid;
   gap: clamp(8px, 1vw, 12px);
-  margin-bottom: clamp(20px, 2vw, 28px);
-}
-
-.stageHeaderTop {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.stageEyebrow {
-  margin: 0;
-  font-family: var(--composer-font-mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.36);
+  margin-bottom: clamp(28px, 3vw, 40px);
 }
 
 .stageTitle {
@@ -43,25 +29,6 @@
   text-wrap: balance;
 }
 
-.stageHeaderMeta {
-  font-family: var(--composer-font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-/* Старый headline-row сохранён для совместимости с другими фигурами,
-   но в LabSourceMap мы его больше не используем. */
-.stageHeadline {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  gap: 16px;
-}
-
 .sourceLabel,
 .sourceRank,
 .axis,
@@ -71,11 +38,6 @@
 .diskCore,
 .diskStep {
   font-family: var(--composer-font-mono);
-}
-
-.stageHeader strong {
-  font-size: clamp(1.1rem, 2vw, 1.45rem);
-  font-weight: 600;
 }
 
 /* ─────────────────────────────────────────
@@ -318,44 +280,32 @@
   background: var(--composer-hairline-strong);
 }
 
-.matrixNote {
-  margin: clamp(28px, 3vw, 36px) 0 0;
-  max-width: 62ch;
-  color: var(--composer-ink-subtle);
-  font-size: 0.86rem;
-  line-height: 1.5;
-  text-wrap: pretty;
-}
+/* Подписи всех фигур вынесены в единую сноску InlineFigure.caption
+   (низ фигуры, ~62ch, ink-subtle). Локальных figureNote/matrixNote
+   больше нет — один механизм, одна позиция, одна ширина. */
 
+/* Двухколоночная сетка данных (радар и петля воркфлоу) — единый шаблон:
+   график слева, легенда справа, align-items: center. Отступ
+   «заголовок → данные» даёт margin-bottom шапки, поэтому здесь нет
+   собственного padding-top — иначе у этих двух фигур он был бы вдвое
+   больше, чем у таблицы и матрицы. */
 .radarLayout {
   display: grid;
-  grid-template-columns: minmax(420px, 5fr) minmax(360px, 4fr);
+  grid-template-columns: minmax(420px, 5fr) minmax(340px, 4fr);
   gap: clamp(48px, 5vw, 64px);
-  align-items: start;
-  padding-top: clamp(28px, 3vw, 36px);
+  align-items: center;
   padding-bottom: clamp(8px, 1.2vw, 16px);
 }
 
 .radarPanel {
   display: grid;
   justify-items: center;
-  align-content: start;
-  gap: clamp(20px, 2vw, 24px);
 }
 
 .radar {
-  width: min(100%, 440px);
+  width: min(100%, 460px);
   aspect-ratio: 1;
   justify-self: center;
-}
-
-.radarCaption {
-  margin: 0;
-  max-width: 40ch;
-  color: var(--composer-ink-subtle);
-  font-size: 0.84rem;
-  line-height: 1.5;
-  text-wrap: pretty;
 }
 
 .radar circle,
@@ -371,11 +321,15 @@
   stroke-width: 1;
 }
 
+/* Легенда радара, не самостоятельный текстовый раздел:
+   сигнал + score в строке head, evidence — короткая
+   тихая расшифровка. Ширина (440px) единая с .workflowList,
+   чтобы правые колонки обеих фигур совпадали. */
 .frictionList {
   display: grid;
   gap: 0;
   width: 100%;
-  max-width: 460px;
+  max-width: 440px;
   justify-self: end;
 }
 
@@ -410,6 +364,233 @@
   font-size: 0.84rem;
   line-height: 1.45;
   text-wrap: pretty;
+}
+
+/* Тот же шаблон, что и .radarLayout: одинаковые колонки, gap и отсутствие
+   собственного padding-top (отступ задаёт margin-bottom шапки). */
+.workflowLayout {
+  display: grid;
+  grid-template-columns: minmax(420px, 5fr) minmax(340px, 4fr);
+  gap: clamp(48px, 5vw, 64px);
+  align-items: center;
+  padding-bottom: clamp(8px, 1.2vw, 16px);
+}
+
+.workflowPanel {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
+.workflowCircuit {
+  width: min(100%, 520px);
+  aspect-ratio: 68 / 95;
+  justify-self: center;
+  color: var(--composer-ink);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.workflowCircuit text {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+.workflowGrid {
+  fill: url(#wfGridMajor);
+}
+
+/* Чертёжная сетка: тонкая клетка 40px + усиленная линия каждые 200px. */
+.wfGridMinor {
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.wfGridMajor {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.workflowChipBody,
+.workflowResistor {
+  fill: var(--composer-surface);
+  stroke: var(--composer-ink);
+  stroke-width: 2.4;
+}
+
+.workflowBatteryPlate {
+  fill: none;
+  stroke: var(--composer-ink);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+}
+
+.workflowInductor,
+.workflowCapacitor,
+.workflowLamp,
+.workflowLampCross,
+.workflowGroundStem,
+.workflowGroundLine {
+  fill: none;
+  stroke: var(--composer-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.workflowInductor {
+  stroke-width: 2.6;
+}
+
+.workflowCapacitor {
+  stroke-width: 3;
+}
+
+.workflowLamp {
+  stroke-width: 2.8;
+}
+
+.workflowLampCross {
+  stroke-width: 2.6;
+}
+
+.workflowGroundStem {
+  stroke-width: 2.6;
+}
+
+.workflowGroundLine {
+  stroke-width: 2.8;
+}
+
+.workflowWire,
+.workflowWireActive {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.workflowWire {
+  stroke: rgba(220, 220, 220, 1);
+  stroke-width: 2.4;
+}
+
+.workflowWireActive {
+  stroke: var(--composer-ink);
+  stroke-width: 3.4;
+}
+
+.workflowArrow {
+  fill: var(--composer-ink);
+}
+
+.workflowChipBody {
+  fill: var(--composer-surface);
+}
+
+.workflowChipTitle {
+  fill: var(--composer-ink);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.workflowVerticalText {
+  fill: var(--composer-ink);
+  font-family: var(--composer-font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  writing-mode: vertical-rl;
+  text-anchor: middle;
+}
+
+.workflowComponentText {
+  fill: var(--composer-ink);
+  font-family: var(--composer-font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.workflowPinLabel {
+  fill: var(--composer-ink-muted);
+  font-family: var(--composer-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.workflowDot {
+  fill: var(--composer-ink);
+  stroke: var(--composer-ink);
+  stroke-width: 1.4;
+}
+
+.workflowDotHalo {
+  fill: none;
+  stroke: var(--composer-ink);
+  stroke-width: 2;
+}
+
+.workflowList {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  max-width: 440px;
+  justify-self: end;
+}
+
+.workflowItem {
+  display: grid;
+  gap: 6px;
+  padding: 0 0 13px;
+  border-bottom: 1px solid var(--composer-hairline);
+}
+
+.workflowItem + .workflowItem {
+  padding-top: 13px;
+}
+
+.workflowHead {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  color: var(--composer-ink);
+  font-size: 0.82rem;
+}
+
+.workflowHead span {
+  color: var(--composer-ink-muted);
+  font-family: var(--composer-font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.workflowHead strong {
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.workflowItem p {
+  margin: 0 0 0 46px;
+  color: var(--composer-ink-muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.workflowItem[data-active="true"] .workflowHead span,
+.workflowItem[data-active="true"] .workflowHead strong {
+  color: var(--composer-ink);
 }
 
 /* Сцена чертежа занимает центральный квадрат .disk,
@@ -759,8 +940,21 @@
     width: min(100%, 420px);
   }
 
-  .radarCaption,
   .frictionList {
+    justify-self: start;
+    max-width: 100%;
+  }
+
+  .workflowLayout {
+    grid-template-columns: 1fr;
+    gap: clamp(28px, 8vw, 40px);
+  }
+
+  .workflowCircuit {
+    width: min(100%, 520px);
+  }
+
+  .workflowList {
     justify-self: start;
     max-width: 100%;
   }

@@ -20,6 +20,18 @@ export const composerTokens = {
   },
   space: {
     unit: "var(--composer-unit)",
+    1: "var(--composer-space-1)",
+    2: "var(--composer-space-2)",
+    3: "var(--composer-space-3)",
+    4: "var(--composer-space-4)",
+    5: "var(--composer-space-5)",
+    6: "var(--composer-space-6)",
+    7: "var(--composer-space-7)",
+    8: "var(--composer-space-8)",
+    prose: "var(--composer-space-prose)",
+    sectionInner: "var(--composer-space-section-inner)",
+    sectionOuter: "var(--composer-space-section-outer)",
+    hero: "var(--composer-space-hero)",
   },
   font: {
     sans: "var(--font-sans)",
@@ -47,6 +59,9 @@ export const composerTokens = {
 /**
  * Базовые CSS-переменные дизайн-системы.
  * Сайт всегда в тёмной монохромной теме, поэтому светлый набор удалён.
+ *
+ * Spacing система основана на модульной шкале с коэффициентом 1.5 (идеальная квинта).
+ * Базовая единица: 8px. Каждый уровень в 1.5 раза больше предыдущего.
  */
 export const composerCssVariables = `
   --composer-surface: #0a0a0a;
@@ -64,7 +79,7 @@ export const composerCssVariables = `
   --composer-radius-xs: 6px;
   --composer-radius-sm: 10px;
   --composer-radius-md: 14px;
-  --composer-unit: 4px;
+  --composer-unit: 8px;
   --composer-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --composer-duration-hover: 120ms;
   --composer-duration-lift: 160ms;
@@ -74,8 +89,26 @@ export const composerCssVariables = `
   --composer-measure-wide: 960px;
   --composer-measure-graphic: 1120px;
   --composer-measure-hero: 760px;
-  --composer-section-gap: clamp(72px, 7vw, 112px);
-  --composer-section-gap-tight: clamp(24px, 2.8vw, 40px);
+
+  /* Модульная шкала spacing (базовая единица: 8px, коэффициент: 1.5) */
+  --composer-space-1: 12px;
+  --composer-space-2: 18px;
+  --composer-space-3: 27px;
+  --composer-space-4: 40px;
+  --composer-space-5: 60px;
+  --composer-space-6: 90px;
+  --composer-space-7: 135px;
+  --composer-space-8: 200px;
+
+  /* Адаптивные отступы для разных контекстов */
+  --composer-space-prose: clamp(24px, 2.5vw, 32px);
+  --composer-space-section-inner: clamp(48px, 5vw, 96px);
+  --composer-space-section-outer: clamp(96px, 10vw, 160px);
+  --composer-space-hero: clamp(64px, 8vw, 128px);
+
+  /* Обратная совместимость (deprecated, используйте новые токены выше) */
+  --composer-section-gap: var(--composer-space-section-outer);
+  --composer-section-gap-tight: var(--composer-space-section-inner);
 `;
 
 export const composerDarkCssVariables = composerCssVariables;

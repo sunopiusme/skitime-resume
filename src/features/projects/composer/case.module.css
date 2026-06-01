@@ -6,22 +6,33 @@
    • та же дисплей-шкала и тот же ритм отступов.
    Hero остаётся left-aligned (есть лид и meta-rail),
    но размеры и spacing синхронны с home.
+
+   Spacing система основана на модульной шкале (коэффициент 1.5):
+   • prose gap: 24-32px (комфортное чтение)
+   • section inner: 48-96px (между элементами секции)
+   • section outer: 96-160px (между секциями)
+   • hero: 64-128px (максимум пространства)
    ───────────────────────────────────────── */
 
 .page {
   position: relative;
   min-height: 100svh;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 1fr auto;
   --case-page-max: var(--composer-page-max);
   --case-measure: var(--composer-measure-hero);
   --case-wide: var(--composer-measure-graphic);
   --case-hero: var(--composer-measure-hero);
-  --case-section-gap: var(--composer-section-gap);
-  --case-section-gap-tight: var(--composer-section-gap-tight);
+
+  /* Новая система отступов на основе модульной шкалы */
+  --case-space-prose: var(--composer-space-prose);
+  --case-space-section-inner: var(--composer-space-section-inner);
+  --case-space-section-outer: var(--composer-space-section-outer);
+  --case-space-hero: var(--composer-space-hero);
+
   padding:
-    clamp(20px, 2.6vw, 32px)
-    clamp(20px, 4vw, 48px)
+    clamp(16px, 1.6vw, 24px)
+    clamp(48px, 6vw, 120px)
     clamp(24px, 2.6vw, 32px);
   color: var(--composer-ink);
   background: var(--composer-surface);
@@ -31,21 +42,30 @@
    Top bar — идентично home
    ───────────────────────────────────────── */
 .topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding-bottom: clamp(14px, 1.4vw, 20px);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--composer-ink-muted);
+  padding:
+    clamp(10px, 1vw, 14px)
+    clamp(20px, 2.4vw, 40px);
+  background: var(--composer-surface);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .brand {
-  color: var(--composer-ink);
+  color: #ffffff;
   font-weight: 500;
-  letter-spacing: 0.2em;
+  letter-spacing: 0em;
 }
 
 .navLinks {
@@ -57,8 +77,8 @@
 .navLinks a {
   display: inline-flex;
   align-items: center;
-  height: 32px;
-  padding: 0 14px;
+  height: 40px;
+  padding: 0 16px;
   border-radius: 999px;
   color: var(--composer-ink-muted);
   transition:
@@ -77,17 +97,44 @@
 }
 
 /* ─────────────────────────────────────────
+   Site footer — зеркало хедера.
+   Та же типографика, тот же горизонтальный
+   паддинг и та же навигация, что у .topbar:
+   бренд слева, ссылки справа. Хедер закреплён
+   сверху (fixed) и ведёт сессию навигации;
+   футер — его статичный двойник, прижатый к
+   низу страницы гридом (grid-template-rows:
+   1fr auto). Один бар, один язык — никакой
+   отдельной «карточки перехода».
+   ───────────────────────────────────────── */
+.sitefooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding:
+    clamp(10px, 1vw, 14px)
+    clamp(20px, 2.4vw, 40px);
+  background: var(--composer-surface);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ─────────────────────────────────────────
    Article — only vertical rhythm.
    Боковой паддинг уже даёт .page — здесь только
    вертикальные расстояния между секциями.
+   Используем новую систему: 96-160px между секциями.
    ───────────────────────────────────────── */
 .article {
   display: grid;
   width: min(100%, var(--case-page-max));
   min-width: 0;
   margin: 0 auto;
-  gap: var(--case-section-gap);
-  padding-top: clamp(28px, 3vw, 40px);
+  gap: var(--case-space-section-outer);
+  padding-top: clamp(48px, 5vw, 80px);
   padding-bottom: clamp(48px, 5vw, 72px);
 }
 
@@ -108,11 +155,11 @@
 .part {
   display: grid;
   min-width: 0;
-  gap: var(--case-section-gap-tight);
+  gap: var(--case-space-section-inner);
 }
 
 .part > .wide + .wide {
-  margin-top: calc(-1 * clamp(4px, 0.8vw, 12px));
+  margin-top: calc(-1 * clamp(8px, 1vw, 16px));
 }
 
 /* ─────────────────────────────────────────
@@ -122,34 +169,34 @@
    Без подзаголовка hero держит более
    компактный верхний воздух — заголовок
    садится в верхнюю треть, не в середину.
+   Используем максимальный spacing: 64-128px.
    ───────────────────────────────────────── */
 .hero {
   display: grid;
   justify-items: center;
   align-content: start;
   text-align: center;
-  gap: clamp(20px, 2.6vw, 36px);
-  padding: clamp(32px, 4vw, 60px) clamp(16px, 4vw, 56px) clamp(12px, 2vw, 28px);
+  gap: clamp(24px, 2.8vw, 36px);
+  padding: clamp(16px, 2vw, 28px) clamp(16px, 4vw, 56px) clamp(24px, 2.4vw, 36px);
 }
 
 .heroHead {
   display: grid;
   justify-items: center;
-  gap: clamp(14px, 1.8vw, 20px);
-  max-width: var(--case-hero);
+  gap: clamp(16px, 1.8vw, 24px);
+  max-width: var(--case-wide);
+  width: 100%;
 }
 
 .heroTitle {
   margin: 0;
-  /* Раскрытие на больших экранах: до 18ch, с балансом строк.
-     Размер крупнее, чем на главной, — кейс должен задавать тон,
-     а не повторять домашнюю шкалу один-в-один. */
-  max-width: 18ch;
+  max-width: 100%;
   font-family: var(--font-sans), sans-serif;
-  font-size: clamp(2.25rem, 5.6vw, 5rem);
-  font-weight: 600;
+  font-size: 56px;
+  font-weight: 500;
   letter-spacing: -0.03em;
-  line-height: 1.02;
+  line-height: 56px;
+  color: #ffffff;
   text-wrap: balance;
   font-kerning: normal;
   font-feature-settings: "ss01", "cv11";
@@ -163,6 +210,54 @@
   font-style: normal;
   font-weight: 300;
   letter-spacing: -0.02em;
+}
+
+/* Лид под заголовком hero: одна спокойная строка «что это» —
+   фрейм для рекрутёра, читается за 5 секунд. Тот же тихий тон,
+   что .subtitle на главной. */
+.heroLead {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--composer-ink-muted);
+  font-size: clamp(1rem, 1.2vw, 1.18rem);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+/* Colophon — мета-рейка «Роль / Инструменты / Формат» по паттерну
+   главной (.colophon). Капс-моно тон, тихий контраст; даёт рекрутёру
+   контекст авторства. Теперь идёт первым, перед заголовком. */
+.heroColophon {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 24px;
+  margin: 0 0 clamp(20px, 2.4vw, 32px);
+  padding: 0;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0em;
+  line-height: 19.6px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.heroColophon > div {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.heroColophon dt {
+  color: var(--composer-ink-subtle);
+}
+
+.heroColophon dd {
+  margin: 0;
+  color: var(--composer-ink);
+  font-weight: 500;
 }
 
 .heroStage {
@@ -180,12 +275,12 @@
 
 /* Сжатие стыка hero → первая секция.
    Глобальный gap у .article держится крупным для ритма
-   между смысловыми секциями, но первая «Лаборатория»
-   идёт сразу за thinking model и не должна провисать.
-   Высота hero стабильна (min-height у .columns), поэтому
-   negative margin не вызывает прыжков при анимации. */
+   между смысловыми секциями, но первая секция
+   идёт сразу за hero и не должна провисать.
+   Высота hero стабильна, поэтому negative margin
+   не вызывает прыжков при анимации. */
 .hero + .part {
-  margin-top: calc(-1 * clamp(28px, 4vw, 64px));
+  margin-top: calc(-1 * clamp(64px, 6vw, 96px));
 }
 
 /* ─────────────────────────────────────────
@@ -210,16 +305,16 @@
 
 .sectionTitle {
   margin: 0 0 clamp(20px, 2vw, 28px);
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: 600;
-  letter-spacing: -0.022em;
-  line-height: 1.15;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 34px;
   text-wrap: balance;
 }
 
 .partHeader {
   text-align: left;
-  margin-bottom: clamp(24px, 2.4vw, 32px);
+  margin-bottom: clamp(28px, 2.8vw, 40px);
 }
 
 .partHeader .sectionTitle {
@@ -228,16 +323,16 @@
 
 /* ─────────────────────────────────────────
    Prose body
+   Увеличен gap с 20px до 24-32px для лучшей читаемости.
    ───────────────────────────────────────── */
 .prose {
   display: grid;
-  gap: 20px;
-  /* Более «инковый» тон прозы: при контрастном белом заголовке
-     приглушённый текст давал тональный разрыв и абзац визуально
-     «отлеплялся» от секции. Поднимаем непрозрачность ближе к ink. */
+  gap: var(--case-space-prose);
   color: rgba(255, 255, 255, 0.92);
-  font-size: clamp(1rem, 1vw, 1.06rem);
-  line-height: 1.62;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 24px;
 }
 
 .prose p {
@@ -269,7 +364,7 @@
 
 .transitionNote {
   margin-top: clamp(4px, 0.8vw, 10px);
-  color: var(--composer-ink-muted);
+  color: var(--composer-ink);
   font-size: clamp(0.96rem, 0.94vw, 1.02rem);
   line-height: 1.58;
   text-wrap: pretty;
@@ -342,54 +437,77 @@
    ───────────────────────────────────────── */
 .closing {
   display: grid;
-  gap: clamp(16px, 2vw, 24px);
-  padding-top: clamp(20px, 2.4vw, 28px);
-  border-top: 1px solid var(--composer-hairline);
+  gap: 0;
+  padding-top: clamp(8px, 1vw, 12px);
+}
+
+.closingCard {
+  display: grid;
+  gap: clamp(12px, 1.6vw, 18px);
+  padding: clamp(20px, 2.4vw, 28px);
+  border: 1px solid var(--composer-hairline);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.closingKicker {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+}
+
+.closingTitle {
+  margin: 0;
+  color: var(--composer-ink);
+  font-size: clamp(1.3rem, 1.8vw, 1.8rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.closingText {
+  margin: 0;
+  max-width: 54ch;
+  color: var(--composer-ink-muted);
+  font-size: clamp(0.96rem, 1.05vw, 1.04rem);
+  line-height: 1.55;
+  text-wrap: pretty;
 }
 
 .backLink {
   display: inline-flex;
   align-items: center;
+  width: fit-content;
   gap: 8px;
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--composer-ink-muted);
-  transition: color 160ms ease;
-}
-
-.backLink:hover {
-  color: var(--composer-ink);
-}
-
-/* ─────────────────────────────────────────
-   Footer — идентично home
-   ───────────────────────────────────────── */
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-top: clamp(14px, 1.4vw, 20px);
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--composer-hairline-strong);
+  background: rgba(255, 255, 255, 0.04);
   font-size: 0.8rem;
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  color: var(--composer-ink-subtle);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--composer-ink);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
-.footerDivider {
-  flex: 1 1 auto;
-  height: 1px;
-  max-width: 32px;
-  background: var(--composer-hairline-strong);
+.backLink:hover,
+.backLink:focus-visible {
+  border-color: var(--composer-ink);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--composer-ink);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 840px) {
   .topbar {
     font-size: 0.66rem;
-  }
-
-  .footer {
-    font-size: 0.75rem;
   }
 }

@@ -29,31 +29,21 @@
   --code-row-radius: calc(var(--code-card-radius) - var(--code-corner-inset)); /* 18px */
   --code-pad-x: 16px;
 
-  /* Diff tints — насыщенные solid-цвета в стиле terminal-diff:
-     матрично-зелёный для add, кроваво-красный для remove.
-     Раньше rgba(…, 0.18) поверх #242424 давало тусклый
-     серо-зеленоватый / серо-розовый — сигнал терялся, diff
-     читался как «слегка тонированная строка». Solid hex
-     просчитан как высокоплотный композит: оттенок ярко
-     опознаётся, но синтаксические токены Shiki всё ещё
-     читаются — фон не глушит код. */
-  /* Tint-плотность подобрана так, чтобы luminance был
-     близок к --code-bg (#242424, lum≈36), но цветовой
-     канал ярко доминировал. Это даёт «впечатанный в
-     поверхность» эффект — diff читается как часть
-     карты, а не как наклейка поверх неё.
-     Бары и ink оставлены сочными (terminal phosphor),
-     чтобы сигнальные акценты (+/−, номер строки) не
-     терялись на собственном тонированном фоне. */
-  --code-diff-add-bg: #10301c;
-  --code-diff-add-bg-strong: #1a4828;
-  --code-diff-add-ink: #9dffac;
-  --code-diff-add-bar: #39e25b;
+  /* Diff tints — GitHub-dark язык: приглушённый фон-тинт
+     несёт «что изменилось», а цветной синтаксис Shiki внутри
+     строки сохраняется (код остаётся читаемым кодом, не
+     монохромным фасадом). Плотность подобрана так, чтобы
+     tint рецессировал за токенами: luminance близок к
+     --code-bg (#242424), цветовой канал лишь слегка смещён.
+     Token'ы Shiki (фиолетовый, циан, жёлтый) ярко доминируют
+     поверх — diff читается как «подсвеченная зона кода». */
+  --code-diff-add-bg: #1d3327;
+  --code-diff-add-bg-strong: #244a31;
+  --code-diff-add-bar: #3fb950;
 
-  --code-diff-remove-bg: #321010;
-  --code-diff-remove-bg-strong: #4d1a1a;
-  --code-diff-remove-ink: #ff9c95;
-  --code-diff-remove-bar: #ff3a30;
+  --code-diff-remove-bg: #3a2526;
+  --code-diff-remove-bg-strong: #5a2e2e;
+  --code-diff-remove-bar: #f85149;
 
   /* Ширина та же, что у ComposerInput (760px) — оба компонента
      читаются как один стандартный контейнер «рабочей поверхности».
@@ -86,7 +76,7 @@
   justify-content: space-between;
   gap: 16px;
   /* Concentric corners (Apple HIG, единый язык со ComposerInput
-     и AgenticWorkflowLab):
+     и ProjectSidebar):
      • corner_inset = 6  — зазор от угла карточки до угла кнопки,
      • button_radius = card_radius − inset = 24 − 6 = 18.
      Поэтому head имеет padding 6px сверху/снизу и справа: copy-
@@ -363,18 +353,23 @@
 }
 
 .pre :global(.line)::before {
-  content: attr(data-line-no);
+  /* Все строки резервируют 2-символьный слот под знак (« +»/
+     « −»), даже контекстные — там это два пробела. При
+     white-space:pre и text-align:right номер и знак ложатся
+     в фиксированные колонки: цифры выравниваются по правому
+     краю своей под-колонки, знак стоит в крайней правой
+     позиции вплотную к коду (GitHub-стиль). Раньше контекст
+     не резервировал слот → его номера «съезжали» правее
+     diff-номеров на ширину маркера. */
+  content: attr(data-line-no) "  ";
   display: inline-block;
-  /* width — content-area для номера + маркера «+»/«−» в diff'е.
-     content-box: visible-width = width + padding-right = 28 + 12 = 40.
-     Хватает для 3-значного номера + пробела + маркера; для
-     2-значных (типичный case в превью) ещё остаётся воздух
-     справа. Раньше 56+20=76 — это был отступ под код-репо
-     с тысячами строк, для preview overkill. */
-  width: 28px;
-  padding-right: 12px;
+  /* content-area под номер (до 3 цифр) + слот знака.
+     visible-width = width + padding-right = 32 + 10 = 42. */
+  width: 32px;
+  padding-right: 10px;
   margin-right: 4px;
   text-align: right;
+  white-space: pre;
   color: var(--code-gutter);
   font-variant-numeric: tabular-nums;
   font-size: 0.78rem;
@@ -387,9 +382,9 @@
 .pre :global(.hunk-gap) {
   display: block;
   box-sizing: border-box;
-  /* Левый padding выровнен под новый гаттер (40 visible + 4 margin = 44),
+  /* Левый padding выровнен под гаттер (42 visible + 4 margin = 46),
      эллипсис стоит ровно на колонке кода. */
-  padding: 0 20px 0 18px;
+  padding: 0 20px 0 20px;
   font-family: var(--composer-font-mono);
   font-size: 0.78rem;
   line-height: 1.5;
@@ -402,37 +397,24 @@
 }
 
 /* ──────── Diff highlighting ──────── */
-/* Стиль `git diff --color`: маркер «+»/«−» идёт ПОСЛЕ номера
-   строки в той же гаттер-колонке. Сигналов два:
-   1) фон-тинт во всю ширину строки,
-   2) цветной номер + глиф «+»/«−» суффиксом.
-   Вертикальной полосы нет — tint + цвет гаттера достаточно,
-   полоса дублировала бы левый край без пользы.
-
-   Right-align гаттера ставит глиф у правого края колонки;
-   номер строки в diff-рядах естественно уезжает влево на
-   ширину маркера (2 чара). Это та же асимметрия, что у
-   нативного `git diff` — числа в diff-рядах слегка не
-   совпадают с контекстными по правому краю. */
+/* GitHub-dark язык. Сигналов три, мягко наложенных:
+   1) приглушённый фон-тинт по ширине строки,
+   2) цветной номер + глиф «+»/«−» в крайней колонке гаттера,
+   3) цветной синтаксис Shiki сохранён (см. ниже).
+   Знак стоит в фиксированной колонке (2-символьный слот
+   резервируют все строки), поэтому номера add/remove и
+   контекста выровнены по одному правому краю — без
+   «съезжающих» цифр. */
 .pre :global(.line[data-diff="add"]) {
   background: var(--code-diff-add-bg);
 }
 
-/* На сатурированном tint'е Shiki-токены (фиолетовый,
-   циан, жёлтый) визуально дерутся с цветом фона — диф
-   читается как «цветная радуга на цветном». Внутри
-   diff-строк фасадим весь синтаксис в чистый белый:
-   фон-tint несёт цветовой сигнал (что изменилось), код
-   остаётся монохромным и не конкурирует с tint'ом.
-   Shiki вешает inline style="color:…" на спаны — без
-   !important inline-стили не перебиваются. */
-.pre :global(.line[data-diff="add"]),
-.pre :global(.line[data-diff="add"] *),
-.pre :global(.line[data-diff="remove"]),
-.pre :global(.line[data-diff="remove"] *) {
-  color: #f5f5f5 !important;
-}
-
+/* Синтаксис Shiki ВНУТРИ diff-строк сохраняется (GitHub-dark
+   язык): приглушённый фон-tint несёт сигнал «что изменилось»,
+   а цветные токены остаются — diff читается как подсвеченная
+   зона живого кода, а не монохромный фасад. Tint специально
+   рецессивный (luminance ≈ --code-bg), поэтому token'ы не
+   конкурируют с фоном. */
 .pre :global(.line[data-diff="add"])::before {
   content: attr(data-line-no) " +";
   color: var(--code-diff-add-bar);
@@ -460,7 +442,7 @@
   }
 
   .pre :global(.line)::before {
-    width: 22px;
+    width: 24px;
     padding-right: 8px;
   }
 }

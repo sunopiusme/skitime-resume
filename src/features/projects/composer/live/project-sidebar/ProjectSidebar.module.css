@@ -37,7 +37,7 @@
   --sb-ink-faint: #686868;        /* ≡ rgba(255,255,255,0.34) over #1a1a1a */
   --sb-hairline: #3a3a3a;         /* ≡ rgba(255,255,255,0.14) over #1a1a1a */
   --sb-hairline-strong: #5f5f5f;  /* ≡ rgba(255,255,255,0.3)  over #1a1a1a */
-  --sb-row-hover: rgba(255, 255, 255, 0.05);
+  --sb-row-hover: rgba(255, 255, 255, 0.075);
 
   /* ── concentric corners (Apple HIG):
      R_pane = радиус окна,
@@ -100,8 +100,23 @@
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
+  /* iPhone-keynote staging: панели не лежат на плоском фоне
+     страницы — они стоят на освещённой сцене. Вертикальный
+     воздух даёт продуктовому кадру дышать, а сам контейнер
+     остаётся собранным (не «размах»). Световой пол рисует
+     .root::before. */
+  position: relative;
+  isolation: isolate;
+  padding: clamp(28px, 5vw, 64px) 0;
   font-family: var(--font-sans), sans-serif;
   color: var(--sb-ink);
+  /* Mastering: единое сглаживание для всей сцены. Без него
+     тонкие глифы на тёмном фоне «жирнеют» по-разному в
+     зависимости от субпиксельной раскладки — текст дрожит
+     между панелями. grayscale-smoothing держит вес ровным. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   /* Sidebar — статичная превью-сцена. Курсор не
      должен выделять текст внутри: сцена читается
      как «изображение интерфейса», а не интерактивный
@@ -112,10 +127,32 @@
 }
 
 .split {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 28px;
   align-items: stretch;
+}
+
+/* iPhone-keynote сцена: мягкий световой пол под панелями.
+   Эллиптический радиальный свет приподнимает центр кадра —
+   панели «стоят на свету», а не лежат на плоском фоне.
+   Очень тихий (пик ~5% белого), широко растушёван к краям,
+   уходит в ноль до границ .root — никаких видимых швов,
+   только ощущение объёма и студийной подсветки. */
+.root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    120% 78% at 50% 46%,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.018) 42%,
+    rgba(255, 255, 255, 0) 72%
+  );
+  pointer-events: none;
 }
 
 .pane {
@@ -123,16 +160,65 @@
   height: clamp(420px, 58vw, 560px);
   border-radius: var(--sb-pane-radius);
   overflow: hidden;
-  background: var(--sb-bg);
-  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.5);
-  /* Внутренний highlight — не обрезается, т.к. это
-     inset и он рисуется внутри границы элемента.
-     Внешняя тёмная обводка через outline — не влияет
-     на layout и не обрезается overflow родителя. */
-  outline: 1px solid rgba(0, 0, 0, 0.75);
+  /* Mastering: панель — литой материал под светом сверху.
+     Поверх плоской заливки --sb-bg лежит длинный вертикальный
+     sheen: ~3% света у верхней кромки, гаснет к 180px. Это
+     снимает «плоскую заливку» и даёт панели вертикальный
+     объём, согласованный с inset-бликом и тенью.
+     Заливка теперь живёт здесь (а не на .sidebar), чтобы
+     sheen был единым на всю высоту pane. */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0) 180px
+    ),
+    var(--sb-bg);
+  /* Слоёная тень: контактная кромка + средний и дальний
+     слой дают «приподнятый» физический объект вместо
+     одного размытого пятна. Inset-блик по верхней кромке
+     ловит свет — панель читается как материал, а не плоскость.
+     Тень маскируется вместе с содержимым (fade в туман). */
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.5),
+    0 14px 32px rgba(0, 0, 0, 0.46),
+    0 36px 72px rgba(0, 0, 0, 0.56),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  /* Внешняя тёмная обводка через outline — не влияет
+     на layout и не обрезается overflow/mask родителя. */
+  outline: 1px solid rgba(0, 0, 0, 0.8);
   outline-offset: 0;
-  /* Светлая внутренняя рамка через border поверх фона */
-  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+/* Mastering: светлая кромка — не плоский 1px-бордер, а
+   градиент по периметру. Ярче сверху (свет ловится верхней
+   фаской), гаснет к низу — край панели читается как реальная
+   фаска стекла, а не нарисованный контур. Реализован через
+   mask-composite: заливка border-box минус content-box =
+   только 1px-рамка. Маскируется вместе с pane (fade в туман),
+   как и остальной материал. */
+.pane::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.24),
+    rgba(255, 255, 255, 0.08) 38%,
+    rgba(255, 255, 255, 0.04)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .paneTop {
@@ -207,7 +293,10 @@
   display: flex;
   flex-direction: column;
   gap: 13px;
-  background: var(--sb-bg);
+  /* Заливка и sheen перенесены на .pane, чтобы свет был
+     единым на всю высоту окна. Sidebar — прозрачный слой
+     контента поверх материала панели. */
+  background: transparent;
 }
 
 /* ── Хром: traffic lights слева + системные кнопки справа.
@@ -323,6 +412,9 @@
 }
 
 .navItem:hover {
+  /* Hover — спокойная плоская заливка, без inset-блика.
+     3D-объём на наведении «дёргал» взгляд; ховер должен
+     быть тихим откликом, а не приподнятой кнопкой. */
   background: var(--sb-row-hover);
 }
 
@@ -456,6 +548,10 @@
   color: var(--sb-ink);
 }
 
+.projectHead:hover {
+  background: var(--sb-row-hover);
+}
+
 .projectIcon {
   display: inline-flex;
   align-items: center;
@@ -495,6 +591,34 @@
   line-height: 1.3;
 }
 
+/* Hover чат-ряда — лёгкая плашка, тише nav (чаты вторичны
+   по иерархии). Без inset-блика: на вторичном уровне он
+   читался бы как «кнопка». */
+.chatRow:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Активный (текущий) чат — единственный всегда-видимый
+   акцент в списке. Плоская tonal-заливка, как selected/
+   expanded-состояние пикеров в ComposerInput (rgba 0.10):
+   материал интерактива в сайдбаре и композере теперь
+   один — плоская заливка, без скевоморфного inset-блика.
+   Глянец-материал живёт только на панели (= card композера),
+   интерактив везде плоский. Заголовок поднят до полного
+   ink — выбор читается текстом, не только фоном. */
+.chatRow[data-active="true"] {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.chatRow[data-active="true"] .chatTitle {
+  color: var(--sb-ink);
+  font-weight: 450;
+}
+
+.chatRow[data-active="true"] .chatAge {
+  color: var(--sb-ink-subtle);
+}
+
 .chatTitle {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -519,6 +643,11 @@
   border-radius: var(--sb-row-radius);
   font-size: 0.84rem;
   color: var(--sb-ink-subtle);
+}
+
+.showMore:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--sb-ink-muted);
 }
 
 .projectEmpty {
@@ -588,11 +717,20 @@
   justify-content: center;
   padding: 5px 12px;
   border-radius: 999px;
-  border: 1px solid var(--sb-hairline-strong);
+  /* Залитый чип вместо прозрачной обводки: единственный
+     CTA в сайдбаре читается как плотная кнопка-фокус.
+     Верхний inset-блик повторяет язык карточки. */
+  border: 1px solid rgba(255, 255, 255, 0.16);
   font-size: 0.84rem;
+  font-weight: 500;
   line-height: 1;
   color: var(--sb-ink);
-  background: transparent;
+  /* Плоская tonal-заливка, как ghost-чипы и пикеры
+     ComposerInput (rgba 0.08–0.12). Ни градиента, ни
+     inset-блика: интерактив в сайдбаре говорит на том же
+     языке, что и тулбар композера. Тонкая обводка остаётся —
+     это единственный CTA, ей нужен лёгкий контур-фокус. */
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* ─────────────────────────────────────────
@@ -635,7 +773,9 @@
    ───────────────────────────────────────── */
 .updatePill {
   --pill-easing: cubic-bezier(0.4, 0, 0.2, 1);
-  --pill-blue: #1d3a8a;
+  /* Чище и насыщеннее прежнего #1d3a8a: тот же нативный
+     «Update»-акцент, но контрастный к фону, а не мутный. */
+  --pill-blue: #2454e6;
   --pill-height: calc(var(--sb-sys-size) - 8px);                       /* 24px */
   --pill-radius: calc(var(--sb-pane-radius) - var(--sb-corner-inset)); /* 12px */
   --pill-w-wide: 76px;
@@ -741,6 +881,11 @@
 
 /* ── Адаптация ─────────────────────────── */
 @media (max-width: 720px) {
+  .root {
+    /* На узких экранах сцена тише: меньше вертикального воздуха,
+       чтобы пара панелей (теперь в столбик) не уезжала вниз. */
+    padding: clamp(20px, 6vw, 36px) 0;
+  }
   .split {
     grid-template-columns: 1fr;
     gap: 18px;

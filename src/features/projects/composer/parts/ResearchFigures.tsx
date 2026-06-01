@@ -1,5 +1,3 @@
-import type { CSSProperties } from "react";
-
 import {
   capabilities,
   evidenceStack,
@@ -35,15 +33,9 @@ function radarPoint(index: number, score: number) {
 }
 
 export function LabSourceMap() {
-  const totalsLabel = `${researchSources.length} источников`;
-
   return (
-    <div className={styles.figure} aria-label="Этап 01: карта источников">
+    <div className={styles.figure} aria-label="Карта источников">
       <header className={styles.stageHeader}>
-        <div className={styles.stageHeaderTop}>
-          <p className={styles.stageEyebrow}>Этап 01</p>
-          <span className={styles.stageHeaderMeta}>{totalsLabel}</span>
-        </div>
         <h3 className={styles.stageTitle}>Откуда взята рамка</h3>
       </header>
 
@@ -101,14 +93,11 @@ export function LabSourceMap() {
   );
 }
 
-export function LabCapabilityMatrix({ caption }: { caption?: string }) {
+export function LabCapabilityMatrix() {
   return (
-    <div className={styles.figure} aria-label="Этап 02: матрица признаков">
+    <div className={styles.figure} aria-label="Матрица признаков">
       <header className={styles.stageHeader}>
-        <p className={styles.stageEyebrow}>Этап 02</p>
-        <div className={styles.stageHeadline}>
-          <h3 className={styles.stageTitle}>Что ADE обязан показывать</h3>
-        </div>
+        <h3 className={styles.stageTitle}>Что ADE обязан показывать</h3>
       </header>
       <div className={styles.matrix}>
         <span className={`${styles.cell} ${styles.blank}`} />
@@ -139,23 +128,19 @@ export function LabCapabilityMatrix({ caption }: { caption?: string }) {
           </div>
         ))}
       </div>
-      {caption ? <p className={styles.matrixNote}>{caption}</p> : null}
     </div>
   );
 }
 
-export function LabFrictionRadar({ caption }: { caption?: string }) {
+export function LabFrictionRadar() {
   const points = frictionSignals
     .map((signal, index) => radarPoint(index, signal.score))
     .join(" ");
 
   return (
-    <div className={styles.figure} aria-label="Этап 03: радар трения">
+    <div className={styles.figure} aria-label="Радар трения">
       <header className={styles.stageHeader}>
-        <p className={styles.stageEyebrow}>Этап 03</p>
-        <div className={styles.stageHeadline}>
-          <h3 className={styles.stageTitle}>Где автономность начинает стоить дорого</h3>
-        </div>
+        <h3 className={styles.stageTitle}>Где автономность начинает стоить дорого</h3>
       </header>
       <div className={styles.radarLayout}>
         <div className={styles.radarPanel}>
@@ -170,7 +155,6 @@ export function LabFrictionRadar({ caption }: { caption?: string }) {
             })}
             <polygon points={points} />
           </svg>
-          {caption ? <p className={styles.radarCaption}>{caption}</p> : null}
         </div>
         <div className={styles.frictionList}>
           {frictionSignals.map((signal) => (
@@ -189,221 +173,143 @@ export function LabFrictionRadar({ caption }: { caption?: string }) {
 }
 
 export function LabWorkflowDisk() {
-  const total = workflowSteps.length;
-  const stepAngle = 360 / total;
   const activeIndex = 1;
 
-  /* Геометрия сцены сохранена точь-в-точь, как раньше.
-     viewBox -230..230 (=460), сфера R=120 в центре (0,0).
-     Станции лежат на orbit-окружности R_ORBIT=120; leader-линии
-     уходят радиально наружу до R_LEAD=136, где приземляется
-     anchor подписи. Подписи в DOM позиционируются от центра .disk
-     через CSS-% от полной диагонали viewBox (460). */
-  const R_ORBIT = 120;
-  const R_LEAD = 136;
-  const LABEL_R_RATIO = R_LEAD / 460;
-  const BULLET_GAP = 5;
-
-  const stations = workflowSteps.map((step, index) => {
-    const angleDeg = -90 + index * stepAngle;
-    const angleRad = (angleDeg * Math.PI) / 180;
-    const cosA = Math.cos(angleRad);
-    const sinA = Math.sin(angleRad);
-    const bullet = { x: cosA * R_ORBIT, y: sinA * R_ORBIT };
-    const leaderStart = {
-      x: cosA * (R_ORBIT + BULLET_GAP),
-      y: sinA * (R_ORBIT + BULLET_GAP),
-    };
-    const anchor = { x: cosA * R_LEAD, y: sinA * R_LEAD };
-    return { step, index, angleDeg, cosA, sinA, bullet, leaderStart, anchor };
-  });
-
-  const active = stations[activeIndex]!;
-  const nextIndex = (activeIndex + 1) % total;
-  const next = stations[nextIndex]!;
-
-  /* Активная dwell-зона: дуговой сектор вокруг текущей
-     станции от центра до orbit'а. Прямая аналогия
-     radar polygon'а из этапа 03: fill rgba(255,255,255,0.08),
-     stroke ink 1px. Sector шире одного шага не делаем,
-     чтобы не уезжать в соседние станции. */
-  const dwellHalf = stepAngle / 2;
-  const dwellStart = (active.angleDeg - dwellHalf) * (Math.PI / 180);
-  const dwellEnd = (active.angleDeg + dwellHalf) * (Math.PI / 180);
-  const dwellP0 = {
-    x: Math.cos(dwellStart) * R_ORBIT,
-    y: Math.sin(dwellStart) * R_ORBIT,
-  };
-  const dwellP1 = {
-    x: Math.cos(dwellEnd) * R_ORBIT,
-    y: Math.sin(dwellEnd) * R_ORBIT,
-  };
-  const dwellPath = `M 0 0 L ${dwellP0.x.toFixed(2)} ${dwellP0.y.toFixed(2)} A ${R_ORBIT} ${R_ORBIT} 0 0 1 ${dwellP1.x.toFixed(2)} ${dwellP1.y.toFixed(2)} Z`;
-
   return (
-    <div className={styles.figure} aria-label="Этап 04: блюпринт-сфера процесса">
+    <div className={styles.figure} aria-label="Схема процесса">
       <header className={styles.stageHeader}>
-        <p className={styles.stageEyebrow}>Этап 04</p>
-        <div className={styles.stageHeadline}>
-          <h3 className={styles.stageTitle}>Петля работы, которую можно проверить</h3>
-        </div>
+        <h3 className={styles.stageTitle}>Петля работы, которую можно проверить</h3>
       </header>
 
-      {/* Orbital sphere — radar language.
-          Рендеринг приведён к языку радара (этап 03):
-          • wireframe-линии — единый stroke hairline-strong,
-            как кольца и спицы радара;
-          • активная dwell-зона — заливка rgba(255,255,255,0.08)
-            с белым stroke 1px, как polygon радара;
-          • никакой grid-подложки и solid-grey палитры. */}
-      <div className={styles.diskFrame}>
-        <div className={`${styles.disk} ${styles.diskRadar}`} aria-hidden="false">
+      <div className={styles.workflowLayout}>
+        <div className={styles.workflowPanel}>
           <svg
-            className={styles.diskRings}
-            viewBox="-230 -230 460 460"
-            preserveAspectRatio="xMidYMid meet"
-            aria-hidden="true"
+            className={styles.workflowCircuit}
+            viewBox="40 160 680 950"
+            role="img"
+            aria-label="Электрическая схема проверяемой работы"
           >
             <defs>
+              <pattern id="wfGridMinor" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 H 0 V 40" fill="none" className={styles.wfGridMinor} />
+              </pattern>
+              <pattern id="wfGridMajor" width="200" height="200" patternUnits="userSpaceOnUse">
+                <rect width="200" height="200" fill="url(#wfGridMinor)" />
+                <path d="M 200 0 H 0 V 200" fill="none" className={styles.wfGridMajor} />
+              </pattern>
               <marker
-                id="diskFlowArrow"
+                id="workflowArrow"
                 viewBox="0 0 10 10"
-                refX="8"
+                refX="7"
                 refY="5"
                 markerWidth="6"
                 markerHeight="6"
-                orient="auto-start-reverse"
+                orient="auto"
               >
-                <path d="M 0 0 L 10 5 L 0 10 Z" fill="currentColor" />
+                <path d="M 0 0 L 10 5 L 0 10 Z" className={styles.workflowArrow} />
               </marker>
             </defs>
 
-            {/* Wireframe сферы — три параллели и три
-                меридиана. Все линии выровнены по одному
-                stroke (как кольца радара): без выделения
-                экватора отдельной толщиной. */}
-            <g className={styles.diskWire}>
-              <ellipse cx="0" cy="-90" rx="79.4" ry="16" />
-              <ellipse cx="0" cy="0" rx="120" ry="32" />
-              <ellipse cx="0" cy="90" rx="79.4" ry="16" />
-              <ellipse cx="0" cy="0" rx="120" ry="120" />
-              <ellipse cx="0" cy="0" rx="40" ry="120" transform="rotate(60)" />
-              <ellipse cx="0" cy="0" rx="40" ry="120" transform="rotate(-60)" />
-            </g>
+            {/* Чертёжная сетка (всё на шаге 40 px) */}
+            <rect width="720" height="1280" className={styles.workflowGrid} />
 
-            {/* Dwell-сектор: эквивалент polygon'а радара. */}
+            {/* ── Шины питания ───────────────────────── */}
+            {/* Верхняя шина +V: левый угол → отвод резистора → дроссель → правый угол */}
+            <path d="M 120 240 H 280" className={styles.workflowWire} />
+            <path d="M 440 240 H 600" className={styles.workflowWire} />
             <path
-              d={dwellPath}
-              className={styles.diskDwell}
-              vectorEffect="non-scaling-stroke"
+              d="M 280 240 a 20 20 0 0 1 40 0 a 20 20 0 0 1 40 0 a 20 20 0 0 1 40 0 a 20 20 0 0 1 40 0"
+              className={styles.workflowInductor}
             />
+            {/* Правая шина +V → вывод 8 */}
+            <path d="M 600 240 V 560 H 440" className={styles.workflowWire} />
+            {/* Левая шина: верхний угол → батарея → земляная шина */}
+            <path d="M 120 240 V 342" className={styles.workflowWire} />
+            <path d="M 120 378 V 1000" className={styles.workflowWire} />
+            {/* Нижняя земляная шина */}
+            <path d="M 120 1000 H 640" className={styles.workflowWire} />
 
-            {/* Leader-линии: радиальные отрезки от внешней
-                кромки bullet'а до подписи-anchor.
-                Неактивные — hairline-strong, активный — ink. */}
-            <g className={styles.diskLeaders}>
-              {stations.map((s) => {
-                const isActive = s.index === activeIndex;
-                return (
-                  <line
-                    key={`leader-${s.index}`}
-                    x1={s.leaderStart.x}
-                    y1={s.leaderStart.y}
-                    x2={s.anchor.x}
-                    y2={s.anchor.y}
-                    className={isActive ? styles.diskLeaderActive : styles.diskLeader}
-                    vectorEffect="non-scaling-stroke"
-                  />
-                );
-              })}
-            </g>
+            {/* ── Батарея 9 В ────────────────────────── */}
+            <line x1="86" y1="342" x2="154" y2="342" className={styles.workflowBatteryPlate} />
+            <line x1="100" y1="354" x2="140" y2="354" className={styles.workflowBatteryPlate} />
+            <line x1="86" y1="366" x2="154" y2="366" className={styles.workflowBatteryPlate} />
+            <line x1="100" y1="378" x2="140" y2="378" className={styles.workflowBatteryPlate} />
 
-            {/* Flow-индикатор: тонкая дуга по orbit'у от
-                активной станции к следующей со стрелкой. */}
-            <path
-              d={`M ${active.bullet.x.toFixed(2)} ${active.bullet.y.toFixed(2)} A ${R_ORBIT} ${R_ORBIT} 0 0 1 ${next.bullet.x.toFixed(2)} ${next.bullet.y.toFixed(2)}`}
-              className={styles.diskFlow}
-              vectorEffect="non-scaling-stroke"
-              markerEnd="url(#diskFlowArrow)"
-            />
+            {/* ── Резистор 40 кΩ: верхняя шина → вывод 7 ── */}
+            <path d="M 200 240 V 400" className={styles.workflowWire} />
+            <rect x="182" y="400" width="36" height="120" className={styles.workflowResistor} />
+            <path d="M 200 520 V 560 H 280" className={styles.workflowWire} />
 
-            {/* Bullet-маркеры станций. У активной — halo. */}
-            <g>
-              {stations.map((s) => {
-                const isActive = s.index === activeIndex;
-                return (
-                  <g key={`bullet-${s.index}`}>
-                    {isActive && (
-                      <circle
-                        cx={s.bullet.x}
-                        cy={s.bullet.y}
-                        r="8.5"
-                        className={styles.diskBulletHalo}
-                        vectorEffect="non-scaling-stroke"
-                      />
-                    )}
-                    <circle
-                      cx={s.bullet.x}
-                      cy={s.bullet.y}
-                      r={isActive ? 4.4 : 3}
-                      className={isActive ? styles.diskBulletActive : styles.diskBullet}
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  </g>
-                );
-              })}
-            </g>
+            {/* ── Времязадающий конденсатор 2.2 μF: выводы 6/2 → земля ── */}
+            <path d="M 280 640 H 240 V 720 H 280" className={styles.workflowWire} />
+            <path d="M 240 720 V 832" className={styles.workflowWire} />
+            <line x1="206" y1="832" x2="274" y2="832" className={styles.workflowCapacitor} />
+            <line x1="206" y1="848" x2="274" y2="848" className={styles.workflowCapacitor} />
+            <path d="M 240 848 V 1000" className={styles.workflowWire} />
 
-            {/* Центральная точка — фокус радара. */}
-            <circle cx="0" cy="-4" r="1.8" className={styles.diskCenter} />
+            {/* ── Конденсатор управления 1 μF: вывод 5 → земля ── */}
+            <path d="M 440 640 H 640 V 832" className={styles.workflowWire} />
+            <line x1="606" y1="832" x2="674" y2="832" className={styles.workflowCapacitor} />
+            <line x1="606" y1="848" x2="674" y2="848" className={styles.workflowCapacitor} />
+            <path d="M 640 848 V 1000" className={styles.workflowWire} />
+
+            {/* ── Ядро (агент): этап «выполнение» ───── */}
+            <rect x="280" y="520" width="160" height="240" rx="2" className={styles.workflowChipBody} />
+            <text x="360" y="640" className={styles.workflowChipTitle}>выполнение</text>
+            <text x="300" y="560" className={styles.workflowPinLabel}>7</text>
+            <text x="300" y="640" className={styles.workflowPinLabel}>6</text>
+            <text x="300" y="720" className={styles.workflowPinLabel}>2</text>
+            <text x="420" y="560" className={styles.workflowPinLabel}>8</text>
+            <text x="420" y="640" className={styles.workflowPinLabel}>5</text>
+            <text x="420" y="720" className={styles.workflowPinLabel}>3</text>
+            <text x="360" y="732" className={styles.workflowPinLabel}>1</text>
+
+            {/* ── Выход: вывод 3 → лампа → земля (активная цепь) ── */}
+            <path d="M 360 760 V 1000" className={styles.workflowWire} />
+            <path d="M 440 720 H 520 V 836" className={styles.workflowWireActive} markerEnd="url(#workflowArrow)" />
+            <path d="M 476 880 a 44 44 0 1 0 88 0 a 44 44 0 1 0 -88 0" className={styles.workflowLamp} />
+            <path d="M 489 849 L 551 911 M 551 849 L 489 911" className={styles.workflowLampCross} />
+            <path d="M 520 924 V 1000" className={styles.workflowWire} />
+
+            {/* ── Узлы соединений ───────────────────── */}
+            <circle cx="200" cy="240" r="7" className={styles.workflowDot} />
+            <circle cx="240" cy="720" r="7" className={styles.workflowDot} />
+            <circle cx="240" cy="1000" r="7" className={styles.workflowDot} />
+            <circle cx="360" cy="1000" r="7" className={styles.workflowDot} />
+            <circle cx="520" cy="1000" r="7" className={styles.workflowDot} />
+            <circle cx="520" cy="1000" r="13" className={styles.workflowDotHalo} />
+
+            {/* ── Земля ─────────────────────────────── */}
+            <path d="M 360 1000 V 1040" className={styles.workflowGroundStem} />
+            <line x1="328" y1="1040" x2="392" y2="1040" className={styles.workflowGroundLine} />
+            <line x1="340" y1="1052" x2="380" y2="1052" className={styles.workflowGroundLine} />
+            <line x1="352" y1="1064" x2="368" y2="1064" className={styles.workflowGroundLine} />
+
+            {/* ── Подписи этапов (зеркалят список справа) ── */}
+            <text x="70" y="360" className={styles.workflowVerticalText}>намерение</text>
+            <text x="360" y="212" textAnchor="middle" className={styles.workflowComponentText}>план</text>
+            <text x="164" y="460" className={styles.workflowVerticalText}>контекст</text>
+            <text x="188" y="840" className={styles.workflowVerticalText}>доступ</text>
+            <text x="694" y="840" className={styles.workflowVerticalText}>проверка</text>
+            <text x="435" y="884" textAnchor="middle" className={styles.workflowComponentText}>ревью</text>
           </svg>
-
-          {/* 7 станций с подписями шагов: index + label +
-              detail. Anchor по 8 направлениям — DOM-метка
-              «садится» на конец SVG-leader'а. */}
-          {stations.map(({ step, index, cosA, sinA }) => {
-            const left = `${50 + cosA * LABEL_R_RATIO * 100}%`;
-            const top = `${50 + sinA * LABEL_R_RATIO * 100}%`;
-
-            const halign: "left" | "right" | "center" =
-              cosA < -0.3 ? "right" : cosA > 0.3 ? "left" : "center";
-            const valign: "top" | "bottom" | "middle" =
-              sinA < -0.3 ? "bottom" : sinA > 0.3 ? "top" : "middle";
-
-            return (
-              <div
-                key={step.label}
-                className={styles.diskStep}
-                data-halign={halign}
-                data-valign={valign}
-                data-active={index === activeIndex}
-                style={{ left, top } as CSSProperties}
-              >
-                <span className={styles.diskStepIndex}>{String(index + 1).padStart(2, "0")}</span>
-                <strong className={styles.diskStepLabel}>{step.label}</strong>
-                <span className={styles.diskStepDetail}>{step.detail}</span>
-              </div>
-            );
-          })}
+        </div>
+        <div className={styles.workflowList}>
+          {workflowSteps.map((step, index) => (
+            <div
+              key={step.label}
+              className={styles.workflowItem}
+              data-active={index === activeIndex}
+            >
+              <span className={styles.workflowHead}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{step.label}</strong>
+              </span>
+              <p>{step.detail}</p>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* mobile fallback */}
-      <ol className={styles.diskList} aria-label="Шаги процесса">
-        {workflowSteps.map((step, index) => (
-          <li
-            key={`list-${step.label}`}
-            className={styles.diskListItem}
-            data-active={index === activeIndex}
-          >
-            <span className={styles.diskListIndex}>{String(index + 1).padStart(2, "0")}</span>
-            <div>
-              <strong>{step.label}</strong>
-              <span>{step.detail}</span>
-            </div>
-          </li>
-        ))}
-      </ol>
     </div>
   );
 }
@@ -468,12 +374,9 @@ export function LabEvidenceStack() {
   });
 
   return (
-    <div className={styles.figure} aria-label="Этап 05: доказательная база">
+    <div className={styles.figure} aria-label="Доказательная база">
       <header className={styles.stageHeader}>
-        <p className={styles.stageEyebrow}>Этап 05</p>
-        <div className={styles.stageHeadline}>
-          <h3 className={styles.stageTitle}>Что делает работу пригодной для ревью</h3>
-        </div>
+        <h3 className={styles.stageTitle}>Что делает работу пригодной для ревью</h3>
       </header>
 
       <div className={styles.evidenceFan}>

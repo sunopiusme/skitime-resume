@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import styles from "./AgenticWorkflowLab.module.css";
+import styles from "./ProjectSidebar.module.css";
 
 /* ─────────────────────────────────────────
    Sidebar preview, разрезанный пополам.
@@ -16,6 +16,7 @@ import styles from "./AgenticWorkflowLab.module.css";
 type ChatItem = {
   title: string;
   age: string;
+  active?: boolean;
 };
 
 type ProjectGroup = {
@@ -34,32 +35,32 @@ type NavItem = {
 };
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { icon: "edit", label: "New chat", shortcut: ["⌘", "N"] },
-  { icon: "search", label: "Search", shortcut: ["⌘", "G"] },
-  { icon: "grid", label: "Plugins" },
-  { icon: "clock", label: "Automations" },
+  { icon: "edit", label: "Новый чат", shortcut: ["⌘", "N"] },
+  { icon: "search", label: "Поиск", shortcut: ["⌘", "G"] },
+  { icon: "grid", label: "Плагины" },
+  { icon: "clock", label: "Автоматизации" },
 ];
 
 const PROJECTS: readonly ProjectGroup[] = [
   {
     name: "ZenPulse",
     chats: [
-      { title: "Quick setup — if you’ve don…", age: "2mo" },
-      { title: "в chatinput в настрой дня е…", age: "2mo" },
-      { title: "после ввода в инпут в наст…", age: "2mo" },
-      { title: "нужно пересмотреть дизай…", age: "2mo" },
-      { title: "[Image #1] на главной стра…", age: "2mo" },
+      { title: "Быстрая настройка — если ты уж…", age: "2мес", active: true },
+      { title: "в chatinput в настрой дня е…", age: "2мес" },
+      { title: "после ввода в инпут в наст…", age: "2мес" },
+      { title: "нужно пересмотреть дизай…", age: "2мес" },
+      { title: "[Image #1] на главной стра…", age: "2мес" },
     ],
     more: true,
   },
   {
     name: "horizon-sprint",
     chats: [
-      { title: "Найти физику бега персон…", age: "2mo" },
-      { title: "Найди практики для TMA и…", age: "2mo" },
-      { title: "Fix missing initTelegram mo…", age: "2mo" },
-      { title: "Переработать UI 456 Runner", age: "2mo" },
-      { title: "Интегрировать Telegram Mi…", age: "2mo" },
+      { title: "Найти физику бега персон…", age: "2мес" },
+      { title: "Найди практики для TMA и…", age: "2мес" },
+      { title: "Починить пропавший initTelegram…", age: "2мес" },
+      { title: "Переработать UI 456 Runner", age: "2мес" },
+      { title: "Интегрировать Telegram Mi…", age: "2мес" },
     ],
     more: true,
   },
@@ -236,7 +237,7 @@ function UpdatePill() {
         data-opaque={idleOpaque}
         data-active={wideLabel === "update"}
       >
-        <span className={styles.updateLabel}>Update</span>
+        <span className={styles.updateLabel}>Обновить</span>
       </span>
       <span className={styles.updateLayer} data-opaque={loadingOpaque}>
         <span className={styles.spinner}>
@@ -245,7 +246,7 @@ function UpdatePill() {
               cx="8"
               cy="8"
               r="6"
-              stroke="#5c71ab"
+              stroke="#6f8df0"
               strokeWidth="1.6"
             />
             <path
@@ -262,7 +263,7 @@ function UpdatePill() {
         data-opaque={doneOpaque}
         data-active={wideLabel === "updated"}
       >
-        <span className={styles.updateLabel}>Updated</span>
+        <span className={styles.updateLabel}>Обновлено</span>
       </span>
     </span>
   );
@@ -318,7 +319,7 @@ function SidebarBody() {
 
       <div className={styles.sectionTitle}>
         <span className={styles.sectionTitleText}>
-          Projects
+          Проекты
           <span className={styles.sectionChevron} aria-hidden="true">
             <svg
               viewBox="0 0 24 24"
@@ -335,7 +336,7 @@ function SidebarBody() {
           </span>
         </span>
         <span className={styles.sectionActions} aria-hidden="true">
-          <span className={styles.sectionAction} title="Collapse all">
+          <span className={styles.sectionAction} title="Свернуть все">
             <svg
               viewBox="0 0 24 24"
               width="18"
@@ -351,7 +352,7 @@ function SidebarBody() {
               <path d="m6 13 6 6 6-6" />
             </svg>
           </span>
-          <span className={styles.sectionAction} title="More">
+          <span className={styles.sectionAction} title="Ещё">
             <svg
               viewBox="0 0 24 24"
               width="18"
@@ -367,7 +368,7 @@ function SidebarBody() {
               <circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none" />
             </svg>
           </span>
-          <span className={styles.sectionAction} title="New folder">
+          <span className={styles.sectionAction} title="Новая папка">
             <svg
               viewBox="0 0 24 24"
               width="18"
@@ -396,17 +397,22 @@ function SidebarBody() {
               <span className={styles.projectName}>{project.name}</span>
             </div>
             {project.empty ? (
-              <p className={styles.projectEmpty}>No chats</p>
+              <p className={styles.projectEmpty}>Нет чатов</p>
             ) : (
               <ul className={styles.chats}>
                 {project.chats.map((chat) => (
-                  <li key={chat.title} className={styles.chatRow}>
+                  <li
+                    key={chat.title}
+                    className={styles.chatRow}
+                    data-active={chat.active ? "true" : undefined}
+                    aria-current={chat.active ? "true" : undefined}
+                  >
                     <span className={styles.chatTitle}>{chat.title}</span>
                     <span className={styles.chatAge}>{chat.age}</span>
                   </li>
                 ))}
                 {project.more ? (
-                  <li className={styles.showMore}>Show more</li>
+                  <li className={styles.showMore}>Показать ещё</li>
                 ) : null}
               </ul>
             )}
@@ -428,7 +434,7 @@ function SidebarBody() {
               <circle cx="8" cy="8" r="2.2" stroke="currentColor" />
             </svg>
           </span>
-          <span>Settings</span>
+          <span>Настройки</span>
         </span>
         <span className={styles.footerActions}>
           <span className={styles.footerPhone} aria-hidden="true">
@@ -437,16 +443,16 @@ function SidebarBody() {
               <path d="M4.6 14.6h2.8" stroke="currentColor" strokeLinecap="round" />
             </svg>
           </span>
-          <span className={styles.upgrade}>Upgrade</span>
+          <span className={styles.upgrade}>Улучшить</span>
         </span>
       </div>
     </>
   );
 }
 
-export default function AgenticWorkflowLab() {
+export default function ProjectSidebar() {
   return (
-    <div className={styles.root} aria-label="Agentic Workflow — превью сайдбара">
+    <div className={styles.root} aria-label="Project Sidebar — превью сайдбара">
       <div className={styles.split}>
         <div className={`${styles.pane} ${styles.paneTop}`} aria-hidden="false">
           <div className={styles.sidebar}>

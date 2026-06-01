@@ -48,7 +48,7 @@ export function ModelPicker({ selection, onChange }: Props) {
   if (!current || !provider) return null;
 
   // Короткое имя для триггера: "GPT-5.4" → "5.4",
-  // "Opus 4.7" → "Opus 4.7" (всё что после первого
+  // "Opus 4.8" → "Opus 4.8" (всё что после первого
   // слова или после префикса). Для Codex чуть-чуть
   // компактнее, потому что провайдер явный по level.
   const shortLabel =

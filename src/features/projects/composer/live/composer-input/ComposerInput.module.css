@@ -4,9 +4,9 @@
    палитра, без цветовых акцентов.
 
    Геометрия унифицирована с правилами sidebar
-   (AgenticWorkflowLab):
-   • card-radius 18, corner-inset 6,
-     радиус интерактивных пилюль = 18 − 6 = 12
+   (ProjectSidebar):
+   • card-radius 24, corner-inset 6,
+     радиус интерактивных пилюль = 24 − 6 = 18
      (concentric corners по Apple HIG);
    • pad-x = 16 от края до контента;
    • иконки 18×18 в колонке 20×20;
@@ -21,6 +21,11 @@
   --c-ink-subtle: var(--composer-ink-subtle);
   --c-surface: var(--composer-surface-raised);
   --c-surface-soft: var(--composer-surface-sunken);
+  /* Фон плашек warning/context: на тон темнее карточки
+     (#242424), но светлее sunken (#1a1a1a) — утопленный
+     «ящик из-под» приподнятой карточки, контраст без
+     резкого провала на стыке (рамки у карточки больше нет). */
+  --c-drawer: #1f1f1f;
   /* Сплошной фон для popover'ов: раньше тут жил полупрозрачный
      glass (rgba(36, 36, 36, 0.72)) с backdrop-filter. На странице
      с несколькими меню рядом — модели, проекты, plus, плагины —
@@ -45,7 +50,7 @@
   font-family: var(--font-sans), sans-serif;
   color: var(--c-ink);
   /* Композер — превью-сцена, как sidebar в
-     AgenticWorkflowLab. Текст внутри читается как
+     ProjectSidebar. Текст внутри читается как
      «изображение интерфейса», случайное выделение
      drag-rectangle'ом отвлекает и ломает погружение.
      Selection отключаем целиком, кроме textarea
@@ -96,7 +101,11 @@
   margin: 0 12px -16px;
   padding: 8px var(--c-pad-x) 22px;
   border-radius: var(--c-card-radius) var(--c-card-radius) 0 0;
-  background: var(--c-surface-soft);
+  /* Drawer на тон ТЕМНЕЕ приподнятой карточки (#242424) — читается
+     как утопленный «ящик из-под» неё, даёт контраст и глубину.
+     #1f1f1f — промежуточный тон: темнее карточки, но без резкого
+     провала, который давал #1a1a1a без рамки. */
+  background: var(--c-drawer);
   font-size: 0.82rem;
   position: relative;
   z-index: 0;
@@ -116,116 +125,142 @@
   margin: -16px 0 0;
   padding: 22px var(--c-pad-x) 12px;
   border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
-  background: var(--c-surface-soft);
+  /* На тон темнее карточки — см. .warning. */
+  background: var(--c-drawer);
 }
 
-.warningIcon {
-  display: inline-flex;
-  width: var(--c-icon-col);
-  height: var(--c-icon-col);
-  align-items: center;
-  justify-content: center;
-  /* Apple system orange — стандартный indicator-цвет
-     для предупреждений в macOS/iOS. */
-  color: #ff9f0a;
-  flex-shrink: 0;
-}
-
-.warningIcon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.warningText {
+/* ── LCD dot-matrix статусная панель ─────
+   Занимает пространство между питомцем/статусом
+   и компактной help-иконкой справа. Сам экран —
+   canvas; контейнер задаёт высоту панели. Текст
+   центрирован, при смене статуса — dissolve-переход. */
+.lcd {
+  position: relative;
   flex: 1;
-  color: #ff9f0a;
-  font-size: 0.82rem;
-  line-height: 1.4;
-}
-
-/* Action в warning row — ghost-вариант. На
-   тонированной подложке drawer'а tonal-pill
-   читался слишком тяжело: пилюля + tint =
-   два слоя UI на короткой строке. Оставляем
-   только текст + chevron, без заливки.
-
-   Внутренний padding минимальный (4/0), но
-   видимая зона клика расширена прозрачно
-   через height и -mx — touch target ≥ 24px
-   по обеим осям без визуального шума.
-
-   Hover не меняет фон, только усиливает ink:
-   ghost-кнопке достаточно сдвига color,
-   чтобы дать тактильную обратную связь. */
-.warningAction {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 24px;
-  margin: 0 -4px;
-  padding: 0 4px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--c-ink-muted);
-  font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  line-height: 1;
+  min-width: 0;
+  height: 21px; /* = GLYPH_H(7) * CELL(3) */
   cursor: pointer;
-  flex-shrink: 0;
-  transition: color var(--composer-duration-hover) ease;
 }
 
-/* Chevron как SVG, согласованный с остальными
-   иконками композера (1.5 stroke, currentColor).
-   Размер 12px — оптически совпадает с x-height
-   font-size 0.78rem (~13px при body 16). Color
-   наследуется от button, opacity 0.65 в idle —
-   стрелка не должна перетягивать на себя
-   взгляд с label'а, который и есть цель клика. */
-.warningActionChevron {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  opacity: 0.65;
-  transition: opacity var(--composer-duration-hover) ease,
-    transform var(--composer-duration-hover) ease;
+.lcdCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Физически точное свечение ламп - статичное, мерцание в canvas */
+  filter:
+    drop-shadow(0 0 2px rgba(0, 212, 170, 0.7))
+    drop-shadow(0 0 4px rgba(0, 212, 170, 0.5))
+    drop-shadow(0 0 8px rgba(0, 212, 170, 0.3))
+    drop-shadow(0 0 16px rgba(0, 212, 170, 0.15))
+    brightness(1.1)
+    saturate(1.1);
+  will-change: filter;
 }
 
-.warningActionChevron svg {
-  width: 12px;
-  height: 12px;
-  stroke-width: 2;
+@media (prefers-reduced-motion: reduce) {
+  .lcdCanvas {
+    animation: none;
+  }
 }
 
-.warningAction:hover {
-  color: var(--c-ink);
+/* Сканлайн эффект - горизонтальная линия как на CRT */
+.lcdCanvas::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.05)
+  );
+  pointer-events: none;
+  animation: scanline 3s linear infinite;
 }
 
-.warningAction:hover .warningActionChevron {
-  opacity: 1;
-  /* Микро-сдвиг chevron'а вправо на hover —
-     reinforce'ит «дальше». Амплитуда 1px,
-     хватает чтобы заметить, и не выглядит
-     как trick. */
-  transform: translateX(1px);
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(21px);
+    opacity: 0;
+  }
 }
 
-.warningAction:active {
-  color: var(--c-ink);
+/* Радужный режим - мягкое универсальное свечение */
+.lcdCanvas[data-rainbow="true"] {
+  filter:
+    drop-shadow(0 0 2px rgba(200, 255, 220, 0.6))
+    drop-shadow(0 0 4px rgba(200, 255, 220, 0.4))
+    drop-shadow(0 0 8px rgba(200, 255, 220, 0.25))
+    drop-shadow(0 0 16px rgba(200, 255, 220, 0.12))
+    brightness(1.15)
+    saturate(1.2);
+}
+
+.lcdCanvas[data-tone="warning"] {
+  filter:
+    drop-shadow(0 0 2px rgba(255, 153, 68, 0.7))
+    drop-shadow(0 0 4px rgba(255, 153, 68, 0.5))
+    drop-shadow(0 0 8px rgba(255, 153, 68, 0.3))
+    drop-shadow(0 0 16px rgba(255, 153, 68, 0.15))
+    brightness(1.1)
+    saturate(1.1);
+}
+
+.lcdCanvas[data-tone="danger"] {
+  filter:
+    drop-shadow(0 0 2px rgba(255, 102, 68, 0.7))
+    drop-shadow(0 0 4px rgba(255, 102, 68, 0.5))
+    drop-shadow(0 0 8px rgba(255, 102, 68, 0.3))
+    drop-shadow(0 0 16px rgba(255, 102, 68, 0.15))
+    brightness(1.1)
+    saturate(1.1);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ── Card (input + toolbar) ────────────── */
+/* Карточка — единственный приподнятый объект сборки:
+   drawer'ы (warning/context) уходят под неё и остаются
+   плоскими, а card ловит свет верхней кромкой и отбра-
+   сывает тень на drawer'ы и контент страницы под sticky-
+   доком. Тот же материал, что у панелей сайдбара. */
 .card {
   display: grid;
   gap: 16px;
   padding: 18px var(--c-pad-x) 14px;
   border-radius: var(--c-card-radius);
+  /* Без обводки: карточка отделяется от фона страницы не рамкой,
+     а материалом — приподнятый surface (--c-surface = #242424, тот
+     же, что у панелей сайдбара) светлее фона #0a0a0a. Верхняя кромка
+     ловит свет через inset-highlight, давая физически приподнятый
+     край вместо нарисованного контура. */
   background: var(--c-surface);
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.4),
+    0 16px 36px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
   position: relative;
   z-index: 1;
 }
@@ -449,7 +484,8 @@
   gap: var(--c-gap-icon);
   padding: 6px 6px 6px 10px;
   border-radius: var(--c-row-radius);
-  background: rgba(29, 58, 138, 0.18);
+  /* Единый системный синий с update-pill сайдбара (#2454e6). */
+  background: rgba(36, 84, 230, 0.2);
   color: #c7d6ff;
   font-size: 0.82rem;
   font-weight: 400;
@@ -683,7 +719,11 @@ button.iconBtn[data-loading="true"] svg {
   height: 100%;
 }
 
-/* ── Send button — круглая, инверсная ─── */
+/* ── Send button — squircle, инверсная ─── */
+/* Скруглённый квадрат (row-radius 18 = card 24 − inset 6),
+   concentric с углом карточки — по тому же закону, что
+   permission/model/mode-chip. Уходит от круглой send-кнопки
+   codex/chatgpt, согласуясь с геометрией композера. */
 .sendBtn {
   display: inline-flex;
   align-items: center;
@@ -693,7 +733,7 @@ button.iconBtn[data-loading="true"] svg {
   margin-left: 4px;
   padding: 0;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--c-row-radius);
   background: var(--c-ink);
   color: var(--composer-surface);
   cursor: pointer;
@@ -1137,7 +1177,7 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .toggle[data-on="true"] {
-  background: #1d3a8a;
+  background: #2454e6;
 }
 
 .toggle[data-on="true"]::after {

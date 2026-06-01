@@ -17,7 +17,7 @@ import { useVoiceWaveform } from "./useVoiceWaveform";
      waveform приглушается, timer заменяется
      на «Обработка…» с animated dots. Через
      ~1.2s родитель ComposerInput вернёт
-     idle-state и покажет Toast «демо…».
+     idle-state и покажет демо-статус в LCD.
    ───────────────────────────────────────── */
 
 type Stage = "recording" | "processing";
