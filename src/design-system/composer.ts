@@ -90,15 +90,15 @@ export const composerCssVariables = `
   --composer-measure-graphic: 1120px;
   --composer-measure-hero: 760px;
 
-  /* Модульная шкала spacing (базовая единица: 8px, коэффициент: 1.5) */
-  --composer-space-1: 12px;
-  --composer-space-2: 18px;
-  --composer-space-3: 27px;
-  --composer-space-4: 40px;
-  --composer-space-5: 60px;
-  --composer-space-6: 90px;
-  --composer-space-7: 135px;
-  --composer-space-8: 200px;
+  /* Spacing-шкала на сетке 8pt (шаг 4px): 4·1, 4·2, 4·3, 4·4, 4·6, 4·8, 4·12, 4·16 */
+  --composer-space-1: 4px;
+  --composer-space-2: 8px;
+  --composer-space-3: 12px;
+  --composer-space-4: 16px;
+  --composer-space-5: 24px;
+  --composer-space-6: 32px;
+  --composer-space-7: 48px;
+  --composer-space-8: 64px;
 
   /* Адаптивные отступы для разных контекстов */
   --composer-space-prose: clamp(24px, 2.5vw, 32px);

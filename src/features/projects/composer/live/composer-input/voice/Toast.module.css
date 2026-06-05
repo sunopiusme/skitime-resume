@@ -28,7 +28,7 @@
   align-items: center;
   gap: 8px;
   height: 36px;
-  padding: 0 14px 0 6px;
+  padding: 0 16px 0 8px;
   border-radius: 999px;
   /* Dimmed dark с лёгким красным undertone'ом.
      База — почти чёрный, capacity ~92%, hairline-
@@ -55,8 +55,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: none;
   border-radius: 999px;
@@ -74,8 +74,8 @@
 }
 
 .close svg {
-  width: 11px;
-  height: 11px;
+  width: 12px;
+  height: 12px;
 }
 
 .text {

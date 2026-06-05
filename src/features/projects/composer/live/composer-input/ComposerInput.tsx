@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import styles from "./ComposerInput.module.css";
-import LcdMarquee, { type LcdTone, type PetMood } from "./LcdMarquee";
+import LcdMarquee, {
+  type LcdAccessLevel,
+  type LcdColorMode,
+  type LcdTone,
+  type PetMood,
+} from "./LcdMarquee";
 import { AttachmentTile } from "./attachments/AttachmentTile";
 import { useAttachments } from "./attachments/useAttachments";
 import { MentionPopover } from "./mentions/MentionPopover";
@@ -339,10 +344,18 @@ function PluginsSubmenuItem() {
 
 function PromptInput({
   value,
+  disabled,
+  canSubmit,
   onValueChange,
+  onFocusChange,
+  onSubmit,
 }: {
   value: string;
+  disabled: boolean;
+  canSubmit: boolean;
   onValueChange: (next: string) => void;
+  onFocusChange: (focused: boolean) => void;
+  onSubmit: () => void;
 }) {
   const [caret, setCaret] = useState(0);
   const [focused, setFocused] = useState(false);
@@ -382,29 +395,51 @@ function PromptInput({
     });
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!mentions.open) return;
-    if (event.key === "ArrowDown") {
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (mentions.open) {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        mentions.setActiveIndex(
+          (mentions.activeIndex + 1) % mentions.flatItems.length,
+          "keyboard",
+        );
+        return;
+      }
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        const next =
+          mentions.activeIndex - 1 < 0
+            ? mentions.flatItems.length - 1
+            : mentions.activeIndex - 1;
+        mentions.setActiveIndex(next, "keyboard");
+        return;
+      }
+      if (event.key === "Enter" || event.key === "Tab") {
+        const item = mentions.flatItems[mentions.activeIndex];
+        if (!item) return;
+        event.preventDefault();
+        applyMention(item);
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        mentions.close();
+        return;
+      }
+    }
+
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !event.ctrlKey &&
+      !event.nativeEvent.isComposing
+    ) {
       event.preventDefault();
-      mentions.setActiveIndex(
-        (mentions.activeIndex + 1) % mentions.flatItems.length,
-        "keyboard",
-      );
-    } else if (event.key === "ArrowUp") {
-      event.preventDefault();
-      const next =
-        mentions.activeIndex - 1 < 0
-          ? mentions.flatItems.length - 1
-          : mentions.activeIndex - 1;
-      mentions.setActiveIndex(next, "keyboard");
-    } else if (event.key === "Enter" || event.key === "Tab") {
-      const item = mentions.flatItems[mentions.activeIndex];
-      if (!item) return;
-      event.preventDefault();
-      applyMention(item);
-    } else if (event.key === "Escape") {
-      event.preventDefault();
-      mentions.close();
+      if (canSubmit) {
+        onSubmit();
+      }
     }
   };
 
@@ -421,11 +456,18 @@ function PromptInput({
         onKeyUp={updateCaret}
         onClick={updateCaret}
         onKeyDown={handleKeyDown}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
+        onFocus={() => {
+          setFocused(true);
+          onFocusChange(true);
+        }}
+        onBlur={() => {
+          setFocused(false);
+          onFocusChange(false);
+        }}
         placeholder="Что агент должен изменить?"
         rows={1}
         aria-label="Промпт"
+        disabled={disabled}
       />
       {mentions.open ? (
         <MentionPopover
@@ -441,6 +483,15 @@ function PromptInput({
   );
 }
 
+function colorModeForModelLevel(levelId: string): LcdColorMode {
+  if (levelId === "low") return "model-low";
+  if (levelId === "medium") return "model-medium";
+  if (levelId === "high" || levelId === "xhigh") return "model-high";
+  if (levelId === "max") return "model-max";
+  if (levelId === "ultracode") return "model-ultra";
+  return "model-high";
+}
+
 export default function ComposerInput() {
   const [prompt, setPrompt] = useState("");
   const [planMode, setPlanMode] = useState(false);
@@ -453,12 +504,16 @@ export default function ComposerInput() {
     "idle",
   );
   const [dragOver, setDragOver] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
+  const [sending, setSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dragCounter = useRef(0);
+  const sendTimers = useRef<number[]>([]);
   const attachments = useAttachments();
 
   const recording = voiceStage === "recording";
   const typing = prompt.trim().length > 0 && voiceStage === "idle";
+  const promptReady = prompt.trim().length > 0;
 
   /* ── LCD-статус ──────────────────────────
      Экран в верхней плашке — приборная панель агента.
@@ -470,6 +525,8 @@ export default function ComposerInput() {
     text: string;
     mood: PetMood;
     tone?: LcdTone;
+    accessLevel?: LcdAccessLevel;
+    colorMode?: LcdColorMode;
   } | null>(null);
   const firstRender = useRef(true);
   const attachCount = attachments.attachments.length;
@@ -484,6 +541,7 @@ export default function ComposerInput() {
     setTransient({
       text: `СМЕНА МОДЕЛИ ${model} ${selection.levelId.toUpperCase()}`,
       mood: "model",
+      colorMode: colorModeForModelLevel(selection.levelId),
     });
     const id = setTimeout(() => setTransient(null), 1700);
     return () => clearTimeout(id);
@@ -496,21 +554,39 @@ export default function ComposerInput() {
       review: "ДОСТУП: ПРОВЕРКА",
       full: "ДОСТУП: ПОЛНЫЙ",
     };
-    setTransient({ text: map[permission], mood: "access" });
+    setTransient({
+      text: map[permission],
+      mood: "access",
+      accessLevel: permission,
+      colorMode:
+        permission === "full"
+          ? "access-full"
+          : permission === "review"
+            ? "access-review"
+            : "access-standard",
+    });
     const id = setTimeout(() => setTransient(null), 1700);
     return () => clearTimeout(id);
   }, [permission]);
 
   useEffect(() => {
     if (firstRender.current) return;
-    setTransient({ text: `ПЕРЕХОД НА ВЕТКУ ${branch.toUpperCase()}`, mood: "branch" });
+    setTransient({
+      text: `ПЕРЕХОД НА ВЕТКУ ${branch.toUpperCase()}`,
+      mood: "branch",
+      colorMode: "branch",
+    });
     const id = setTimeout(() => setTransient(null), 1700);
     return () => clearTimeout(id);
   }, [branch]);
 
   useEffect(() => {
     if (firstRender.current) return;
-    setTransient({ text: planMode ? "ПЛАН: ВКЛ" : "ПЛАН: ВЫКЛ", mood: "plan" });
+    setTransient({
+      text: planMode ? "ПЛАН: ВКЛ" : "ПЛАН: ВЫКЛ",
+      mood: "plan",
+      colorMode: "plan",
+    });
     const id = setTimeout(() => setTransient(null), 1700);
     return () => clearTimeout(id);
   }, [planMode]);
@@ -524,10 +600,23 @@ export default function ComposerInput() {
     let noun = "ФАЙЛОВ";
     if (mod10 === 1 && mod100 !== 11) noun = "ФАЙЛ";
     else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) noun = "ФАЙЛА";
-    setTransient({ text: `${attachCount} ${noun}`, mood: "files" });
+    setTransient({ text: `${attachCount} ${noun}`, mood: "files", colorMode: "files" });
     const id = setTimeout(() => setTransient(null), 1700);
     return () => clearTimeout(id);
   }, [attachCount]);
+
+  useEffect(() => {
+    if (firstRender.current) return;
+    if (attachments.lastRejected.length === 0) return;
+    setTransient({
+      text: "ФАЙЛ НЕ ПРИНЯТ",
+      mood: "cancel",
+      tone: "danger",
+      colorMode: "danger",
+    });
+    const id = setTimeout(() => setTransient(null), 2200);
+    return () => clearTimeout(id);
+  }, [attachments.lastRejected]);
 
   // Снимаем флаг первого рендера после монтирования, чтобы
   // эффекты выше не стреляли transient'ами на старте.
@@ -540,6 +629,7 @@ export default function ComposerInput() {
      отвлекал от набора; «живость» дают сам питомец и «дыхание» в
      правом слоте, а центр молчит. */
   const lcdStatus = (() => {
+    if (sending) return "ЗАДАЧА ПРИНЯТА";
     if (voiceStage === "recording") return "ЗАПИСЫВАЕМ...";
     if (voiceStage === "processing") return "РАСПОЗНАЕМ...";
     if (typing) return "";
@@ -553,6 +643,7 @@ export default function ComposerInput() {
      type — следит за печатью, transient.mood — реакция на смену
      конкретной настройки, idle — покой. */
   const petMood: PetMood = (() => {
+    if (sending) return "plan";
     if (voiceStage === "recording") return "listen";
     if (voiceStage === "processing") return "think";
     if (typing) return "type";
@@ -566,6 +657,15 @@ export default function ComposerInput() {
   const resting =
     voiceStage === "idle" && !typing && !transient;
   const lcdTone: LcdTone = transient?.tone ?? (resting ? "warning" : "default");
+  const lcdColorMode: LcdColorMode = (() => {
+    if (voiceStage === "recording") return "voice";
+    if (voiceStage === "processing") return "decode";
+    if (sending) return "success";
+    if (typing) return "typing";
+    if (transient?.colorMode) return transient.colorMode;
+    if (resting) return "warning";
+    return "base";
+  })();
 
   /* Кнопка отправки активна, когда есть, что отправлять:
      текст промпта, прикреплённые файлы или активная запись/обработка
@@ -574,6 +674,7 @@ export default function ComposerInput() {
     prompt.trim().length > 0 ||
     attachments.attachments.length > 0 ||
     voiceStage !== "idle";
+  const canSubmit = canSend && !sending && voiceStage !== "processing";
 
   // Recording flow: tap mic → recording. Tap again
   // (or pause-glyph) → processing на ~1.2s → LCD-статус
@@ -586,6 +687,39 @@ export default function ComposerInput() {
       setVoiceStage("processing");
     }
   };
+
+  const handleSubmit = () => {
+    if (!canSubmit) return;
+    if (voiceStage === "recording") {
+      setVoiceStage("processing");
+      return;
+    }
+
+    setSending(true);
+    setTransient(null);
+    sendTimers.current.forEach((id) => window.clearTimeout(id));
+    sendTimers.current = [];
+    const submitTimer = window.setTimeout(() => {
+      setPrompt("");
+      attachments.clear();
+      setSending(false);
+      setTransient({ text: "ГОТОВО К НОВОЙ ЗАДАЧЕ", mood: "idle" });
+      const readyTimer = window.setTimeout(() => {
+        setTransient((current) =>
+          current?.text === "ГОТОВО К НОВОЙ ЗАДАЧЕ" ? null : current,
+        );
+      }, 1900);
+      sendTimers.current = [readyTimer];
+    }, 720);
+    sendTimers.current = [submitTimer];
+  };
+
+  useEffect(() => {
+    return () => {
+      sendTimers.current.forEach((id) => window.clearTimeout(id));
+      sendTimers.current = [];
+    };
+  }, []);
 
   useEffect(() => {
     if (voiceStage !== "processing") return;
@@ -654,12 +788,18 @@ export default function ComposerInput() {
             status={lcdStatus}
             mood={petMood}
             tone={lcdTone}
+            accessLevel={transient?.accessLevel}
+            colorMode={lcdColorMode}
           />
         </div>
 
         <div
           className={styles.card}
           data-drag={dragOver}
+          data-focus={inputFocused}
+          data-typing={promptReady}
+          data-sending={sending}
+          aria-busy={sending}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
@@ -679,7 +819,11 @@ export default function ComposerInput() {
           ) : null}
           <PromptInput
             value={prompt}
+            disabled={sending}
+            canSubmit={canSubmit}
             onValueChange={setPrompt}
+            onFocusChange={setInputFocused}
+            onSubmit={handleSubmit}
           />
 
           {dragOver ? (
@@ -785,10 +929,12 @@ export default function ComposerInput() {
                   type="button"
                   className={styles.sendBtn}
                   aria-label="Отправить"
-                  disabled={!canSend}
-                  data-disabled={!canSend}
+                  disabled={!canSubmit}
+                  data-disabled={!canSubmit}
+                  data-sending={sending}
+                  onClick={handleSubmit}
                 >
-                  <ArrowUpIcon />
+                  {sending ? <SpinnerIcon /> : <ArrowUpIcon />}
                 </button>
               </Tooltip>
             </div>

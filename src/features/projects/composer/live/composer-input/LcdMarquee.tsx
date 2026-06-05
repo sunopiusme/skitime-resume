@@ -35,11 +35,187 @@ const PET_ZONE = (PET_COLS + 2) * CELL; // 27px — зона питомца + з
 const ALERT_COLS = 9;
 const ALERT_ZONE = (ALERT_COLS + 2) * CELL; // 33px — зона LCD-индикатора справа
 
-// Палитра в стиле VFD - приглушенные, не отвлекающие тона
-const OFF = "rgba(0, 255, 180, 0.03)";
-const GLOW_PRIMARY = "#00d4aa"; // Спокойный циан-зеленый
-const GLOW_SECONDARY = "#00c4bb";
-const GLOW_CORE = "#d0fff0";
+/* Палитра signal-VFD: не один общий tint, а язык аппаратных
+   индикаторов. Recording = настоящий красный REC, decode =
+   холодный синий scan, plan = violet mode, access = отдельные
+   security-цвета. Glow короткий, но сами core-точки сочные. */
+const OFF = "rgba(255, 186, 108, 0.026)";
+
+export type LcdColorMode =
+  | "base"
+  | "typing"
+  | "voice"
+  | "decode"
+  | "warning"
+  | "danger"
+  | "access-standard"
+  | "access-review"
+  | "access-full"
+  | "branch"
+  | "plan"
+  | "files"
+  | "success"
+  | "model-low"
+  | "model-medium"
+  | "model-high"
+  | "model-max"
+  | "model-ultra";
+
+type LampPalette = {
+  color: string;
+  alpha: number;
+  halo: number;
+  fringe: number;
+  warm: string;
+  cool: string;
+};
+
+const LCD_PALETTE: Record<LcdColorMode, LampPalette> = {
+  base: {
+    color: "#ffbd72",
+    alpha: 0.98,
+    halo: 0.16,
+    fringe: 0.074,
+    warm: "rgba(255, 218, 146, 1)",
+    cool: "rgba(126, 230, 220, 1)",
+  },
+  typing: {
+    color: "#f0d8a8",
+    alpha: 0.7,
+    halo: 0.1,
+    fringe: 0.048,
+    warm: "rgba(255, 226, 170, 1)",
+    cool: "rgba(144, 220, 214, 1)",
+  },
+  voice: {
+    color: "#ff2f2f",
+    alpha: 0.98,
+    halo: 0.2,
+    fringe: 0.1,
+    warm: "rgba(255, 112, 70, 1)",
+    cool: "rgba(255, 198, 118, 1)",
+  },
+  decode: {
+    color: "#2ea8ff",
+    alpha: 0.96,
+    halo: 0.18,
+    fringe: 0.09,
+    warm: "rgba(140, 210, 255, 1)",
+    cool: "rgba(72, 244, 255, 1)",
+  },
+  warning: {
+    color: "#ffbf5f",
+    alpha: 0.94,
+    halo: 0.15,
+    fringe: 0.072,
+    warm: "rgba(255, 220, 140, 1)",
+    cool: "rgba(126, 224, 214, 1)",
+  },
+  danger: {
+    color: "#ff1f1f",
+    alpha: 1,
+    halo: 0.22,
+    fringe: 0.11,
+    warm: "rgba(255, 92, 62, 1)",
+    cool: "rgba(255, 190, 116, 1)",
+  },
+  "access-standard": {
+    color: "#49e58f",
+    alpha: 0.94,
+    halo: 0.13,
+    fringe: 0.062,
+    warm: "rgba(204, 232, 126, 1)",
+    cool: "rgba(88, 232, 218, 1)",
+  },
+  "access-review": {
+    color: "#2ea8ff",
+    alpha: 0.95,
+    halo: 0.17,
+    fringe: 0.086,
+    warm: "rgba(142, 212, 255, 1)",
+    cool: "rgba(74, 244, 255, 1)",
+  },
+  "access-full": {
+    color: "#ff3b30",
+    alpha: 0.98,
+    halo: 0.19,
+    fringe: 0.096,
+    warm: "rgba(255, 128, 78, 1)",
+    cool: "rgba(255, 202, 118, 1)",
+  },
+  branch: {
+    color: "#00e676",
+    alpha: 0.92,
+    halo: 0.14,
+    fringe: 0.07,
+    warm: "rgba(202, 238, 116, 1)",
+    cool: "rgba(64, 234, 220, 1)",
+  },
+  plan: {
+    color: "#a855ff",
+    alpha: 0.96,
+    halo: 0.18,
+    fringe: 0.09,
+    warm: "rgba(224, 154, 255, 1)",
+    cool: "rgba(98, 218, 255, 1)",
+  },
+  files: {
+    color: "#ffe066",
+    alpha: 0.94,
+    halo: 0.13,
+    fringe: 0.064,
+    warm: "rgba(255, 232, 126, 1)",
+    cool: "rgba(126, 228, 204, 1)",
+  },
+  success: {
+    color: "#44ff99",
+    alpha: 0.94,
+    halo: 0.14,
+    fringe: 0.07,
+    warm: "rgba(202, 244, 126, 1)",
+    cool: "rgba(82, 238, 220, 1)",
+  },
+  "model-low": {
+    color: "#9fd6c7",
+    alpha: 0.86,
+    halo: 0.12,
+    fringe: 0.054,
+    warm: "rgba(224, 218, 170, 1)",
+    cool: "rgba(126, 218, 224, 1)",
+  },
+  "model-medium": {
+    color: "#51e6e0",
+    alpha: 0.92,
+    halo: 0.14,
+    fringe: 0.064,
+    warm: "rgba(230, 214, 154, 1)",
+    cool: "rgba(112, 226, 238, 1)",
+  },
+  "model-high": {
+    color: "#2ea8ff",
+    alpha: 0.95,
+    halo: 0.17,
+    fringe: 0.078,
+    warm: "rgba(246, 206, 132, 1)",
+    cool: "rgba(92, 232, 255, 1)",
+  },
+  "model-max": {
+    color: "#a855ff",
+    alpha: 0.96,
+    halo: 0.18,
+    fringe: 0.09,
+    warm: "rgba(224, 154, 255, 1)",
+    cool: "rgba(98, 218, 255, 1)",
+  },
+  "model-ultra": {
+    color: "#fff2a8",
+    alpha: 1,
+    halo: 0.21,
+    fringe: 0.1,
+    warm: "rgba(255, 232, 132, 1)",
+    cool: "rgba(102, 232, 255, 1)",
+  },
+};
 
 const TRANSITION_MS = 620;
 
@@ -66,6 +242,33 @@ const ALERT_MARK = [
   "000000000",
   "000111000",
   "000111000",
+];
+const LOCK_MARK = [
+  "000111000",
+  "001000100",
+  "001000100",
+  "011111110",
+  "011010110",
+  "011111110",
+  "001111100",
+];
+const UNLOCK_MARK = [
+  "001110000",
+  "010001000",
+  "010000000",
+  "011111110",
+  "011010110",
+  "011111110",
+  "001111100",
+];
+const SHIELD_MARK = [
+  "000101000",
+  "001111100",
+  "011111110",
+  "010110110",
+  "001101100",
+  "000111000",
+  "000010000",
 ];
 /* Знак ошибки для правого слота — жирный крест ✕. При tone=danger
    слот переходит с «!» на этот крест тем же dissolve («осыпание
@@ -105,6 +308,7 @@ export type PetMood =
   | "cancel";
 
 export type LcdTone = "default" | "warning" | "danger";
+export type LcdAccessLevel = "standard" | "review" | "full";
 
 type Props = {
   /** Текущий статус (UPPERCASE, кириллица/латиница + цифры). */
@@ -113,6 +317,10 @@ type Props = {
   mood?: PetMood;
   /** Цветовой режим LCD: обычный или warning/error. */
   tone?: LcdTone;
+  /** Контекстный glyph правого слота при смене уровня доступа. */
+  accessLevel?: LcdAccessLevel | undefined;
+  /** Персональность света: модель, запись, доступ, успех и т.д. */
+  colorMode?: LcdColorMode;
 };
 
 /* Детерминированный порог [0,1) для точки текста — стабилен
@@ -138,6 +346,8 @@ export default function LcdMarquee({
   status,
   mood,
   tone = "default",
+  accessLevel,
+  colorMode,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reducedMotion = usePrefersReducedMotion();
@@ -151,6 +361,8 @@ export default function LcdMarquee({
   // Настроение в ref — меняется без перезапуска RAF-цикла.
   const moodRef = useRef<PetMood>(mood ?? "idle");
   const toneRef = useRef<LcdTone>(tone);
+  const accessLevelRef = useRef<LcdAccessLevel>(accessLevel ?? "standard");
+  const colorModeRef = useRef<LcdColorMode>(colorMode ?? "base");
   // Момент последнего смены настроения — для реакций «по событию»
   // (радостный подскок при happy, кивок при старте печати).
   const moodStartRef = useRef(0);
@@ -163,6 +375,14 @@ export default function LcdMarquee({
   useEffect(() => {
     toneRef.current = tone;
   }, [tone]);
+
+  useEffect(() => {
+    accessLevelRef.current = accessLevel ?? "standard";
+  }, [accessLevel]);
+
+  useEffect(() => {
+    colorModeRef.current = colorMode ?? "base";
+  }, [colorMode]);
 
   useEffect(() => {
     if (status === currentRef.current) return;
@@ -223,11 +443,26 @@ export default function LcdMarquee({
       canvas.height = Math.round(cssH * dpr);
     };
 
-    // Радужный режим (запись): точка окрашивается по своей
-    // X-координате со сдвигом во времени — горизонтальные полосы,
-    // бегущие слева направо. rainbowNow задаётся в paint().
-    let rainbow = false;
-    let rainbowNow = 0;
+    const resolvePalette = () => {
+      const explicit = colorModeRef.current;
+      if (explicit !== "base") return LCD_PALETTE[explicit];
+      if (moodRef.current === "listen") return LCD_PALETTE.voice;
+      if (moodRef.current === "think") return LCD_PALETTE.decode;
+      if (moodRef.current === "type") return LCD_PALETTE.typing;
+      if (toneRef.current === "danger") return LCD_PALETTE.danger;
+      if (toneRef.current === "warning") return LCD_PALETTE.warning;
+      return LCD_PALETTE.base;
+    };
+
+    // Voice-spectrum записи: вместо party-rainbow экран ведёт себя
+    // как REC-индикатор. Холодная VFD-база остаётся, но по лампам
+    // проходит тёплая коралловая волна, похожая на аудио-энергию.
+    let voiceSpectrum = false;
+    let voiceNow = 0;
+    let recognitionSweep = false;
+    let recognitionNow = 0;
+    let activeAlpha = 1;
+    let activePalette = LCD_PALETTE.base;
 
     // Точка: рендеринг с физически корректной симуляцией свечения ламп.
     //
@@ -262,22 +497,62 @@ export default function LcdMarquee({
 
       const brightness = Math.max(0.8, Math.min(1, 1 - variance - flickerDip + ripple));
 
-      if (rainbow) {
-        // Радужный режим - полный спектр
-        const hue = ((xCss * 4 + rainbowNow / 8) % 360);
-        ctx.fillStyle = `hsl(${hue}, 100%, ${60 * brightness}%)`;
+      let fill: string;
+      let alpha: number;
+
+      if (voiceSpectrum) {
+        const carrier = Math.sin(voiceNow / 118 + xCss * 0.34);
+        const beat = Math.sin(voiceNow / 215) * 0.5 + 0.5;
+        const detail = Math.sin(voiceNow / 58 + yCss * 1.1 + xCss * 0.12);
+        const envelope = Math.max(0, carrier * 0.62 + detail * 0.24 + beat * 0.14);
+        const heat = envelope ** 1.55;
+        const hue = 172 - heat * 126; // aged VFD → amber REC flare
+        const saturation = 58 + heat * 28;
+        const lightness = 57 + heat * 9;
+        fill = `hsl(${hue}, ${saturation}%, ${lightness * brightness}%)`;
+        alpha = activeAlpha * (0.72 + heat * 0.28);
+      } else if (recognitionSweep) {
+        const sweep = Math.max(0, Math.sin(recognitionNow / 150 - xCss * 0.18));
+        const shimmer = Math.max(0, Math.sin(recognitionNow / 70 + yCss * 0.95));
+        const energy = Math.min(1, sweep * 0.82 + shimmer * 0.18);
+        const hue = 210 - energy * 28; // muted blue scan → VFD edge
+        const lightness = 56 + energy * 8;
+        fill = `hsl(${hue}, 66%, ${lightness * brightness}%)`;
+        alpha = activeAlpha * (0.62 + energy * 0.34);
       } else {
-        // Применяем яркость через globalAlpha
-        ctx.globalAlpha = brightness;
+        fill = ctx.fillStyle as string;
+        alpha = brightness * activeAlpha;
       }
 
-      // Рисуем точку
+      const halo = activePalette.halo;
+      const fringe = activePalette.fringe;
+
+      // Локальная физика лампочки: ближний bloom вокруг ячейки
+      // + микроскопический тёплый/холодный fringe по краям.
+      // Это не декоративный RGB-разъезд, а едва заметная
+      // аберрация стекла/фосфора на уровне одной dot-ячейки.
+      ctx.fillStyle = fill;
+      ctx.globalAlpha = alpha * halo;
+      ctx.fillRect(
+        px - Math.round(dpr),
+        py - Math.round(dpr),
+        s + Math.round(2 * dpr),
+        s + Math.round(2 * dpr),
+      );
+
+      ctx.fillStyle = activePalette.warm;
+      ctx.globalAlpha = alpha * fringe;
+      ctx.fillRect(px - 1, py, s, s);
+
+      ctx.fillStyle = activePalette.cool;
+      ctx.globalAlpha = alpha * fringe;
+      ctx.fillRect(px + 1, py, s, s);
+
+      ctx.fillStyle = fill;
+      ctx.globalAlpha = alpha;
       ctx.fillRect(px, py, s, s);
 
-      // Восстанавливаем alpha
-      if (!rainbow) {
-        ctx.globalAlpha = 1;
-      }
+      ctx.globalAlpha = 1;
     };
 
     const yTop = () => Math.round((cssH - CONTENT_H) / 2);
@@ -350,6 +625,95 @@ export default function LcdMarquee({
       }
     };
 
+    const meterLevels = [2, 4, 3, 5];
+    const meterPeaks = [2, 4, 3, 5];
+    let meterLastNow = 0;
+
+    const drawRecordingMeter = (now: number, startX: number, dxDev: number) => {
+      const top = yTop();
+      const dt = meterLastNow === 0 ? 16 : Math.min(48, now - meterLastNow);
+      meterLastNow = now;
+
+      const pulse = Math.sin(now / 185) * 0.5 + 0.5;
+      const recOn = Math.floor(now / 520) % 2 === 0 || pulse > 0.76;
+
+      if (recOn) {
+        dot(startX, top + 2 * CELL, dxDev, 0, now);
+        dot(startX, top + 3 * CELL, dxDev, 0, now);
+      }
+
+      const bars = [2, 4, 6, 8];
+      for (let i = 0; i < bars.length; i++) {
+        const signal =
+          Math.sin(now / (170 + i * 31) + i * 1.35) * 0.42 +
+          Math.sin(now / (93 + i * 17) + i * 2.1) * 0.24 +
+          Math.sin(now / 420 + i * 0.7) * 0.16 +
+          0.5;
+        const target = Math.max(1, Math.min(6, Math.round(1 + signal * 5)));
+        const smoothing = target > meterLevels[i]! ? 0.42 : 0.18;
+        meterLevels[i] = meterLevels[i]! + (target - meterLevels[i]!) * smoothing;
+
+        const height = Math.max(1, Math.min(6, Math.round(meterLevels[i]!)));
+        meterPeaks[i] = Math.max(height, meterPeaks[i]! - dt / 520);
+
+        const col = bars[i]!;
+        for (let h = 0; h < height; h++) {
+          dot(startX + col * CELL, top + (GLYPH_H - 1 - h) * CELL, dxDev, 0, now);
+        }
+
+        const peak = Math.max(height, Math.min(6, Math.round(meterPeaks[i]!)));
+        if (peak > height) {
+          dot(startX + col * CELL, top + (GLYPH_H - 1 - peak) * CELL, dxDev, 0, now);
+        }
+      }
+    };
+
+    const drawRecognitionDecoder = (now: number, startX: number, dxDev: number) => {
+      const top = yTop();
+      const scan = Math.floor(now / 120) % ALERT_COLS;
+
+      for (let row = 0; row < GLYPH_H; row++) {
+        for (let col = 0; col < ALERT_COLS; col++) {
+          const checksum = (row * 7 + col * 11 + Math.floor(now / 260)) % 9;
+          const inWave = Math.abs(col - scan) <= 1;
+          const anchor =
+            (row === 1 && (col === 2 || col === 6)) ||
+            (row === 3 && (col === 1 || col === 4 || col === 7)) ||
+            (row === 5 && (col === 3 || col === 5));
+          if (!inWave && !anchor && checksum !== 0) continue;
+          dot(startX + col * CELL, top + row * CELL, dxDev, 0, now);
+        }
+      }
+
+      const cursorCol = Math.floor(now / 90) % ALERT_COLS;
+      dot(startX + cursorCol * CELL, top, dxDev, 0, now);
+      dot(startX + cursorCol * CELL, top + 6 * CELL, dxDev, 0, now);
+    };
+
+    const drawAccessMark = (now: number, startX: number, dxDev: number) => {
+      const level = accessLevelRef.current;
+      const since = moodStartRef.current === 0 ? 0 : now - moodStartRef.current;
+
+      if (level === "full") {
+        drawRows(since < 320 ? LOCK_MARK : UNLOCK_MARK, startX, dxDev, now);
+        if (since > 360 && since < 860) {
+          const sparkCol = Math.floor((since - 360) / 120) % ALERT_COLS;
+          dot(startX + sparkCol * CELL, yTop(), dxDev, 0, now);
+        }
+        return;
+      }
+
+      if (level === "review") {
+        drawRows(SHIELD_MARK, startX, dxDev, now);
+        if (Math.floor(now / 360) % 2 === 0) {
+          dot(startX + 7 * CELL, yTop() + 1 * CELL, dxDev, 0, now);
+        }
+        return;
+      }
+
+      drawRows(LOCK_MARK, startX, dxDev, now);
+    };
+
     // Знак слота: «!» в покое, «✕» при ошибке (tone=danger).
     const markRows = (danger: boolean) => (danger ? CROSS_MARK : ALERT_MARK);
 
@@ -377,6 +741,24 @@ export default function LcdMarquee({
     const drawRightSlot = (now: number, dxDev: number, animate: boolean) => {
       if (dxDev !== 0) return;
       const startX = Math.max(PET_ZONE, cssW - ALERT_ZONE + CELL);
+      if (moodRef.current === "listen") {
+        drawRecordingMeter(now, startX, dxDev);
+        slotPrevDanger = null;
+        return;
+      }
+
+      if (moodRef.current === "think") {
+        drawRecognitionDecoder(now, startX, dxDev);
+        slotPrevDanger = null;
+        return;
+      }
+
+      if (moodRef.current === "access") {
+        drawAccessMark(now, startX, dxDev);
+        slotPrevDanger = null;
+        return;
+      }
+
       if (moodRef.current === "type") {
         drawBreath(now, startX, dxDev);
         slotPrevDanger = null; // выход из печати завершает любой переход
@@ -433,7 +815,8 @@ export default function LcdMarquee({
         return EYE_RIGHT; // Смотрит на текст
       }
       if (mood === "listen") {
-        return now % 1800 < 120 ? EYE_BLINK : EYE_CENTER;
+        if (now % 2100 < 120) return EYE_BLINK;
+        return now % 2600 < 520 ? EYE_RIGHT : EYE_CENTER;
       }
       if (mood === "think") {
         // Обработка - глаза быстро переключаются (сканирование данных)
@@ -457,13 +840,15 @@ export default function LcdMarquee({
       rows[2] = eyes;
 
       if (mood === "listen") {
-        // Запись - рот открыт, уши торчат, активное слушание
-        rows[0] = now % 900 < 450 ? "0101010" : "1010101"; // Пульсирующие уши
-        rows[1] = "1111111"; // Широкая голова
-        rows[3] = "1111111"; // Тело
-        rows[4] = "1111111"; // Тело
-        rows[5] = "0111110"; // Рот открыт
-        rows[6] = "0011100"; // Открытый рот (говорит/слушает)
+        // Запись — персонаж не «говорит» и не дублирует VU-meter.
+        // Он слушает: плотная голова-капсула, мягкая стойка,
+        // закрытый низ без открытого рта.
+        rows[0] = "0011100";
+        rows[1] = "1111111";
+        rows[3] = "1111111";
+        rows[4] = "1111111";
+        rows[5] = "0111110";
+        rows[6] = Math.floor(now / 520) % 2 === 0 ? "0101010" : "0100010";
       } else if (mood === "think") {
         // Обработка - компактная анимация думания
         rows[0] = Math.floor(now / 300) % 2 === 0 ? "0010100" : "0101010"; // Антенны
@@ -541,21 +926,20 @@ export default function LcdMarquee({
               : [...keys, ...letters, ...cursor, [6, 4], [9, 5]];
       }
       if (mood === "listen") {
-        // Запись - звуковые волны + микрофон + пульсирующие индикаторы
-        const wave = now % 720 < 360;
-        const pulse = Math.floor(now / 200) % 3;
-        // Звуковые волны с обеих сторон
-        const waves: PetDot[] = wave
-          ? [[-1, 1], [-2, 2], [7, 1], [8, 2]]
-          : [[-1, 0], [-2, 1], [7, 0], [8, 1]];
-        // Индикаторы уровня справа (3 уровня)
-        const indicators: PetDot[] =
-          pulse === 0 ? [[9, 4], [10, 4]] :
-          pulse === 1 ? [[9, 3], [10, 3], [9, 4], [10, 4]] :
-          [[9, 2], [10, 2], [9, 3], [10, 3], [9, 4], [10, 4]];
-        // Микрофон перед питомцем
-        const mic: PetDot[] = [[-3, 5], [-3, 6]];
-        return [...waves, ...indicators, ...mic];
+        // Запись — headset/attention marks. Никаких аудио-волн:
+        // справа уже есть VU-meter, а персонаж должен поддерживать
+        // состояние «я внимательно слушаю».
+        const cue = Math.floor(now / 620) % 3;
+        const earCups: PetDot[] = [[-1, 2], [-1, 3], [7, 2], [7, 3]];
+        const bridge: PetDot[] = [[0, 0], [6, 0]];
+        const attention: PetDot[] =
+          cue === 0
+            ? [[8, 1]]
+            : cue === 1
+              ? [[8, 1], [9, 2]]
+              : [[8, 2]];
+        const thoughtCatch: PetDot[] = now % 1900 < 260 ? [[-2, 1]] : [];
+        return [...earCups, ...bridge, ...attention, ...thoughtCatch];
       }
       if (mood === "think") {
         // Думает - вращающиеся шестеренки + простой индикатор
@@ -640,10 +1024,11 @@ export default function LcdMarquee({
         return [0, Math.round((tap * 1.5 - 0.3 - bounce) * u)];
       }
       if (mood === "listen") {
-        // Запись - покачивание + легкая пульсация
-        const sway = Math.sin(now / 330) * 1.5;
-        const pulse = Math.sin(now / 200) * 0.8;
-        return [Math.round(sway * u), Math.round(pulse * u)];
+        // Запись — спокойное дыхание и едва заметный кивок.
+        // Персонаж не «болтает», а держит фокус для пользователя.
+        const breath = Math.sin(now / 720) * 0.75;
+        const nod = Math.sin(now / 1180) > 0.86 ? 1.1 : 0;
+        return [0, Math.round((breath + nod) * u)];
       }
       if (mood === "think") {
         // Думает - легкое покачивание
@@ -695,17 +1080,24 @@ export default function LcdMarquee({
       const [bx, by] = petBody(now, animate, since);
       const eyes = petEyeRow(now, animate, since);
       const rows = petRows(eyes, now, since);
+      const drawn = new Set<string>();
+      const drawPetDot = (col: number, row: number) => {
+        const key = `${col}:${row}`;
+        if (drawn.has(key)) return;
+        drawn.add(key);
+        dot(PET_X + col * CELL, top + row * CELL, dxDev + bx, by, now);
+      };
 
       for (let row = 0; row < PET_COLS; row++) {
         const rowStr = rows[row]!;
         for (let col = 0; col < PET_COLS; col++) {
           if (rowStr[col] !== "1") continue;
-          dot(PET_X + col * CELL, top + row * CELL, dxDev + bx, by, now);
+          drawPetDot(col, row);
         }
       }
 
       for (const [col, row] of petExtras(now, since)) {
-        dot(PET_X + col * CELL, top + row * CELL, dxDev + bx, by, now);
+        drawPetDot(col, row);
       }
     };
 
@@ -784,38 +1176,47 @@ export default function LcdMarquee({
         tt = Math.min(1, (now - transitionStartRef.current) / TRANSITION_MS);
       }
 
-      // Быстрый рендеринг: bloom делается через CSS filter (GPU-ускорен)
-      const tone = toneRef.current;
-
-      // Запись → радужные волны с насыщенными цветами
+      // Запись → REC-волна: цвет отражает голосовой input,
+      // а не декоративный rainbow-mode.
       if (animate && moodRef.current === "listen") {
-        rainbow = true;
-        rainbowNow = now;
+        voiceSpectrum = true;
+        voiceNow = now;
+        activePalette = resolvePalette();
+        activeAlpha = activePalette.alpha;
         ctx.globalCompositeOperation = "lighter";
         ctx.globalAlpha = 1;
         drawOn(prev, tt, now, animate, 0);
-        rainbow = false;
+        voiceSpectrum = false;
+        activeAlpha = 1;
         ctx.globalCompositeOperation = "source-over";
         if (prev !== null && tt >= 1) prevRef.current = null;
         return;
       }
 
-      // Палитра по тону - приглушенные, не отвлекающие цвета
-      let pixelColor: string;
-
-      if (tone === "danger") {
-        pixelColor = "#ff6644"; // Мягкий красно-оранжевый
-      } else if (tone === "warning") {
-        pixelColor = "#ff9944"; // Теплый оранжевый
-      } else {
-        pixelColor = "#00d4aa"; // Спокойный циан-зеленый
+      if (animate && moodRef.current === "think") {
+        recognitionSweep = true;
+        recognitionNow = now;
+        activePalette = resolvePalette();
+        activeAlpha = activePalette.alpha;
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = 1;
+        drawOn(prev, tt, now, animate, 0);
+        recognitionSweep = false;
+        activeAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
+        if (prev !== null && tt >= 1) prevRef.current = null;
+        return;
       }
+
+      const palette = resolvePalette();
 
       // Один проход: рисуем яркие точки, CSS filter добавит bloom
       ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = pixelColor;
+      activePalette = palette;
+      activeAlpha = palette.alpha;
+      ctx.fillStyle = palette.color;
       drawOn(prev, tt, now, animate, 0);
+      activeAlpha = 1;
 
       ctx.globalCompositeOperation = "source-over";
 
@@ -863,7 +1264,9 @@ export default function LcdMarquee({
         ref={canvasRef}
         className={styles.lcdCanvas}
         data-tone={tone}
-        data-rainbow={mood === "listen" ? "true" : undefined}
+        data-mood={mood}
+        data-color={colorMode ?? "base"}
+        data-voice={mood === "listen" ? "true" : undefined}
         aria-hidden="true"
       />
       <span className={styles.srOnly}>{status}</span>

@@ -30,13 +30,13 @@
      #1a1a1a, маскируются однородно: один проход
      композитинга, чистые края. Визуально 1:1
      с прежней палитрой в непрозрачных областях. ── */
-  --sb-bg: var(--composer-surface-sunken);
-  --sb-ink: var(--composer-ink);
-  --sb-ink-muted: #bfbfbf;        /* ≡ rgba(255,255,255,0.72) over #1a1a1a */
-  --sb-ink-subtle: #8d8d8d;       /* ≡ rgba(255,255,255,0.5)  over #1a1a1a */
-  --sb-ink-faint: #686868;        /* ≡ rgba(255,255,255,0.34) over #1a1a1a */
-  --sb-hairline: #3a3a3a;         /* ≡ rgba(255,255,255,0.14) over #1a1a1a */
-  --sb-hairline-strong: #5f5f5f;  /* ≡ rgba(255,255,255,0.3)  over #1a1a1a */
+  --sb-bg: #202020;
+  --sb-ink: #ffffff;
+  --sb-ink-muted: #c4c4c4;
+  --sb-ink-subtle: #929292;
+  --sb-ink-faint: #6c6c6c;
+  --sb-hairline: #3d3d3d;
+  --sb-hairline-strong: #5e5e5e;
   --sb-row-hover: rgba(255, 255, 255, 0.075);
 
   /* ── concentric corners (Apple HIG):
@@ -65,7 +65,7 @@
      текста ложилось на левую кромку жёлтой точки
      traffic lights — единый горизонтальный ритм
      с системной шапкой. */
-  --sb-gap-icon: 6px;
+  --sb-gap-icon: 8px;
   /* indent для chat-row — отступ от padding-left ряда
      до начала названия чата. Равен icon_col + gap_icon,
      то есть «как если бы перед чатом стояла невидимая
@@ -98,7 +98,10 @@
   --sb-row-shift: calc((var(--sb-icon-col) - var(--sb-dot-size)) / 2); /* 2px */
 
   width: 100%;
-  max-width: 720px;
+  /* Узкая направляющая кейса (760px): сайдбар совпадает по ширине
+     с ThinkingModel, ComposerInput и CodeBlock — все «живые» кадры
+     ADE стоят на одном левом крае и в одной ширине. */
+  max-width: 760px;
   margin: 0 auto;
   /* iPhone-keynote staging: панели не лежат на плоском фоне
      страницы — они стоят на освещённой сцене. Вертикальный
@@ -146,12 +149,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: radial-gradient(
-    120% 78% at 50% 46%,
-    rgba(255, 255, 255, 0.05),
-    rgba(255, 255, 255, 0.018) 42%,
-    rgba(255, 255, 255, 0) 72%
-  );
+  background: none;
   pointer-events: none;
 }
 
@@ -167,23 +165,16 @@
      объём, согласованный с inset-бликом и тенью.
      Заливка теперь живёт здесь (а не на .sidebar), чтобы
      sheen был единым на всю высоту pane. */
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.035),
-      rgba(255, 255, 255, 0) 180px
-    ),
-    var(--sb-bg);
+  background: var(--sb-bg);
   /* Слоёная тень: контактная кромка + средний и дальний
      слой дают «приподнятый» физический объект вместо
      одного размытого пятна. Inset-блик по верхней кромке
      ловит свет — панель читается как материал, а не плоскость.
      Тень маскируется вместе с содержимым (fade в туман). */
   box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.5),
-    0 14px 32px rgba(0, 0, 0, 0.46),
-    0 36px 72px rgba(0, 0, 0, 0.56),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 1px 1px rgba(0, 0, 0, 0.44),
+    0 14px 34px rgba(0, 0, 0, 0.38),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.105);
   /* Внешняя тёмная обводка через outline — не влияет
      на layout и не обрезается overflow/mask родителя. */
   outline: 1px solid rgba(0, 0, 0, 0.8);
@@ -202,21 +193,11 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.24),
-    rgba(255, 255, 255, 0.08) 38%,
-    rgba(255, 255, 255, 0.04)
-  );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
+  padding: 0;
+  background: transparent;
+  -webkit-mask: none;
+  mask: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
   pointer-events: none;
   z-index: 2;
 }
@@ -292,7 +273,7 @@
   padding: var(--sb-pad-y) var(--sb-pad-x) calc(var(--sb-pad-y) - 4px);
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 12px;
   /* Заливка и sheen перенесены на .pane, чтобы свет был
      единым на всю высоту окна. Sidebar — прозрачный слой
      контента поверх материала панели. */
@@ -326,8 +307,8 @@
 }
 
 .dot {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 999px;
   display: inline-block;
   flex-shrink: 0;
@@ -373,8 +354,8 @@
 }
 
 .chromeSysBtn svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 /* ── Верхняя навигация: вертикальная колонка
@@ -408,6 +389,9 @@
   border-radius: var(--sb-row-radius);
   font-size: 0.92rem;
   color: var(--sb-ink);
+  transition:
+    background-color var(--composer-duration-hover) ease,
+    color var(--composer-duration-hover) ease;
   line-height: 1.25;
 }
 
@@ -515,7 +499,7 @@
 .sectionActions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 /* ── Проекты ────────────────────────────── */
@@ -546,6 +530,9 @@
            calc(var(--sb-row-bleed) - var(--sb-row-shift));
   border-radius: var(--sb-row-radius);
   color: var(--sb-ink);
+  transition:
+    background-color var(--composer-duration-hover) ease,
+    color var(--composer-duration-hover) ease;
 }
 
 .projectHead:hover {
@@ -578,17 +565,20 @@
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-left: calc(0px - var(--sb-row-bleed));
   margin-right: calc(0px - var(--sb-row-bleed));
-  padding: 5px
+  padding: 4px
            calc(var(--sb-row-bleed) + var(--sb-row-shift))
-           5px
+           4px
            calc(var(--sb-row-bleed) - var(--sb-row-shift) + var(--sb-indent));
   border-radius: var(--sb-row-radius);
   font-size: 0.88rem;
   color: var(--sb-ink-muted);
   line-height: 1.3;
+  transition:
+    background-color var(--composer-duration-hover) ease,
+    color var(--composer-duration-hover) ease;
 }
 
 /* Hover чат-ряда — лёгкая плашка, тише nav (чаты вторичны
@@ -607,7 +597,7 @@
    интерактив везде плоский. Заголовок поднят до полного
    ink — выбор читается текстом, не только фоном. */
 .chatRow[data-active="true"] {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.095);
 }
 
 .chatRow[data-active="true"] .chatTitle {
@@ -636,9 +626,9 @@
 .showMore {
   margin-left: calc(0px - var(--sb-row-bleed));
   margin-right: calc(0px - var(--sb-row-bleed));
-  padding: 5px
+  padding: 4px
            calc(var(--sb-row-bleed) + var(--sb-row-shift))
-           5px
+           4px
            calc(var(--sb-row-bleed) - var(--sb-row-shift) + var(--sb-indent));
   border-radius: var(--sb-row-radius);
   font-size: 0.84rem;
@@ -652,9 +642,9 @@
 
 .projectEmpty {
   margin: 0 calc(0px - var(--sb-row-bleed));
-  padding: 5px
+  padding: 4px
            calc(var(--sb-row-bleed) + var(--sb-row-shift))
-           5px
+           4px
            calc(var(--sb-row-bleed) - var(--sb-row-shift) + var(--sb-indent));
   border-radius: var(--sb-row-radius);
   font-size: 0.84rem;
@@ -686,7 +676,7 @@
 .footerActions {
   display: inline-flex;
   align-items: center;
-  gap: 13px;
+  gap: 12px;
 }
 
 .footerIcon {
@@ -715,7 +705,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 12px;
+  padding: 4px 12px;
   border-radius: 999px;
   /* Залитый чип вместо прозрачной обводки: единственный
      CTA в сайдбаре читается как плотная кнопка-фокус.
@@ -888,7 +878,7 @@
   }
   .split {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 16px;
   }
   .pane {
     height: clamp(360px, 92vw, 500px);

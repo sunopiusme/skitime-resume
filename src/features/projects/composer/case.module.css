@@ -4,8 +4,9 @@
    • один внешний паддинг страницы,
    • тот же chrome (topbar/footer),
    • та же дисплей-шкала и тот же ритм отступов.
-   Hero остаётся left-aligned (есть лид и meta-rail),
-   но размеры и spacing синхронны с home.
+   Композиция держится на центральной оси:
+   hero, текстовая колонка, фигуры и live-сцены
+   центрируются внутри общего полотна.
 
    Spacing система основана на модульной шкале (коэффициент 1.5):
    • prose gap: 24-32px (комфортное чтение)
@@ -97,29 +98,63 @@
 }
 
 /* ─────────────────────────────────────────
-   Site footer — зеркало хедера.
-   Та же типографика, тот же горизонтальный
-   паддинг и та же навигация, что у .topbar:
-   бренд слева, ссылки справа. Хедер закреплён
-   сверху (fixed) и ведёт сессию навигации;
-   футер — его статичный двойник, прижатый к
-   низу страницы гридом (grid-template-rows:
-   1fr auto). Один бар, один язык — никакой
-   отдельной «карточки перехода».
+   Site footer — брат хедера, не его двойник.
+   Делит общий язык: та же поверхность, бренд-знак,
+   те же слова навигации, тот же ховер в белый.
+   Но композиция своя: вместо горизонтального бара
+   хедера — центрированная колонка-подпись.
+   Бренд по центру, навигация под ним, тихий
+   копирайт внизу. Симметрия даёт визуальный покой,
+   которого нет и не нужно в навигационном хедере.
    ───────────────────────────────────────── */
 .sitefooter {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  text-align: center;
+  gap: clamp(8px, 1vw, 16px);
+  margin-inline: calc(-1 * clamp(48px, 6vw, 120px));
   padding:
-    clamp(10px, 1vw, 14px)
-    clamp(20px, 2.4vw, 40px);
+    clamp(40px, 5vw, 72px)
+    clamp(20px, 2.4vw, 40px)
+    clamp(28px, 3vw, 40px);
   background: var(--composer-surface);
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0em;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--composer-ink-muted);
+}
+
+/* Навигация футера — те же слова и ховер, что у хедера,
+   но плоский текст вместо пилюль: подпись, не панель. */
+.footerNav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(12px, 1.4vw, 20px);
+}
+
+.footerNav a {
+  color: var(--composer-ink-muted);
+  transition: color 160ms ease;
+}
+
+.footerNav a[aria-current="page"] {
+  color: var(--composer-ink);
+}
+
+.footerNav a:hover,
+.footerNav a:focus-visible {
+  color: var(--composer-ink);
+}
+
+/* Тихая подпись — год и имя, без лишних слов. */
+.footerNote {
+  margin: 0;
+  font-size: 13px;
+  color: var(--composer-ink-muted);
+  opacity: 0.6;
 }
 
 /* ─────────────────────────────────────────
@@ -130,37 +165,42 @@
    ───────────────────────────────────────── */
 .article {
   display: grid;
-  width: min(100%, var(--case-page-max));
+  width: min(100%, var(--case-wide));
   min-width: 0;
   margin: 0 auto;
   gap: var(--case-space-section-outer);
-  padding-top: clamp(48px, 5vw, 80px);
+  padding-top: clamp(20px, 2.4vw, 36px);
   padding-bottom: clamp(48px, 5vw, 72px);
 }
 
+/* Центральная ось. Узкая колонка чтения и широкие фигуры держат свои
+   меры, но садятся по центру общего полотна, чтобы кейс выглядел как
+   собранная презентационная работа, а не как левый editorial-rail. */
 .column {
-  max-width: var(--case-hero);
+  max-width: var(--case-measure);
   min-width: 0;
-  margin: 0 auto;
+  margin-inline: auto;
   width: 100%;
 }
 
 .wide {
   max-width: var(--case-wide);
   min-width: 0;
-  margin: 0 auto;
+  margin-inline: auto;
   width: 100%;
 }
 
 .part {
   display: grid;
+  justify-items: center;
   min-width: 0;
   gap: var(--case-space-section-inner);
 }
 
-.part > .wide + .wide {
-  margin-top: calc(-1 * clamp(8px, 1vw, 16px));
+.article > .part:first-of-type {
+  gap: clamp(40px, 4.4vw, 72px);
 }
+
 
 /* ─────────────────────────────────────────
    Hero — повторяет композицию home:
@@ -177,18 +217,24 @@
   align-content: start;
   text-align: center;
   gap: clamp(24px, 2.8vw, 36px);
-  padding: clamp(16px, 2vw, 28px) clamp(16px, 4vw, 56px) clamp(24px, 2.4vw, 36px);
+  padding:
+    clamp(72px, 9vh, 112px)
+    0
+    clamp(44px, 5vw, 68px);
 }
 
 .heroHead {
   display: grid;
   justify-items: center;
   gap: clamp(16px, 1.8vw, 24px);
-  max-width: var(--case-wide);
+  max-width: min(100%, 920px);
   width: 100%;
 }
 
 .heroTitle {
+  display: grid;
+  justify-items: center;
+  gap: 0;
   margin: 0;
   max-width: 100%;
   font-family: var(--font-sans), sans-serif;
@@ -197,10 +243,14 @@
   letter-spacing: -0.03em;
   line-height: 56px;
   color: #ffffff;
-  text-wrap: balance;
+  text-wrap: pretty;
   font-kerning: normal;
   font-feature-settings: "ss01", "cv11";
   text-rendering: optimizeLegibility;
+}
+
+.heroTitle span {
+  display: block;
 }
 
 .heroTitleAccent {
@@ -218,6 +268,7 @@
 .heroLead {
   margin: 0;
   max-width: 52ch;
+  margin-inline: auto;
   color: var(--composer-ink-muted);
   font-size: clamp(1rem, 1.2vw, 1.18rem);
   font-weight: 400;
@@ -226,44 +277,10 @@
   text-wrap: balance;
 }
 
-/* Colophon — мета-рейка «Роль / Инструменты / Формат» по паттерну
-   главной (.colophon). Капс-моно тон, тихий контраст; даёт рекрутёру
-   контекст авторства. Теперь идёт первым, перед заголовком. */
-.heroColophon {
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px 24px;
-  margin: 0 0 clamp(20px, 2.4vw, 32px);
-  padding: 0;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0em;
-  line-height: 19.6px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.heroColophon > div {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.heroColophon dt {
-  color: var(--composer-ink-subtle);
-}
-
-.heroColophon dd {
-  margin: 0;
-  color: var(--composer-ink);
-  font-weight: 500;
-}
-
 .heroStage {
   width: 100%;
   max-width: var(--case-hero);
-  margin-top: clamp(6px, 1.4vw, 16px);
+  margin-top: clamp(8px, 1.4vw, 16px);
   padding-top: clamp(20px, 2.6vw, 36px);
   /* Без разделительной линии: hero заголовок и сцена с ThinkingModel
      читаются как одна композиция, дополнительный hairline только
@@ -280,7 +297,7 @@
    Высота hero стабильна, поэтому negative margin
    не вызывает прыжков при анимации. */
 .hero + .part {
-  margin-top: calc(-1 * clamp(64px, 6vw, 96px));
+  margin-top: calc(-1 * clamp(48px, 5vw, 80px));
 }
 
 /* ─────────────────────────────────────────
@@ -295,7 +312,7 @@
 }
 
 .sectionKicker {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 0.72rem;
   font-weight: 450;
   letter-spacing: 0.16em;
@@ -304,17 +321,18 @@
 }
 
 .sectionTitle {
-  margin: 0 0 clamp(20px, 2vw, 28px);
-  font-size: 26px;
+  margin: 0 0 var(--composer-head-gap);
+  font-size: 28px;
   font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 34px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-align: left;
   text-wrap: balance;
 }
 
 .partHeader {
   text-align: left;
-  margin-bottom: clamp(28px, 2.8vw, 40px);
+  margin-bottom: var(--composer-head-gap);
 }
 
 .partHeader .sectionTitle {
@@ -333,10 +351,12 @@
   font-weight: 400;
   letter-spacing: -0.01em;
   line-height: 24px;
+  text-align: left;
 }
 
 .prose p {
   margin: 0;
+  max-width: 100%;
   text-wrap: pretty;
 }
 
@@ -362,11 +382,17 @@
   font-feature-settings: "calt" 0, "liga" 0;
 }
 
+/* Связующая ремарка идёт в общем кегле прозы (15/24), а не своим
+   крупным размером — иначе она читалась как ещё один уровень текста
+   посреди потока. Цвет держим как основной текст: это мост к интерфейсу
+   ниже, а не второстепенная сноска. */
 .transitionNote {
-  margin-top: clamp(4px, 0.8vw, 10px);
+  margin-top: clamp(4px, 0.8vw, 12px);
   color: var(--composer-ink);
-  font-size: clamp(0.96rem, 0.94vw, 1.02rem);
-  line-height: 1.58;
+  font-size: 15px;
+  line-height: 24px;
+  letter-spacing: -0.01em;
+  text-align: left;
   text-wrap: pretty;
 }
 
@@ -391,7 +417,6 @@
 .composerPin {
   position: relative;
   width: 100%;
-  margin-top: clamp(20px, 2.4vw, 32px);
 }
 
 .composerPinDock {
@@ -403,6 +428,7 @@
 
 .composerPinFrame {
   width: 100%;
+  max-width: var(--case-measure);
 }
 
 @media (max-width: 900px) {
@@ -419,17 +445,18 @@
    гарнитуры.
    ───────────────────────────────────────── */
 .pullQuote {
-  margin: 0;
-  padding: clamp(20px, 2vw, 26px) 0 clamp(20px, 2vw, 26px) clamp(20px, 2vw, 28px);
+  margin: clamp(4px, 0.8vw, 12px) 0 0;
+  padding: clamp(16px, 1.8vw, 24px) 0 clamp(16px, 1.8vw, 24px) clamp(20px, 2vw, 28px);
   border-left: 2px solid var(--composer-hairline-strong);
   font-family: var(--font-sans), sans-serif;
   font-style: normal;
-  font-size: clamp(1.1rem, 1.5vw, 1.32rem);
+  font-size: clamp(1.04rem, 1.28vw, 1.18rem);
   font-weight: 400;
   letter-spacing: -0.012em;
-  line-height: 1.48;
+  line-height: 1.5;
   color: var(--composer-ink);
-  text-wrap: balance;
+  text-align: left;
+  text-wrap: pretty;
 }
 
 /* ─────────────────────────────────────────
@@ -443,7 +470,7 @@
 
 .closingCard {
   display: grid;
-  gap: clamp(12px, 1.6vw, 18px);
+  gap: clamp(12px, 1.6vw, 16px);
   padding: clamp(20px, 2.4vw, 28px);
   border: 1px solid var(--composer-hairline);
   border-radius: 18px;

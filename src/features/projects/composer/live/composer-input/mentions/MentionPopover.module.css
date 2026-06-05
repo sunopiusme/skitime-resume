@@ -14,7 +14,7 @@
      над textarea появляется ряд вложений, popover
      поднимается вместе с textarea, а не «висит»
      на старой высоте. */
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + 12px);
   left: 0;
   right: 0;
   padding: var(--c-corner-inset);
@@ -60,7 +60,7 @@
 .scroller {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   max-height: 320px;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -68,7 +68,7 @@
 }
 
 .scroller::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .scroller::-webkit-scrollbar-thumb {
@@ -91,11 +91,11 @@
 
 .item {
   display: grid;
-  grid-template-columns: 22px 1fr;
+  grid-template-columns: 24px 1fr;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 8px;
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
@@ -139,8 +139,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   color: var(--c-ink-subtle);
 }
 
@@ -150,7 +150,7 @@
 }
 
 .empty {
-  padding: 10px 12px;
+  padding: 12px 12px;
   font-size: 0.82rem;
   color: var(--c-ink-subtle);
 }

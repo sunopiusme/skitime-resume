@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
 import {
   capabilities,
   evidenceStack,
@@ -23,13 +27,71 @@ const SOURCE_TYPE_RANK: Record<ResearchSourceType, number> = {
   community: 2,
 };
 
-function radarPoint(index: number, score: number) {
+const BASE_RADAR_SCORES = frictionSignals.map((signal) => signal.score);
+
+const RADAR_PROFILES: Record<string, readonly number[]> = {
+  "стоимость и лимиты": [4.5, 3.2, 3.6, 2.8, 3.4, 4.2],
+  "риск доверия": [3.2, 4.8, 4.4, 4.1, 4.7, 3.6],
+  "потеря контекста": [3.7, 4.4, 4.7, 3.6, 4.1, 4],
+  "ошибки доступа": [2.9, 4.1, 3.5, 4.6, 3.8, 3.7],
+  "нагрузка ревью": [3.3, 4.6, 4, 3.6, 4.8, 4.2],
+  "разрыв процесса": [4, 3.5, 4.2, 3.7, 4.3, 4.6],
+};
+
+function easeOutCubic(progress: number) {
+  return 1 - Math.pow(1 - progress, 3);
+}
+
+function useAnimatedRadarScores(targetScores: readonly number[]) {
+  const scoresRef = useRef<readonly number[]>(targetScores);
+  const [scores, setScores] = useState(() => [...targetScores]);
+
+  useEffect(() => {
+    const from = [...scoresRef.current];
+    const startedAt = window.performance.now();
+    const duration = 260;
+    let frame = 0;
+
+    const tick = (now: number) => {
+      const progress = Math.min((now - startedAt) / duration, 1);
+      const eased = easeOutCubic(progress);
+      const next = targetScores.map((target, index) => {
+        const start = from[index] ?? target;
+        return start + (target - start) * eased;
+      });
+
+      scoresRef.current = next;
+      setScores(next);
+
+      if (progress < 1) {
+        frame = window.requestAnimationFrame(tick);
+      }
+    };
+
+    frame = window.requestAnimationFrame(tick);
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [targetScores]);
+
+  return scores;
+}
+
+function radarCoords(index: number, score: number) {
   const angle = -90 + (360 / frictionSignals.length) * index;
   const radius = 22 + score * 13;
   const rad = (angle * Math.PI) / 180;
   const x = 110 + Math.cos(rad) * radius;
   const y = 110 + Math.sin(rad) * radius;
+  return { x, y };
+}
+
+function radarPoint(index: number, score: number) {
+  const { x, y } = radarCoords(index, score);
   return `${x.toFixed(1)},${y.toFixed(1)}`;
+}
+
+function radarLabelCoords(index: number) {
+  return radarCoords(index, index === 0 ? 6.35 : 5.72);
 }
 
 export function LabSourceMap() {
@@ -133,38 +195,105 @@ export function LabCapabilityMatrix() {
 }
 
 export function LabFrictionRadar() {
-  const points = frictionSignals
-    .map((signal, index) => radarPoint(index, signal.score))
-    .join(" ");
+  const [activeSignal, setActiveSignal] = useState<string | null>(null);
+  const targetScores = activeSignal
+    ? RADAR_PROFILES[activeSignal] ?? BASE_RADAR_SCORES
+    : BASE_RADAR_SCORES;
+  const displayScores = useAnimatedRadarScores(targetScores);
+  const activeShortLabel =
+    frictionSignals.find((signal) => signal.label === activeSignal)?.shortLabel ?? null;
+  const points = displayScores.map((score, index) => radarPoint(index, score)).join(" ");
 
   return (
     <div className={styles.figure} aria-label="Радар трения">
       <header className={styles.stageHeader}>
         <h3 className={styles.stageTitle}>Где автономность начинает стоить дорого</h3>
+        <p className={styles.stageKicker}>
+          Высокая оценка означает зону, где агенту нельзя верить на слово: нужны видимый контекст, права, trace и проверка.
+        </p>
       </header>
       <div className={styles.radarLayout}>
         <div className={styles.radarPanel}>
-          <svg className={styles.radar} viewBox="0 0 220 220" role="img" aria-label="Качественный радар трения">
+          <svg
+            className={styles.radar}
+            viewBox="0 0 220 220"
+            role="img"
+            aria-label="Качественный радар трения"
+          >
             <circle cx="110" cy="110" r="35" />
-            <circle cx="110" cy="110" r="61" />
+            <circle cx="110" cy="110" r="61" className={styles.radarThreshold} />
             <circle cx="110" cy="110" r="87" />
             {frictionSignals.map((signal, index) => {
               const outer = radarPoint(index, 5);
               const [x, y] = outer.split(",");
               return <line key={signal.label} x1="110" y1="110" x2={x} y2={y} />;
             })}
-            <polygon points={points} />
+            <polygon className={styles.radarShape} points={points} />
+            <text x="110" y="103" textAnchor="middle" className={styles.radarCore}>
+              {activeShortLabel ?? "контроль"}
+            </text>
+            <text x="110" y="119" textAnchor="middle" className={styles.radarCoreSub}>
+              {activeShortLabel ? "профиль риска" : "автономность"}
+            </text>
+            {frictionSignals.map((signal, index) => {
+              const point = radarCoords(index, displayScores[index] ?? signal.score);
+              const label = radarLabelCoords(index);
+              const anchor =
+                label.x < 92 ? "end" : label.x > 128 ? "start" : "middle";
+
+              return (
+                <g
+                  key={signal.label}
+                  className={styles.radarNode}
+                  data-active={signal.label === activeSignal ? "true" : undefined}
+                >
+                  <circle
+                    cx={point.x.toFixed(1)}
+                    cy={point.y.toFixed(1)}
+                    r="3.8"
+                    className={styles.radarPoint}
+                  />
+                  <text
+                    x={label.x.toFixed(1)}
+                    y={label.y.toFixed(1)}
+                    textAnchor={anchor}
+                    className={styles.radarLabel}
+                  >
+                    {signal.shortLabel}
+                  </text>
+                  <text
+                    x={label.x.toFixed(1)}
+                    y={(label.y + 10).toFixed(1)}
+                    textAnchor={anchor}
+                    className={styles.radarScore}
+                  >
+                    {signal.score}/5
+                  </text>
+                </g>
+              );
+            })}
           </svg>
         </div>
         <div className={styles.frictionList}>
           {frictionSignals.map((signal) => (
-            <div key={signal.label} className={styles.frictionItem}>
+            <button
+              key={signal.label}
+              className={styles.frictionItem}
+              type="button"
+              aria-pressed={signal.label === activeSignal}
+              data-active={signal.label === activeSignal ? "true" : undefined}
+              onBlur={() => setActiveSignal(null)}
+              onClick={() => setActiveSignal(signal.label)}
+              onFocus={() => setActiveSignal(signal.label)}
+              onPointerEnter={() => setActiveSignal(signal.label)}
+              onPointerLeave={() => setActiveSignal(null)}
+            >
               <span className={styles.frictionHead}>
                 <strong>{signal.label}</strong>
                 <span>{signal.score}/5</span>
               </span>
               <p>{signal.evidence}</p>
-            </div>
+            </button>
           ))}
         </div>
       </div>

@@ -16,8 +16,8 @@
 .trigger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 8px 6px 8px;
+  gap: 8px;
+  padding: 8px 8px 8px 8px;
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
@@ -117,7 +117,7 @@
 
 .divider {
   height: 1px;
-  margin: 4px 6px;
+  margin: 4px 8px;
   background: var(--c-line-soft);
 }
 
@@ -125,11 +125,11 @@
 .providerRow {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 14px;
+  grid-template-columns: 1fr 16px;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 8px;
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
@@ -151,8 +151,8 @@
 
 .providerChevron {
   display: inline-flex;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   color: var(--c-ink-subtle);
 }
 
@@ -165,7 +165,7 @@
 .modelsSubmenu {
   position: absolute;
   bottom: calc(0px - var(--c-corner-inset));
-  left: calc(100% + 6px);
+  left: calc(100% + 8px);
   min-width: 200px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
@@ -187,8 +187,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -6px;
-  width: 6px;
+  left: -8px;
+  width: 8px;
 }
 
 .providerRow:hover .modelsSubmenu,
@@ -201,9 +201,9 @@
   display: grid;
   grid-template-columns: 1fr 16px;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 8px;
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;

@@ -1,111 +1,72 @@
 /* ─────────────────────────────────────────
-   Thinking model
-   Ширина блока совпадает с ComposerInput (760px),
-   чтобы оба компонента читались как один сценарий
-   рабочей поверхности. Контент идёт одной колонкой:
-   шапка с фазой и текущим инструментом + поток
-   размышлений. Список инструментов больше не
-   распадается во вторую колонку — активный шаг
-   подсвечивается компактным маркером в шапке.
-
-   Фиксированная высота для предотвращения layout shift.
+   Agent trace
+   Не поток внутренних мыслей, а наблюдаемый
+   журнал работы: действие, цель, результат.
+   Одна поверхность, один список, без скроллов.
    ───────────────────────────────────────── */
 .root {
   display: grid;
-  gap: clamp(12px, 1.6vw, 18px);
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--composer-ink);
-  font-family: var(--font-sans), sans-serif;
-  container-type: inline-size;
+  gap: clamp(14px, 1.8vw, 20px);
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
-  /* Фиксированная минимальная высота для стабильности layout */
-  min-height: 400px;
-  /* Содержимое всегда читается с левого края, даже если родитель
-     центрирует текст (как .hero на странице кейса). Размышления —
-     это поток, а не баннер. */
+  color: var(--composer-ink);
+  font-family: var(--font-sans), sans-serif;
   text-align: left;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-/* Варианты режимов: пустые маркеры, чтобы CSS-модуль выдал
-   корректные классы для `styles[mode]`. Видимые различия
-   между hero и inline выражены ниже через `.hero .thoughtStream`. */
-.hero {
-  --thinking-mode: hero;
-}
-
+.hero,
 .inline {
-  --thinking-mode: inline;
-}
-
-/* В hero оставляем минимальную высоту, чтобы первый кадр
-   не «прыгал» при появлении первой строки текста. */
-.hero .thoughtStream {
-  min-height: calc(1.7em * 6);
+  --trace-mode: inline;
 }
 
 .header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
   min-width: 0;
 }
 
 .phaseLabel {
-  font-family: inherit;
-  /* Унифицировано с размером шрифта инструментов и мыслей */
-  font-size: clamp(0.95rem, 1.1vw, 1.08rem);
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: var(--composer-ink-subtle);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  flex-shrink: 0;
+  color: var(--composer-ink-muted);
+  font-size: clamp(0.92rem, 1.05vw, 1.02rem);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.35;
 }
 
 .phaseDivider {
   display: inline-block;
   width: 1px;
-  height: 0.85em;
-  margin: 0 0.6em;
-  vertical-align: -0.08em;
+  height: 0.9em;
+  margin: 0 0.7em;
+  vertical-align: -0.12em;
   background: currentColor;
-  opacity: 0.4;
+  opacity: 0.42;
 }
 
 .phaseLabelShimmer {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.45) 0%,
-    rgba(255, 255, 255, 0.45) 42%,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.5) 42%,
     rgba(255, 255, 255, 0.95) 50%,
-    rgba(255, 255, 255, 0.45) 58%,
-    rgba(255, 255, 255, 0.45) 100%
+    rgba(255, 255, 255, 0.5) 58%,
+    rgba(255, 255, 255, 0.5) 100%
   );
-  background-size: 400% 100%;
+  background-size: 360% 100%;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  animation: phaseShimmer 6s linear infinite;
+  animation: phaseShimmer 5.6s linear infinite;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .phaseLabelShimmer {
-    animation: none;
-    background: none;
-    color: var(--composer-ink);
-    -webkit-text-fill-color: currentColor;
-  }
-}
-
-/* Активный инструмент больше не показывается отдельной строкой:
-   фаза сама меняется по ходу выполнения («Читает foo.tsx», «Ищет
-   useThinkingTimeline», «Запускает npm run build»). Это убирает
-   визуальный дубль из «Размышляет» + «read foo.tsx», который
-   раньше выглядел как две конкурирующие подписи. */
 
 .retry {
   margin-left: auto;
@@ -121,8 +82,6 @@
   flex-shrink: 0;
 }
 
-/* Play/Replay button — стиль как у send button в ComposerInput:
-   круглая, инверсная, 32×32. */
 .playButton {
   margin-left: auto;
   display: inline-flex;
@@ -144,7 +103,7 @@
 }
 
 .playButton:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .playButton:active {
@@ -159,243 +118,239 @@
 .playButton svg {
   width: 16px;
   height: 16px;
-  flex-shrink: 0;
 }
 
-/* ─────────────────────────────────────────
-   Thought stream — typing text with scroll
-   ───────────────────────────────────────── */
-.thoughtStream {
-  position: relative;
-  padding: 0;
-  max-height: calc(1.7em * 6); /* ~6 lines */
-  overflow: hidden;
-  font-size: clamp(0.95rem, 1.1vw, 1.08rem);
-  line-height: 1.7;
+.traceBody {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 24px;
+  background: #202020;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.42),
+    0 14px 34px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.075);
 }
 
-.thoughtStreamInner {
-  position: relative;
-  height: calc(1.7em * 6);
-  overflow: hidden;
-  padding-right: 16px;
-  contain: layout paint style;
-
-  /* Мягкий fade на нижней кромке — текст утекает в страницу,
-     а не упирается в жёсткий край. */
-  mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
-}
-
-.thoughtStreamContent {
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  padding-bottom: 20px;
-}
-
-.scrollTrack {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 4px;
-  border-radius: 4px;
-  pointer-events: none;
-}
-
-.scrollThumb {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 4px;
-  min-height: 12px;
-  border-radius: 4px;
-  background: var(--composer-ink-subtle);
-  pointer-events: auto;
-  cursor: grab;
-  will-change: transform, height;
-  transition: opacity 150ms ease;
-}
-
-.thoughtText {
+.traceList {
   margin: 0;
-  font-family: var(--font-sans), sans-serif;
-  font-size: inherit;
-  line-height: inherit;
+  padding: 0;
+  display: grid;
+  gap: 1px;
+  list-style: none;
+}
+
+.traceItem {
+  display: block;
+  min-height: 36px;
+  padding: 4px 12px;
+  border-radius: 18px;
   color: var(--composer-ink-muted);
-  white-space: pre-wrap;
+  font-size: clamp(0.92rem, 1.05vw, 1.02rem);
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+  transition:
+    background-color var(--composer-duration-hover) ease,
+    color var(--composer-duration-hover) ease;
 }
 
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+.traceItem[data-status="running"] {
+  background: rgba(255, 255, 255, 0.095);
+  color: var(--composer-ink);
 }
 
-.stepsSrOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-  list-style: none;
-}
-
-/* Слот лога: grid-trick для height: 0 → auto.
-   Slot всегда в DOM, но data-open контролируется одновременно
-   open-state'ом collapse'а И фазой done. Это критично: на момент
-   auto-close на done outer-collapse уже сворачивается, а slot
-   тоже остаётся 0fr → natural-content-height container'а не
-   увеличивается (нет toolList в счёт), transition стартует
-   с прежней «thoughts only» высоты. Без этой синхронизации
-   outer-collapse начинал бы свою анимацию с уже выросшей
-   высоты (thoughts+toolList), видна вспышка. */
-.toolListSlot {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.toolListSlot[data-open="true"] {
-  grid-template-rows: 1fr;
-}
-
-/* Лог: тот же кегль, что у потока мыслей — читается как
-   продолжение. Скроллбар идентичен thoughtStream — кастомный 4px thumb.
-
-   Структура идентична thoughtStream:
-   - toolListScrollWrap = thoughtStreamInner (viewport с overflow:hidden)
-   - toolList = thoughtStreamContent (контент с transform для скролла)
-   - кастомный thumb управляется через JS */
-.toolListScrollWrap {
-  position: relative;
-  /* max-height вместо фиксированной height: при малом числе
-     инструментов блок ровно по контенту, grid-rows анимация
-     совпадает с реальной высотой — без «доскока» в конце.
-     Скролл включается только когда инструментов больше ~7. */
-  max-height: calc(1.5em * 7);
-  overflow: hidden;
-  padding-right: 16px;
-}
-
-.toolList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 4px;
-  font-size: clamp(0.95rem, 1.1vw, 1.08rem);
-  line-height: 1.5;
+.traceItem[data-status="pending"] {
   color: var(--composer-ink-subtle);
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
 }
 
-/* Кастомный скроллбар для инструментов — идентичен thoughtStream */
-.toolListScrollTrack {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 4px;
-  border-radius: 4px;
-  pointer-events: none;
-}
-
-.toolListScrollThumb {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 4px;
-  min-height: 12px;
-  border-radius: 4px;
-  background: var(--composer-ink-subtle);
-  pointer-events: auto;
-  cursor: grab;
-  will-change: transform, height;
-  transition: opacity 150ms ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .toolListSlot {
-    transition: none;
-  }
-}
-
-.toolItem {
-  display: flex;
+.traceLine {
+  display: inline-flex;
   align-items: baseline;
   gap: 8px;
   min-width: 0;
+  color: inherit;
 }
 
-.toolVerb {
-  color: var(--composer-ink-muted);
-  flex-shrink: 0;
-}
-
-.toolTarget {
-  font-family: var(--composer-font-mono);
-  font-size: inherit;
-  color: var(--composer-ink-subtle);
+.traceTarget {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: inherit;
+  font-family: var(--composer-font-mono);
+  font-size: inherit;
+}
+
+.sources {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 12px 12px 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--composer-ink-muted);
+  font-size: clamp(0.92rem, 1.05vw, 1.02rem);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.35;
+}
+
+.sourcesLabel {
+  flex-shrink: 0;
+}
+
+.sourceList {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
   min-width: 0;
+  height: 28px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .toolListSlot {
-    transition: none;
-  }
+.sourceStackItem {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  margin-block: -4px;
+  flex: 0 0 auto;
 }
 
-.thoughtTextVisual {
-  white-space: pre-wrap;
+.sourceStackItem + .sourceStackItem {
+  margin-left: -16px;
 }
 
-.thoughtChar {
-  display: inline;
+.sourceStackItem:hover,
+.sourceStackItem:focus-within,
+.sourceStackItem[data-active="true"] {
+  z-index: 20 !important;
+}
+
+.sourceItem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 999px;
+  border: 2px solid #202020;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.22),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  flex: 0 0 auto;
+  transition:
+    transform 110ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 110ms ease;
+}
+
+.sourceStackItem[data-active="true"] .sourceItem {
+  transform: translateY(-1px) scale(1.07);
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.sourceIcon {
+  width: 20px;
+  height: 20px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.sourceTooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 1px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 16px 8px;
+  border: 1px solid var(--composer-hairline);
+  border-radius: 999px;
+  background: var(--composer-surface-raised);
+  color: var(--composer-ink);
+  white-space: nowrap;
   opacity: 0;
-  animation: charFadeIn 200ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  transform: translate(-50%, 3px) scale(0.98);
+  pointer-events: none;
+  transition:
+    opacity 80ms ease,
+    transform 110ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 30;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .thoughtChar {
-    animation: none;
-    opacity: 1;
-  }
+.sourceStackItem[data-active="true"] .sourceTooltip {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
 }
 
-@keyframes charFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.sourceTooltipLabel {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  transform: translateY(1px);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.1;
 }
 
-@keyframes phaseShimmer {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+.sourceGlobal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  flex: 0 0 auto;
 }
 
-/* ─────────────────────────────────────────
-   Disclosure — заголовок-фаза становится
-   кнопкой, контент сворачивается. Анимация
-   композитная: grid-template-rows + opacity.
-   ───────────────────────────────────────── */
+.sourceGlobalTrigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.sourceGlobalIcon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.65;
+}
+
+.sourceGlobalBase {
+  stroke: #8a8a8a;
+}
+
+.sourceGlobalShimmer {
+  opacity: 0;
+  stroke: #cfcfcf;
+  stroke-width: 1.9;
+  stroke-linecap: butt;
+  stroke-dasharray: 7 92;
+  stroke-dashoffset: 34;
+  animation: sourceGlobalStrokeShimmer 7.5s ease-in-out infinite;
+}
+
+.traceResult {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--composer-ink-subtle);
+  font-size: inherit;
+}
+
 .toggle {
   appearance: none;
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   margin: 0;
   padding: 0;
@@ -419,13 +374,10 @@
   display: inline-flex;
   width: 1em;
   height: 1em;
-  /* Размер унифицирован с phaseLabel — иконка масштабируется
-     вместе с текстом заголовка, инструментов и мыслей. */
   font-size: clamp(0.95rem, 1.1vw, 1.08rem);
   color: var(--composer-ink-subtle);
   transform: rotate(-90deg);
   transition: transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  align-self: center;
   flex-shrink: 0;
 }
 
@@ -446,10 +398,10 @@
 .collapse {
   display: grid;
   grid-template-rows: 0fr;
+  opacity: 0;
   transition:
     grid-template-rows 280ms cubic-bezier(0.22, 0.61, 0.36, 1),
     opacity 200ms ease;
-  opacity: 0;
 }
 
 .collapseOpen {
@@ -460,13 +412,67 @@
 .collapseInner {
   min-height: 0;
   overflow: hidden;
-  display: grid;
-  gap: clamp(12px, 1.6vw, 18px);
+}
+
+@keyframes phaseShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@keyframes sourceGlobalStrokeShimmer {
+  0%,
+  52%,
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 34;
+  }
+
+  56% {
+    opacity: 0.82;
+    stroke-dashoffset: 8;
+  }
+
+  66% {
+    opacity: 0.68;
+    stroke-dashoffset: -54;
+  }
+
+  72% {
+    opacity: 0;
+    stroke-dashoffset: -82;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .phaseLabelShimmer {
+    animation: none;
+    background: none;
+    color: var(--composer-ink-muted);
+    -webkit-text-fill-color: currentColor;
+  }
+
   .chevron,
   .collapse {
     transition: none;
+  }
+
+  .sourceGlobalShimmer {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .traceBody {
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .traceItem {
+    padding-inline: 8px;
+  }
+
+  .sources {
+    padding-inline: 8px;
   }
 }

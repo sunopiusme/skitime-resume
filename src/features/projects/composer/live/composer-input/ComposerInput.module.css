@@ -17,15 +17,15 @@
   --c-line: var(--composer-hairline);
   --c-line-soft: rgba(255, 255, 255, 0.06);
   --c-ink: var(--composer-ink);
-  --c-ink-muted: var(--composer-ink-muted);
-  --c-ink-subtle: var(--composer-ink-subtle);
-  --c-surface: var(--composer-surface-raised);
-  --c-surface-soft: var(--composer-surface-sunken);
+  --c-ink-muted: rgba(255, 255, 255, 0.76);
+  --c-ink-subtle: rgba(255, 255, 255, 0.52);
+  --c-surface: #242424;
+  --c-surface-soft: #202020;
   /* Фон плашек warning/context: на тон темнее карточки
      (#242424), но светлее sunken (#1a1a1a) — утопленный
      «ящик из-под» приподнятой карточки, контраст без
      резкого провала на стыке (рамки у карточки больше нет). */
-  --c-drawer: #1f1f1f;
+  --c-drawer: #1b1b1b;
   /* Сплошной фон для popover'ов: раньше тут жил полупрозрачный
      glass (rgba(36, 36, 36, 0.72)) с backdrop-filter. На странице
      с несколькими меню рядом — модели, проекты, plus, плагины —
@@ -40,7 +40,7 @@
   --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset)); /* 18px */
   --c-pad-x: 16px;
   --c-icon-col: 20px;
-  --c-gap-icon: 6px;
+  --c-gap-icon: 8px;
 
   width: 100%;
   max-width: 760px;
@@ -99,7 +99,7 @@
   align-items: center;
   gap: var(--c-gap-icon);
   margin: 0 12px -16px;
-  padding: 8px var(--c-pad-x) 22px;
+  padding: 8px var(--c-pad-x) 24px;
   border-radius: var(--c-card-radius) var(--c-card-radius) 0 0;
   /* Drawer на тон ТЕМНЕЕ приподнятой карточки (#242424) — читается
      как утопленный «ящик из-под» неё, даёт контраст и глубину.
@@ -123,7 +123,7 @@
   flex-wrap: wrap;
   gap: 4px;
   margin: -16px 0 0;
-  padding: 22px var(--c-pad-x) 12px;
+  padding: 24px var(--c-pad-x) 12px;
   border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
   /* На тон темнее карточки — см. .warning. */
   background: var(--c-drawer);
@@ -138,94 +138,233 @@
   position: relative;
   flex: 1;
   min-width: 0;
-  height: 21px; /* = GLYPH_H(7) * CELL(3) */
+  height: 20px; /* LCD marquee — 7×3 dot grid, snapped to 8pt */
   cursor: pointer;
 }
 
+.lcd::before {
+  content: "";
+  position: absolute;
+  inset: -3px -4px -1px;
+  border-radius: 9px 9px 3px 3px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), transparent 28%),
+    radial-gradient(70% 110% at 50% 10%, rgba(255, 232, 194, 0.035), transparent 62%),
+    rgba(0, 0, 0, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.36);
+  pointer-events: none;
+}
+
+.lcd::after {
+  content: "";
+  position: absolute;
+  inset: -3px -4px -1px;
+  border-radius: 9px 9px 3px 3px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.024) 0,
+      rgba(255, 255, 255, 0.024) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.18;
+  pointer-events: none;
+  animation: scanline 4800ms linear infinite;
+}
+
 .lcdCanvas {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
-  /* Физически точное свечение ламп - статичное, мерцание в canvas */
+  /* Aged VFD glow: плотный core + короткий bloom.
+     Дальний ореол намеренно слабый, чтобы на чёрном
+     фоне страницы экран не превращался в neon sign. */
   filter:
-    drop-shadow(0 0 2px rgba(0, 212, 170, 0.7))
-    drop-shadow(0 0 4px rgba(0, 212, 170, 0.5))
-    drop-shadow(0 0 8px rgba(0, 212, 170, 0.3))
-    drop-shadow(0 0 16px rgba(0, 212, 170, 0.15))
-    brightness(1.1)
-    saturate(1.1);
+    drop-shadow(0 0 1px rgba(111, 240, 214, 0.56))
+    drop-shadow(0 0 3px rgba(111, 240, 214, 0.34))
+    drop-shadow(0 0 8px rgba(111, 240, 214, 0.16))
+    brightness(1.04)
+    saturate(0.98);
   will-change: filter;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .lcd::after,
   .lcdCanvas {
     animation: none;
   }
 }
 
-/* Сканлайн эффект - горизонтальная линия как на CRT */
-.lcdCanvas::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0.05)
-  );
-  pointer-events: none;
-  animation: scanline 3s linear infinite;
-}
-
 @keyframes scanline {
   0% {
-    transform: translateY(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
+    transform: translateY(-3px);
   }
   100% {
-    transform: translateY(21px);
-    opacity: 0;
+    transform: translateY(3px);
   }
 }
 
-/* Радужный режим - мягкое универсальное свечение */
-.lcdCanvas[data-rainbow="true"] {
+/* Цветовые личности LCD. Внешний glow намеренно короче,
+   чем локальная физика точек в canvas: состояние считывается,
+   но не перехватывает весь chat input. */
+.lcdCanvas[data-color="typing"] {
   filter:
-    drop-shadow(0 0 2px rgba(200, 255, 220, 0.6))
-    drop-shadow(0 0 4px rgba(200, 255, 220, 0.4))
-    drop-shadow(0 0 8px rgba(200, 255, 220, 0.25))
-    drop-shadow(0 0 16px rgba(200, 255, 220, 0.12))
-    brightness(1.15)
-    saturate(1.2);
+    drop-shadow(0 0 1px rgba(134, 221, 207, 0.42))
+    drop-shadow(0 0 3px rgba(134, 221, 207, 0.22))
+    drop-shadow(0 0 7px rgba(134, 221, 207, 0.09))
+    brightness(1)
+    saturate(0.88);
 }
 
-.lcdCanvas[data-tone="warning"] {
+.lcdCanvas[data-color="voice"] {
   filter:
-    drop-shadow(0 0 2px rgba(255, 153, 68, 0.7))
-    drop-shadow(0 0 4px rgba(255, 153, 68, 0.5))
-    drop-shadow(0 0 8px rgba(255, 153, 68, 0.3))
-    drop-shadow(0 0 16px rgba(255, 153, 68, 0.15))
+    drop-shadow(0 0 1px rgba(255, 47, 47, 0.76))
+    drop-shadow(0 0 4px rgba(255, 47, 47, 0.5))
+    drop-shadow(0 0 10px rgba(255, 47, 47, 0.22))
+    brightness(1.12)
+    saturate(1.18);
+}
+
+.lcdCanvas[data-color="decode"] {
+  filter:
+    drop-shadow(0 0 1px rgba(46, 168, 255, 0.68))
+    drop-shadow(0 0 4px rgba(46, 168, 255, 0.42))
+    drop-shadow(0 0 10px rgba(46, 168, 255, 0.18))
     brightness(1.1)
+    saturate(1.08);
+}
+
+.lcdCanvas[data-color="warning"] {
+  filter:
+    drop-shadow(0 0 1px rgba(228, 165, 95, 0.58))
+    drop-shadow(0 0 3px rgba(228, 165, 95, 0.34))
+    drop-shadow(0 0 7px rgba(228, 165, 95, 0.14))
+    brightness(1.05)
+    saturate(0.92);
+}
+
+.lcdCanvas[data-color="danger"] {
+  filter:
+    drop-shadow(0 0 1px rgba(255, 31, 31, 0.78))
+    drop-shadow(0 0 4px rgba(255, 31, 31, 0.5))
+    drop-shadow(0 0 10px rgba(255, 31, 31, 0.22))
+    brightness(1.12)
+    saturate(1.18);
+}
+
+.lcdCanvas[data-color="access-standard"],
+.lcdCanvas[data-color="success"] {
+  filter:
+    drop-shadow(0 0 1px rgba(68, 255, 153, 0.58))
+    drop-shadow(0 0 3px rgba(68, 255, 153, 0.32))
+    drop-shadow(0 0 8px rgba(68, 255, 153, 0.14))
+    brightness(1.05)
+    saturate(1);
+}
+
+.lcdCanvas[data-color="files"] {
+  filter:
+    drop-shadow(0 0 1px rgba(255, 224, 102, 0.6))
+    drop-shadow(0 0 3px rgba(255, 224, 102, 0.34))
+    drop-shadow(0 0 8px rgba(255, 224, 102, 0.14))
+    brightness(1.06)
+    saturate(1);
+}
+
+.lcdCanvas[data-color="access-standard"] {
+  filter:
+    drop-shadow(0 0 1px rgba(73, 229, 143, 0.54))
+    drop-shadow(0 0 3px rgba(73, 229, 143, 0.28))
+    drop-shadow(0 0 8px rgba(73, 229, 143, 0.12))
+    brightness(1.03)
+    saturate(0.98);
+}
+
+.lcdCanvas[data-color="access-review"] {
+  filter:
+    drop-shadow(0 0 1px rgba(46, 168, 255, 0.66))
+    drop-shadow(0 0 4px rgba(46, 168, 255, 0.4))
+    drop-shadow(0 0 9px rgba(46, 168, 255, 0.16))
+    brightness(1.08)
+    saturate(1.08);
+}
+
+.lcdCanvas[data-color="access-full"] {
+  filter:
+    drop-shadow(0 0 1px rgba(255, 59, 48, 0.72))
+    drop-shadow(0 0 4px rgba(255, 59, 48, 0.46))
+    drop-shadow(0 0 10px rgba(255, 59, 48, 0.2))
+    brightness(1.1)
+    saturate(1.12);
+}
+
+.lcdCanvas[data-color="branch"] {
+  filter:
+    drop-shadow(0 0 1px rgba(0, 230, 118, 0.6))
+    drop-shadow(0 0 3px rgba(0, 230, 118, 0.34))
+    drop-shadow(0 0 8px rgba(0, 230, 118, 0.14))
+    brightness(1.04)
+    saturate(0.96);
+}
+
+.lcdCanvas[data-color="plan"] {
+  filter:
+    drop-shadow(0 0 1px rgba(168, 85, 255, 0.68))
+    drop-shadow(0 0 4px rgba(168, 85, 255, 0.42))
+    drop-shadow(0 0 10px rgba(168, 85, 255, 0.18))
+    brightness(1.09)
     saturate(1.1);
 }
 
-.lcdCanvas[data-tone="danger"] {
+.lcdCanvas[data-color="model-max"] {
   filter:
-    drop-shadow(0 0 2px rgba(255, 102, 68, 0.7))
-    drop-shadow(0 0 4px rgba(255, 102, 68, 0.5))
-    drop-shadow(0 0 8px rgba(255, 102, 68, 0.3))
-    drop-shadow(0 0 16px rgba(255, 102, 68, 0.15))
-    brightness(1.1)
-    saturate(1.1);
+    drop-shadow(0 0 1px rgba(216, 199, 255, 0.55))
+    drop-shadow(0 0 4px rgba(148, 220, 255, 0.26))
+    drop-shadow(0 0 9px rgba(216, 199, 255, 0.12))
+    brightness(1.05)
+    saturate(0.98);
+}
+
+.lcdCanvas[data-color="model-low"] {
+  filter:
+    drop-shadow(0 0 1px rgba(159, 214, 199, 0.42))
+    drop-shadow(0 0 3px rgba(126, 218, 224, 0.2))
+    drop-shadow(0 0 7px rgba(159, 214, 199, 0.08))
+    brightness(0.98)
+    saturate(0.84);
+}
+
+.lcdCanvas[data-color="model-medium"] {
+  filter:
+    drop-shadow(0 0 1px rgba(81, 230, 224, 0.54))
+    drop-shadow(0 0 3px rgba(81, 230, 224, 0.28))
+    drop-shadow(0 0 8px rgba(81, 230, 224, 0.12))
+    brightness(1.04)
+    saturate(1);
+}
+
+.lcdCanvas[data-color="model-high"] {
+  filter:
+    drop-shadow(0 0 1px rgba(46, 168, 255, 0.66))
+    drop-shadow(0 0 4px rgba(46, 168, 255, 0.4))
+    drop-shadow(0 0 9px rgba(46, 168, 255, 0.16))
+    brightness(1.08)
+    saturate(1.08);
+}
+
+.lcdCanvas[data-color="model-ultra"] {
+  filter:
+    drop-shadow(0 0 1px rgba(255, 242, 168, 0.78))
+    drop-shadow(0 0 4px rgba(255, 214, 96, 0.5))
+    drop-shadow(0 0 11px rgba(255, 214, 96, 0.22))
+    brightness(1.14)
+    saturate(1.12);
 }
 
 .srOnly {
@@ -249,7 +388,7 @@
 .card {
   display: grid;
   gap: 16px;
-  padding: 18px var(--c-pad-x) 14px;
+  padding: 20px var(--c-pad-x) 16px;
   border-radius: var(--c-card-radius);
   /* Без обводки: карточка отделяется от фона страницы не рамкой,
      а материалом — приподнятый surface (--c-surface = #242424, тот
@@ -258,15 +397,31 @@
      край вместо нарисованного контура. */
   background: var(--c-surface);
   box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.4),
-    0 16px 36px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    0 1px 1px rgba(0, 0, 0, 0.42),
+    0 14px 34px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.085);
   position: relative;
   z-index: 1;
 }
 
 .card[data-drag="true"] {
   background: var(--c-surface-soft);
+}
+
+.card[data-focus="true"] {
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.42),
+    0 14px 34px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.11);
+}
+
+.card[data-typing="true"] {
+  background: #262626;
+}
+
+.card[data-sending="true"] {
+  background: var(--c-surface-soft);
+  cursor: progress;
 }
 
 /* Скрытый file-input для openFilePicker(). */
@@ -291,13 +446,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  /* card.padding = 18 var(--c-pad-x) 14:
-     top    = 18,
-     left   = 16,
-     right  = 16.
-     corner-inset нужен 6 → margin-top = 6 − 18 = −12,
-     margin-x = 6 − 16 = −10. */
-  margin: -12px -10px -8px;
+  /* card.padding ≈ 20 var(--c-pad-x) 16. Отрицательные
+     margin'ы подтягивают ряд к углу карточки;
+     значения округлены по 8pt-сетке. */
+  margin: -12px -12px -8px;
 }
 
 /* ── Drop-overlay при drag-and-drop файла ──
@@ -352,7 +504,7 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   text-align: center;
   max-width: calc(100% - 32px);
   padding: 0 var(--c-pad-x);
@@ -369,15 +521,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   color: var(--c-ink-muted);
   flex-shrink: 0;
 }
 
 .dropOverlayIcon svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   stroke-width: 1.5;
 }
 
@@ -461,6 +613,13 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  transition: color var(--composer-duration-hover) ease,
+              opacity var(--composer-duration-hover) ease;
+}
+
+.input:disabled {
+  cursor: progress;
+  opacity: 0.58;
 }
 
 /* Wrapper для textarea. Без position — popover
@@ -482,7 +641,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 6px 6px 6px 10px;
+  padding: 8px 8px 8px 12px;
   border-radius: var(--c-row-radius);
   /* Единый системный синий с update-pill сайдбара (#2454e6). */
   background: rgba(36, 84, 230, 0.2);
@@ -502,8 +661,8 @@
 }
 
 .modeChipIcon svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .modeChipClose {
@@ -538,7 +697,7 @@
 }
 
 .input::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .input::-webkit-scrollbar-thumb {
@@ -600,12 +759,12 @@ button.iconBtn {
 }
 
 button.iconBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.075);
   color: var(--c-ink);
 }
 
 button.iconBtn[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.105);
   color: var(--c-ink);
 }
 
@@ -616,12 +775,12 @@ button.iconBtn[aria-expanded="true"] {
    обычная iconBtn с чуть более плотным фоном,
    send остаётся единственным primary в toolbar'е. */
 button.iconBtn[data-active="true"] {
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.095);
   color: var(--c-ink);
 }
 
 button.iconBtn[data-active="true"]:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.12);
   color: var(--c-ink);
 }
 
@@ -651,8 +810,8 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .iconBtn svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 /* ── Permission pill ───────────────────── */
@@ -660,7 +819,7 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: var(--c-row-radius);
   font-size: 0.82rem;
   font-weight: 400;
@@ -678,8 +837,8 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .permissionIcon svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 /* ── Model chip (5.5 High) ─────────────── */
@@ -687,7 +846,7 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: baseline;
   gap: var(--c-gap-icon);
-  padding: 6px 8px 6px 10px;
+  padding: 8px 8px 8px 12px;
   border-radius: var(--c-row-radius);
   font-size: 0.82rem;
   font-weight: 400;
@@ -707,8 +866,8 @@ button.iconBtn[data-loading="true"] svg {
 /* ── Chevron (общий) ───────────────────── */
 .chevron {
   display: inline-flex;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   margin-left: 2px;
   color: var(--c-ink-subtle);
   align-self: center;
@@ -740,7 +899,12 @@ button.iconBtn[data-loading="true"] svg {
   transition:
     background-color 160ms ease,
     color 160ms ease,
-    opacity 160ms ease;
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.sendBtn:not(:disabled):hover {
+  transform: translateY(-1px);
 }
 
 .sendBtn:disabled,
@@ -750,13 +914,34 @@ button.iconBtn[data-loading="true"] svg {
      disabled читается как «слот недоступен», а не
      как вдавленная в поверхность negative space. */
   background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.32);
+  color: rgba(255, 255, 255, 0.34);
   cursor: not-allowed;
 }
 
+.sendBtn[data-sending="true"] {
+  cursor: progress;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--composer-surface);
+}
+
+.sendBtn[data-sending="true"] svg {
+  animation: spinnerRotate 900ms linear infinite;
+  transform-origin: center;
+}
+
 .sendBtn svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sendBtn:not(:disabled):hover {
+    transform: none;
+  }
+
+  .sendBtn[data-sending="true"] svg {
+    animation: none;
+  }
 }
 
 /* ── Footer chips (repo / env / branch) ─ */
@@ -764,7 +949,7 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: var(--c-row-radius);
   font-size: 0.82rem;
   color: var(--c-ink-muted);
@@ -824,12 +1009,13 @@ button.iconBtn[data-loading="true"] svg {
   left: 50%;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  height: 28px;
+  min-height: 28px;
   /* По умолчанию padding симметричный — для
      label-only тултипов (Permission, Model, Mic
      без shortcut, Send) пилюля стоит ровно. */
-  padding: 0 14px;
+  padding: 4px 16px 8px;
   /* Используем composer-токены напрямую (не локальные --c-*):
      Tooltip переиспользуется за пределами .root композера —
      например, в CopyButton кодового блока, где локальные
@@ -852,7 +1038,7 @@ button.iconBtn[data-loading="true"] svg {
    слева. Селектор :has() ловит и одиночный
    keycap, и группу. */
 .tooltip:has(.tooltipKbd) {
-  padding: 0 6px 0 12px;
+  padding: 4px 8px 8px 12px;
 }
 
 .tooltip[data-side="top"] {
@@ -869,12 +1055,16 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .tooltipLabel {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  transform: translateY(1px);
   font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: -0.005em;
   /* composer-токен напрямую (см. .tooltip). */
   color: var(--composer-ink);
-  line-height: 1;
+  line-height: 1.1;
 }
 
 /* Keycap — компактный rounded-rectangle pill,
@@ -884,7 +1074,7 @@ button.iconBtn[data-loading="true"] svg {
    читается как единая клавиша-композиция
    (например ⌃⇧D = «Control+Shift+D»).
 
-   Геометрия: высота 18, padding 0 6,
+   Геометрия: высота 20, padding 0 4,
    radius 5. Min-width только для одиночного
    глифа — иначе подстраивается под содержимое. */
 .tooltipKbd {
@@ -892,8 +1082,8 @@ button.iconBtn[data-loading="true"] svg {
   align-items: center;
   justify-content: center;
   gap: 1px;
-  height: 18px;
-  min-width: 18px;
+  height: 20px;
+  min-width: 20px;
   padding: 0 4px;
   /* composer-токены напрямую (см. .tooltip). */
   border: 1px solid var(--composer-hairline);
@@ -995,17 +1185,17 @@ button.iconBtn[data-loading="true"] svg {
 
 .dropdownDivider {
   height: 1px;
-  margin: 4px 6px;
+  margin: 4px 8px;
   background: var(--c-line-soft);
 }
 
 .dropdownItem {
   display: grid;
-  grid-template-columns: 18px 1fr auto;
+  grid-template-columns: 20px 1fr auto;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 8px;
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
@@ -1023,8 +1213,8 @@ button.iconBtn[data-loading="true"] svg {
 
 .dropdownIcon {
   display: inline-flex;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   align-items: center;
   justify-content: center;
   color: var(--c-ink-muted);
@@ -1042,8 +1232,8 @@ button.iconBtn[data-loading="true"] svg {
 
 .dropdownChevron {
   display: inline-flex;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   color: var(--c-ink-subtle);
 }
 
@@ -1069,7 +1259,7 @@ button.iconBtn[data-loading="true"] svg {
      ниже основного dropdown и не накладывается
      на toolbar/footer карточки. */
   bottom: calc(0px - var(--c-corner-inset));
-  left: calc(100% + 6px);
+  left: calc(100% + 8px);
   min-width: 220px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
@@ -1087,15 +1277,15 @@ button.iconBtn[data-loading="true"] svg {
   z-index: 20;
 }
 
-/* Невидимый мост: 6px зазор не должен «терять»
+/* Невидимый мост: 8px зазор не должен «терять»
    hover при движении курсора с триггера в submenu. */
 .pluginsSubmenu::before {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -6px;
-  width: 6px;
+  left: -8px;
+  width: 8px;
 }
 
 .pluginsTrigger:hover .pluginsSubmenu,
@@ -1104,16 +1294,16 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 /* Plugin-item в submenu — карточка с brand-иконкой
-   22×22, label + description. Геометрия совпадает
+   24×24, label + description. Геометрия совпадает
    с @-popover, чтобы оба места ощущались как один
    и тот же реестр плагинов. */
 .pluginItem {
   display: grid;
-  grid-template-columns: 22px 1fr;
+  grid-template-columns: 24px 1fr;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 8px;
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
@@ -1193,7 +1383,7 @@ button.iconBtn[data-loading="true"] svg {
     gap: 0;
   }
   .footChip {
-    padding: 6px 8px;
+    padding: 8px 8px;
     font-size: 0.78rem;
   }
   .warning {

@@ -16,17 +16,30 @@
 .stageHeader {
   display: grid;
   gap: clamp(8px, 1vw, 12px);
-  margin-bottom: clamp(28px, 3vw, 40px);
+  margin-bottom: var(--composer-head-gap);
 }
 
+/* Заголовок фигуры — подпись данных, а не вторая шапка секции.
+   Раньше он был clamp(24→32px)/600 и перекрикивал sectionTitle (h2,
+   28/500), который его вводит: h3 визуально крупнее h2 — инверсия
+   иерархии. Теперь 18px: чётко ниже h2, чётко выше прозы. */
 .stageTitle {
   margin: 0;
   font-family: var(--font-sans), sans-serif;
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-size: 18px;
   font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
   text-wrap: balance;
+}
+
+.stageKicker {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--composer-ink-muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  text-wrap: pretty;
 }
 
 .sourceLabel,
@@ -52,7 +65,7 @@
   --col-type: minmax(110px, 0.5fr);
   --col-surface: minmax(140px, 0.7fr);
   --col-signal: minmax(0, 1.6fr);
-  --col-arrow: 14px;
+  --col-arrow: 16px;
 
   display: grid;
   gap: 0;
@@ -68,7 +81,7 @@
     var(--col-signal)
     var(--col-arrow);
   column-gap: clamp(20px, 2.4vw, 32px);
-  padding: 14px 0 12px;
+  padding: 16px 0 12px;
   border-bottom: 1px solid var(--composer-hairline);
 }
 
@@ -208,7 +221,7 @@
 }
 
 .cell {
-  min-height: 58px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   padding: 12px;
@@ -268,8 +281,8 @@
 }
 
 .signalDot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--composer-ink);
 }
@@ -292,33 +305,110 @@
 .radarLayout {
   display: grid;
   grid-template-columns: minmax(420px, 5fr) minmax(340px, 4fr);
-  gap: clamp(48px, 5vw, 64px);
+  gap: clamp(44px, 4.5vw, 56px);
   align-items: center;
+  width: 100%;
   padding-bottom: clamp(8px, 1.2vw, 16px);
 }
 
 .radarPanel {
   display: grid;
   justify-items: center;
+  padding: clamp(12px, 1.6vw, 20px);
+  border-radius: 24px;
+  background:
+    radial-gradient(
+      70% 70% at 50% 46%,
+      rgba(86, 86, 86, 0.16),
+      rgba(58, 58, 58, 0.08) 48%,
+      rgba(32, 32, 32, 0) 74%
+    );
 }
 
 .radar {
-  width: min(100%, 460px);
+  /* Радар живёт в той же двухколоночной сетке, что workflow, но остаётся
+     немного спокойнее по потолку: квадратная фигура с наружными подписями
+     визуально тяжелее вытянутой схемы при одинаковой ширине. */
+  width: min(100%, 520px);
   aspect-ratio: 1;
   justify-self: center;
+  overflow: visible;
 }
 
 .radar circle,
 .radar line {
   fill: none;
-  stroke: var(--composer-hairline-strong);
+  stroke: #5f5f5f;
   stroke-width: 0.6;
 }
 
-.radar polygon {
-  fill: rgba(255, 255, 255, 0.08);
-  stroke: var(--composer-ink);
-  stroke-width: 1;
+.radarThreshold {
+  stroke: #777777;
+  stroke-dasharray: 1.6 3;
+}
+
+.radarShape {
+  fill: #343434;
+  fill-opacity: 0.88;
+  stroke: #d8d8d8;
+  stroke-width: 1.2;
+}
+
+.radarCore,
+.radarCoreSub,
+.radarLabel,
+.radarScore {
+  font-family: var(--composer-font-mono);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.radarCore {
+  fill: #d7d7d7;
+  font-size: 8px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.radarCoreSub {
+  fill: #9a9a9a;
+  font-size: 6.5px;
+  letter-spacing: 0.08em;
+}
+
+.radarNode {
+  cursor: default;
+  outline: none;
+}
+
+.radarPoint {
+  fill: #cfcfcf;
+  stroke: #202020;
+  stroke-width: 1.4;
+  transition:
+    r var(--composer-duration-lift) ease,
+    fill var(--composer-duration-lift) ease,
+    stroke var(--composer-duration-lift) ease;
+}
+
+.radarNode[data-active="true"] .radarPoint {
+  r: 5px;
+  fill: #e0e0e0;
+  stroke: #343434;
+}
+
+.radarLabel {
+  fill: #c8c8c8;
+  font-size: 7.6px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.radarScore {
+  fill: #8a8a8a;
+  font-size: 6.6px;
+  letter-spacing: 0.04em;
 }
 
 /* Легенда радара, не самостоятельный текстовый раздел:
@@ -327,21 +417,29 @@
    чтобы правые колонки обеих фигур совпадали. */
 .frictionList {
   display: grid;
-  gap: 0;
+  gap: 2px;
   width: 100%;
-  max-width: 440px;
+  max-width: var(--composer-stage-legend, 440px);
   justify-self: end;
 }
 
 .frictionItem {
+  appearance: none;
+  position: relative;
   display: grid;
-  gap: 6px;
-  padding: 0 0 13px;
-  border-bottom: 1px solid var(--composer-hairline);
-}
-
-.frictionItem + .frictionItem {
-  padding-top: 13px;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition:
+    background-color var(--composer-duration-hover) ease,
+    color var(--composer-duration-hover) ease;
 }
 
 .frictionHead {
@@ -350,12 +448,14 @@
   gap: 16px;
   color: var(--composer-ink);
   font-size: 0.82rem;
+  transition: color var(--composer-duration-hover) ease;
 }
 
 .frictionHead span {
   color: var(--composer-ink-muted);
   font-family: var(--composer-font-mono);
   font-variant-numeric: tabular-nums;
+  transition: color var(--composer-duration-hover) ease;
 }
 
 .frictionItem p {
@@ -364,6 +464,33 @@
   font-size: 0.84rem;
   line-height: 1.45;
   text-wrap: pretty;
+  transition: color var(--composer-duration-hover) ease;
+}
+
+.frictionItem:hover,
+.frictionItem:focus-visible,
+.frictionItem[data-active="true"] {
+  background: rgba(255, 255, 255, 0.095);
+}
+
+.frictionItem:focus-visible {
+  outline: 1px solid #6f6f6f;
+  outline-offset: 2px;
+}
+
+.frictionItem:hover .frictionHead,
+.frictionItem:focus-visible .frictionHead,
+.frictionItem[data-active="true"] .frictionHead,
+.frictionItem:hover .frictionHead span,
+.frictionItem:focus-visible .frictionHead span,
+.frictionItem[data-active="true"] .frictionHead span {
+  color: var(--composer-ink);
+}
+
+.frictionItem:hover p,
+.frictionItem:focus-visible p,
+.frictionItem[data-active="true"] p {
+  color: var(--composer-ink-muted);
 }
 
 /* Тот же шаблон, что и .radarLayout: одинаковые колонки, gap и отсутствие
@@ -383,7 +510,7 @@
 }
 
 .workflowCircuit {
-  width: min(100%, 520px);
+  width: min(100%, var(--composer-stage-graphic, 520px));
   aspect-ratio: 68 / 95;
   justify-self: center;
   color: var(--composer-ink);
@@ -544,24 +671,24 @@
   display: grid;
   gap: 0;
   width: 100%;
-  max-width: 440px;
+  max-width: var(--composer-stage-legend, 440px);
   justify-self: end;
 }
 
 .workflowItem {
   display: grid;
-  gap: 6px;
-  padding: 0 0 13px;
+  gap: 8px;
+  padding: 0 0 12px;
   border-bottom: 1px solid var(--composer-hairline);
 }
 
 .workflowItem + .workflowItem {
-  padding-top: 13px;
+  padding-top: 12px;
 }
 
 .workflowHead {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-columns: 36px minmax(0, 1fr);
   gap: 12px;
   align-items: baseline;
   color: var(--composer-ink);
@@ -581,7 +708,7 @@
 }
 
 .workflowItem p {
-  margin: 0 0 0 46px;
+  margin: 0 0 0 48px;
   color: var(--composer-ink-muted);
   font-size: 0.84rem;
   line-height: 1.45;
@@ -606,7 +733,7 @@
 
 .disk {
   position: relative;
-  width: min(100%, 520px);
+  width: min(100%, var(--composer-stage-graphic, 520px));
   aspect-ratio: 1;
   margin: 0 auto;
 }
@@ -691,7 +818,7 @@
   display: grid;
   grid-template-columns: auto;
   gap: 2px;
-  width: 110px;
+  width: 112px;
   pointer-events: none;
 }
 
@@ -840,14 +967,14 @@
 
 .diskListItem[data-active="true"] {
   position: relative;
-  padding-left: 14px;
+  padding-left: 16px;
 }
 
 .diskListItem[data-active="true"]::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 14px;
+  top: 16px;
   width: 3px;
   height: calc(100% - 28px);
   background: var(--composer-ink);
@@ -872,8 +999,13 @@
    доказательной базы.
    ───────────────────────────────────────── */
 .evidenceFan {
+  /* Фан-диаграмма заполняет широкую направляющую (1120px) наравне
+     с петлёй работы и таблицами — это «обложка» доказательной базы,
+     а не мелкий вспомогательный эскиз. Прежний потолок 620px зажимал
+     SVG так, что подписи падали до ~7px и фигура читалась «маленькой»
+     рядом с полноширинной петлёй прямо над ней. */
   width: 100%;
-  padding-top: 4px;
+  margin: 0;
   color: var(--composer-ink);
 }
 
@@ -951,7 +1083,7 @@
   }
 
   .workflowCircuit {
-    width: min(100%, 520px);
+    width: min(100%, var(--composer-stage-graphic, 520px));
   }
 
   .workflowList {
@@ -966,7 +1098,7 @@
   .sourceRow {
     grid-template-columns: minmax(0, 1fr);
     column-gap: 0;
-    row-gap: 6px;
+    row-gap: 8px;
     align-items: start;
   }
 

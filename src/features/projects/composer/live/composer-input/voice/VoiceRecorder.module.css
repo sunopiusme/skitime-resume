@@ -31,7 +31,7 @@
    и size-overflow не нужны. */
 .waveform {
   flex: 1;
-  height: 22px;
+  height: 24px;
   min-width: 0;
   position: relative;
 }

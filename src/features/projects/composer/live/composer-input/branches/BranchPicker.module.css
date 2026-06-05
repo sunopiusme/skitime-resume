@@ -14,7 +14,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 6px 10px;
+  padding: 8px 12px;
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
@@ -41,8 +41,8 @@
 }
 
 .triggerIcon svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .triggerLabel {
@@ -106,25 +106,25 @@
 
 .search {
   display: grid;
-  grid-template-columns: 18px 1fr;
+  grid-template-columns: 20px 1fr;
   align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
+  gap: 12px;
+  padding: 8px 12px;
   border-radius: var(--c-row-radius);
 }
 
 .searchIcon {
   display: inline-flex;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   align-items: center;
   justify-content: center;
   color: var(--c-ink-subtle);
 }
 
 .searchIcon svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .searchInput {
@@ -165,7 +165,7 @@
 }
 
 .list::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .list::-webkit-scrollbar-thumb {
@@ -175,17 +175,17 @@
 
 .divider {
   height: 1px;
-  margin: 4px 6px;
+  margin: 4px 8px;
   background: var(--c-line-soft);
 }
 
 .item {
   display: grid;
-  grid-template-columns: 18px 1fr 16px;
+  grid-template-columns: 20px 1fr 16px;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 8px;
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
@@ -203,16 +203,16 @@
 
 .itemIcon {
   display: inline-flex;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   align-items: center;
   justify-content: center;
   color: var(--c-ink-muted);
 }
 
 .itemIcon svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .itemLabel {
@@ -234,7 +234,7 @@
 }
 
 .empty {
-  padding: 10px 12px;
+  padding: 12px 12px;
   font-size: 0.82rem;
   color: var(--c-ink-subtle);
 }

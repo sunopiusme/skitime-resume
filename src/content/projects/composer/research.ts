@@ -27,6 +27,7 @@ export type Capability = {
 
 export type FrictionSignal = {
   label: string;
+  shortLabel: string;
   score: 1 | 2 | 3 | 4 | 5;
   evidence: string;
 };
@@ -138,31 +139,37 @@ export const capabilities: readonly Capability[] = [
 export const frictionSignals: readonly FrictionSignal[] = [
   {
     label: "стоимость и лимиты",
+    shortLabel: "лимиты",
     score: 4,
     evidence: "Длинная сессия быстро превращается из удобства в счетчик стоимости и лимитов.",
   },
   {
     label: "риск доверия",
+    shortLabel: "доверие",
     score: 5,
     evidence: "Без diff, тестов, trace и явной точки проверки агент выглядит уверенно, но не заслуживает доверия.",
   },
   {
     label: "потеря контекста",
+    shortLabel: "контекст",
     score: 4,
     evidence: "Агент может продолжать работу с устаревшим контекстом и все равно звучать убедительно.",
   },
   {
     label: "ошибки доступа",
+    shortLabel: "доступ",
     score: 3,
     evidence: "Широкие права без песочницы и подтверждений превращают продуктивность в операционный риск.",
   },
   {
     label: "нагрузка ревью",
+    shortLabel: "ревью",
     score: 5,
     evidence: "Автономность не убирает ревью. Она переносит нагрузку в доказательства и pull request.",
   },
   {
     label: "разрыв процесса",
+    shortLabel: "процесс",
     score: 3,
     evidence: "Работа расползается между IDE, терминалом, браузером, GitHub, облаком и чатами.",
   },

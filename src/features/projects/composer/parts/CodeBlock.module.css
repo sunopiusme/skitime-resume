@@ -10,16 +10,16 @@
    • padding-x = 16 как в composer card.
    ───────────────────────────────────────── */
 .block {
-  --code-ink: rgba(255, 255, 255, 0.92);
-  --code-ink-muted: rgba(255, 255, 255, 0.6);
-  --code-ink-subtle: rgba(255, 255, 255, 0.42);
+  --code-ink: rgba(255, 255, 255, 0.94);
+  --code-ink-muted: rgba(255, 255, 255, 0.66);
+  --code-ink-subtle: rgba(255, 255, 255, 0.48);
   /* Inner hairlines (head-bottom, hunk-gap) — лёгкие
      внутренние разделители. Outer frame использует
      --composer-hairline (0.14) для синхронности с
      InlineFigure. */
   --code-hairline: rgba(255, 255, 255, 0.08);
-  --code-gutter: rgba(255, 255, 255, 0.28);
-  --code-bg: var(--composer-surface-raised);
+  --code-gutter: rgba(255, 255, 255, 0.3);
+  --code-bg: #202020;
   --code-hover: rgba(255, 255, 255, 0.08);
 
   /* Геометрические токены — те же концентричные углы,
@@ -29,21 +29,15 @@
   --code-row-radius: calc(var(--code-card-radius) - var(--code-corner-inset)); /* 18px */
   --code-pad-x: 16px;
 
-  /* Diff tints — GitHub-dark язык: приглушённый фон-тинт
-     несёт «что изменилось», а цветной синтаксис Shiki внутри
-     строки сохраняется (код остаётся читаемым кодом, не
-     монохромным фасадом). Плотность подобрана так, чтобы
-     tint рецессировал за токенами: luminance близок к
-     --code-bg (#242424), цветовой канал лишь слегка смещён.
-     Token'ы Shiki (фиолетовый, циан, жёлтый) ярко доминируют
-     поверх — diff читается как «подсвеченная зона кода». */
-  --code-diff-add-bg: #1d3327;
-  --code-diff-add-bg-strong: #244a31;
-  --code-diff-add-bar: #3fb950;
+  /* Diff is a reading aid, not a traffic light: a tiny tint plus the
+     gutter glyph carries the state while syntax remains the main layer. */
+  --code-diff-add-bg: rgba(159, 220, 201, 0.075);
+  --code-diff-add-bg-strong: rgba(159, 220, 201, 0.14);
+  --code-diff-add-bar: #9fdcc9;
 
-  --code-diff-remove-bg: #3a2526;
-  --code-diff-remove-bg-strong: #5a2e2e;
-  --code-diff-remove-bar: #f85149;
+  --code-diff-remove-bg: rgba(255, 166, 158, 0.08);
+  --code-diff-remove-bg-strong: rgba(255, 166, 158, 0.145);
+  --code-diff-remove-bar: #ffa69e;
 
   /* Ширина та же, что у ComposerInput (760px) — оба компонента
      читаются как один стандартный контейнер «рабочей поверхности».
@@ -67,6 +61,10 @@
   color: var(--code-ink);
   color-scheme: dark;
   isolation: isolate;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.42),
+    0 14px 34px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.075);
 }
 
 /* ──────── Head ──────── */
@@ -84,8 +82,9 @@
      Слева текстовый контент (путь к файлу) сохраняет общий
      контентный ритм 16px (--code-pad-x), как остальные строки
      контента, — это не угловой interactive, ему 6px не нужны. */
-  padding: 6px 6px 6px var(--code-pad-x);
-  /* head и body — одна поверхность; разделитель не нужен. */
+  padding: 8px 8px 4px var(--code-pad-x);
+  background: transparent;
+  border-bottom: none;
   border-radius: var(--code-card-radius) var(--code-card-radius) 0 0;
 }
 
@@ -122,7 +121,7 @@
 .headMeta {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
   font-family: var(--font-sans), sans-serif;
   font-size: 0.72rem;
@@ -285,12 +284,10 @@
   /* Head уже даёт встроенный воздух через центровку
      в min-height. Любой padding-top сверху коду —
      лишний. Снизу оставляем 14px для финала. */
-  padding: 0 0 14px;
-  /* mono-шрифт оптически меньше sans того же кегля,
-     поэтому поднимаем до 0.86rem — визуально
-     совпадает с весом 0.82rem sans-текста в шапке. */
+  padding: 4px 0 16px;
+  /* Same visual density as ThinkingModel's trace rows, adjusted for mono. */
   font-size: 0.86rem;
-  line-height: 1.6;
+  line-height: 1.58;
   white-space: pre;
   font-feature-settings: "calt" 0, "liga" 0;
   /* Горизонтальный overflow здесь, а не на .body, чтобы
@@ -310,7 +307,7 @@
 }
 
 .pre::-webkit-scrollbar {
-  height: 6px;
+  height: 8px;
 }
 
 .pre::-webkit-scrollbar-thumb {
@@ -364,10 +361,10 @@
   content: attr(data-line-no) "  ";
   display: inline-block;
   /* content-area под номер (до 3 цифр) + слот знака.
-     visible-width = width + padding-right = 32 + 10 = 42. */
-  width: 32px;
-  padding-right: 10px;
-  margin-right: 4px;
+     visible-width = width + padding-right = 36 + 12 = 48. */
+  width: 36px;
+  padding-right: 12px;
+  margin-right: 8px;
   text-align: right;
   white-space: pre;
   color: var(--code-gutter);
@@ -397,24 +394,13 @@
 }
 
 /* ──────── Diff highlighting ──────── */
-/* GitHub-dark язык. Сигналов три, мягко наложенных:
-   1) приглушённый фон-тинт по ширине строки,
-   2) цветной номер + глиф «+»/«−» в крайней колонке гаттера,
-   3) цветной синтаксис Shiki сохранён (см. ниже).
-   Знак стоит в фиксированной колонке (2-символьный слот
-   резервируют все строки), поэтому номера add/remove и
-   контекста выровнены по одному правому краю — без
-   «съезжающих» цифр. */
+/* Diff highlighting: still semantic, but quiet enough to sit beside
+   ThinkingModel without the GitHub-theme saturation spike. */
 .pre :global(.line[data-diff="add"]) {
   background: var(--code-diff-add-bg);
+  box-shadow: inset 3px 0 0 rgba(159, 220, 201, 0.58);
 }
 
-/* Синтаксис Shiki ВНУТРИ diff-строк сохраняется (GitHub-dark
-   язык): приглушённый фон-tint несёт сигнал «что изменилось»,
-   а цветные токены остаются — diff читается как подсвеченная
-   зона живого кода, а не монохромный фасад. Tint специально
-   рецессивный (luminance ≈ --code-bg), поэтому token'ы не
-   конкурируют с фоном. */
 .pre :global(.line[data-diff="add"])::before {
   content: attr(data-line-no) " +";
   color: var(--code-diff-add-bar);
@@ -423,6 +409,7 @@
 
 .pre :global(.line[data-diff="remove"]) {
   background: var(--code-diff-remove-bg);
+  box-shadow: inset 3px 0 0 rgba(255, 166, 158, 0.62);
 }
 
 .pre :global(.line[data-diff="remove"])::before {
@@ -442,7 +429,8 @@
   }
 
   .pre :global(.line)::before {
-    width: 24px;
+    width: 28px;
     padding-right: 8px;
+    margin-right: 4px;
   }
 }

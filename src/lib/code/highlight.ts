@@ -2,7 +2,7 @@ import {
   createHighlighter,
   type Highlighter,
   type BundledLanguage,
-  type BundledTheme,
+  type ThemeRegistration,
 } from "shiki";
 
 type SupportedLanguage = Extract<
@@ -26,7 +26,135 @@ type HighlightResult = {
   renderedLines: number;
 };
 
-const THEME: BundledTheme = "github-dark";
+const THEME_NAME = "composer-code" as const;
+const DIFF_ADD_CODE_COLOR = "#9fdcc9";
+const DIFF_REMOVE_CODE_COLOR = "#ffa69e";
+
+const THEME: ThemeRegistration = {
+  name: THEME_NAME,
+  type: "dark",
+  fg: "#eeeeee",
+  bg: "#202020",
+  settings: [
+    {
+      settings: {
+        foreground: "#eeeeee",
+        background: "#202020",
+      },
+    },
+    {
+      scope: ["comment", "punctuation.definition.comment"],
+      settings: {
+        foreground: "#787878",
+      },
+    },
+    {
+      scope: [
+        "punctuation",
+        "meta.brace",
+        "meta.delimiter",
+        "keyword.operator",
+      ],
+      settings: {
+        foreground: "#969696",
+      },
+    },
+    {
+      scope: ["punctuation.definition.tag"],
+      settings: {
+        foreground: "#a6a6a6",
+      },
+    },
+    {
+      scope: ["entity.name.tag"],
+      settings: {
+        foreground: "#edbe88",
+      },
+    },
+    {
+      scope: [
+        "keyword.control",
+        "keyword.control.import",
+        "keyword.control.export",
+        "keyword.control.from",
+        "keyword.control.default",
+        "keyword.control.flow",
+        "keyword",
+        "storage.type",
+        "storage.modifier",
+        "support.type",
+      ],
+      settings: {
+        foreground: "#8fbaf0",
+      },
+    },
+    {
+      scope: ["entity.other.attribute-name"],
+      settings: {
+        foreground: "#8fbaf0",
+      },
+    },
+    {
+      scope: [
+        "variable.other.property",
+        "support.type.property-name",
+        "meta.object-literal.key",
+      ],
+      settings: {
+        foreground: "#bebebe",
+      },
+    },
+    {
+      scope: [
+        "string",
+        "string.quoted",
+        "string.template",
+      ],
+      settings: {
+        foreground: "#7fe0cf",
+      },
+    },
+    {
+      scope: [
+        "constant.numeric",
+        "constant.language",
+        "constant.character",
+        "support.constant",
+      ],
+      settings: {
+        foreground: "#bde2a8",
+      },
+    },
+    {
+      scope: [
+        "entity.name.type",
+        "entity.name.class",
+        "support.class.component",
+        "entity.name.function",
+        "support.function",
+      ],
+      settings: {
+        foreground: "#edbe88",
+      },
+    },
+    {
+      scope: ["variable", "variable.other", "variable.parameter"],
+      settings: {
+        foreground: "#eeeeee",
+      },
+    },
+    {
+      scope: [
+        "variable.language",
+        "constant.language.null",
+        "constant.language.undefined",
+      ],
+      settings: {
+        foreground: "#eaa0a0",
+      },
+    },
+  ],
+};
 
 const LANGS: SupportedLanguage[] = [
   "typescript",
@@ -51,6 +179,11 @@ function getHighlighter(): Promise<Highlighter> {
   return highlighterPromise;
 }
 
+function tintDiffLineCode(line: string, marker: Exclude<DiffMarker, null>): string {
+  const color = marker === "add" ? DIFF_ADD_CODE_COLOR : DIFF_REMOVE_CODE_COLOR;
+  return line.replace(/color:#[0-9a-fA-F]{6}/g, `color:${color}`);
+}
+
 function rewriteLines(
   html: string,
   diff: DiffMarker[] | undefined,
@@ -72,8 +205,9 @@ function rewriteLines(
   const annotated = lineSpans.map((line, i) => {
     const marker = diff?.[i] ?? null;
     const attrs = ` data-line-no="${i + 1}"${marker ? ` data-diff="${marker}"` : ""}`;
+    const themedLine = marker ? tintDiffLineCode(line, marker) : line;
     return {
-      html: line.replace(/^<span class="line"/, `<span class="line"${attrs}`),
+      html: themedLine.replace(/^<span class="line"/, `<span class="line"${attrs}`),
       marker,
     };
   });
@@ -126,7 +260,7 @@ export async function highlight(
 
   const html = highlighter.codeToHtml(normalized, {
     lang,
-    theme: THEME,
+    theme: THEME_NAME,
   });
 
   const hasMarkers = !!diff && diff.some((m) => m);

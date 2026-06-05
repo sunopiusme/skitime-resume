@@ -54,7 +54,7 @@
 .audioTile {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   /* Подгоняем под высоту image-tile (80px),
      чтобы вложения разных типов стояли в одном
      ряду без диссонанса по вертикали. */
@@ -77,8 +77,8 @@
 }
 
 .audioIcon svg {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
 }
 
 .audioMeta {
@@ -109,13 +109,13 @@
    кнопка, не должна привлекать внимание. */
 .remove {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   padding: 0;
   border: none;
   border-radius: 999px;
@@ -125,6 +125,6 @@
 }
 
 .remove svg {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
 }
