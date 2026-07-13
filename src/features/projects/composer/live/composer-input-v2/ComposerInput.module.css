@@ -21,13 +21,14 @@
   --c-ink: var(--composer-ink);
   --c-ink-muted: #c2c2c2;
   --c-ink-subtle: #868686;
-  --c-surface: #26282d;
-  --c-surface-soft: #202226;
-  /* Фон плашек warning/context: на тон темнее карточки
-     (#242424), но светлее sunken (#1a1a1a) — утопленный
-     «ящик из-под» приподнятой карточки, контраст без
-     резкого провала на стыке (рамки у карточки больше нет). */
-  --c-drawer: #191b1f;
+  /* Поверхности — чистый нейтральный серый (R=G=B), без
+     синеватого подтона, в тон карточке #232323. */
+  --c-surface: #2a2a2a;
+  --c-surface-soft: #222222;
+  /* Фон плашек warning/context: на тон темнее карточки,
+     но светлее sunken — утопленный «ящик из-под»
+     приподнятой карточки. */
+  --c-drawer: #1a1a1a;
   /* Сплошной фон для popover'ов: раньше тут жил полупрозрачный
      glass (rgba(36, 36, 36, 0.72)) с backdrop-filter. На странице
      с несколькими меню рядом — модели, проекты, plus, плагины —
@@ -152,7 +153,7 @@
   margin: -16px 0 0;
   padding: 24px var(--c-pad-x) 12px;
   border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
-  /* На тон темнее карточки — «ящи�� из-под» неё, контраст
+  /* На тон темнее карточки — «ящи���� из-под» неё, контраст
      даёт глубину без рамки. */
   background: var(--c-drawer);
 }
@@ -329,7 +330,7 @@
   pointer-events: none;
 }
 
-/* Кромка: периметрал��ный hairline (очерчивает линзу там, где нет
+/* Кромка: периметр��л��ный hairline (очерчивает линзу там, где нет
    преломления — Safari/FF) + дисперсия, согласованная с радиальной
    аберрацией canvas'а: cool НАРУЖУ на обоих боках (синий
    преломляется сильнее), warm сверху чуть сильнее (ключевой свет),
@@ -564,34 +565,30 @@
   border: 0;
 }
 
-/* ── Card (input + toolbar) — плоский серый ──
-   Без градиентных бликов и стека внутренних обводок: сплошной
-   серый тон чуть светлее сцены, один hairline по контуру и
-   мягкая тень. Как в референсе — спокойная карточка, а не
-   «полированный» корпус. */
+/* ── Card (input + toolbar) — плоский нейтральный серый ──
+   Чистый серый без синеватого подтона (#232323: R=G=B) —
+   заметно светлее сцены (#101010), контраст держит сам тон,
+   один hairline по контуру и мягкая тень. Фон стабильный:
+   не меняется ни при печати, ни при отправке. */
 .card {
   display: grid;
   gap: 14px;
   padding: 16px var(--c-pad-x) 12px;
   border-radius: 24px;
-  background: #1e2024;
+  background: #232323;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
     0 16px 40px -20px rgba(0, 0, 0, 0.7);
   position: relative;
   z-index: 1;
 }
 
+/* Drag-подсветка остаётся — это функциональный сигнал зоны сброса. */
 .card[data-drag="true"] {
-  background: #24262b;
-}
-
-.card[data-typing="true"] {
-  background: #212328;
+  background: #2a2a2a;
 }
 
 .card[data-sending="true"] {
-  background: #1c1e22;
   cursor: progress;
 }
 
@@ -1334,7 +1331,7 @@ button.iconBtn[data-loading="true"] svg {
   border-radius: var(--c-card-radius);
   /* Сплошная приподнятая поверхность + чёткая кромка и чистая тень.
      Без стекла, без верхней -24px тени и без мутного blur-ореола. */
-  background: #1c1c1f;
+  background: #1c1c1c;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.1),
     0 18px 44px rgba(0, 0, 0, 0.55),
@@ -1431,7 +1428,7 @@ button.iconBtn[data-loading="true"] svg {
   min-width: 220px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  background: #1c1c1f;
+  background: #1c1c1c;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.1),
     0 18px 44px rgba(0, 0, 0, 0.55),
@@ -1538,7 +1535,7 @@ button.iconBtn[data-loading="true"] svg {
 
 .toggle[data-on="true"]::after {
   transform: translateX(12px);
-  background: #141416;
+  background: #141414;
 }
 
 /* ── Адаптация ─────────────────────────── */
