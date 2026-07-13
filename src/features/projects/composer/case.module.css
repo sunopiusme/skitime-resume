@@ -208,7 +208,7 @@
   gap: var(--case-space-section-inner);
 }
 
-/* �����������────────────────────────────────────────
+/* �������������────────────────────────────────────────
    Группировка по близости (двухуровневый ритм).
    Базовый gap у .part — это «связанный» шаг внутри секции.
    Поверх него:
@@ -430,68 +430,19 @@
   border-radius: 32px;
 }
 
-/* Apple/OpenAI-style presentation mesh: молочно-голубая светлая
-   сцена на единой mesh-палитре (см. globals.css, --mesh-*).
-   Свет собирается сверху и растворяется к низу — продукт стоит
-   в ambient-сцене. */
+/* Тёмная сцена в палитре кейса: чуть светлее холста, hairline
+   по контуру и мягкий верхний свет. Никакого цветного mesh —
+   монохром, как остальная графика страницы. */
 .stageMesh {
   position: relative;
   isolation: isolate;
-  background-color: var(--mesh-surface);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -54px 96px -82px rgb(var(--mesh-shade-rgb) / 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.07),
-    0 3px 8px rgba(0, 0, 0, 0.28),
-    0 24px 48px -24px rgba(0, 0, 0, 0.5),
-    0 86px 180px -104px rgba(0, 0, 0, 0.55);
+  background-color: #101010;
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E"),
-    /* молочное ядро над продуктом — мягкий «свет витрины» */
-    radial-gradient(72% 58% at 50% 30%, var(--mesh-core), transparent 66%),
-    /* верх-лево: пудровый periwinkle */
-    radial-gradient(64% 72% at -6% -10%, var(--mesh-periwinkle), transparent 68%),
-    /* верх-право: холодный sky */
-    radial-gradient(56% 68% at 110% -4%, var(--mesh-sky), transparent 70%),
-    /* низ-лево: молочная лаванда */
-    radial-gradient(60% 72% at -8% 110%, var(--mesh-lavender), transparent 70%),
-    /* низ-право: голубой глубже — заземляет сцену */
-    radial-gradient(62% 78% at 110% 112%, var(--mesh-azure), transparent 72%),
-    /* тёплое дыхание у нижней кромки */
-    radial-gradient(54% 38% at 50% 104%, var(--mesh-warm), transparent 62%),
-    linear-gradient(165deg, rgba(255, 255, 255, 0.55) 0%, transparent 38%, rgb(var(--mesh-shade-rgb) / 0.16) 80%, transparent 100%),
-    linear-gradient(135deg, var(--mesh-surface-hi) 0%, var(--mesh-surface) 52%, var(--mesh-surface-lo) 100%);
-  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat,
-    no-repeat, no-repeat, no-repeat, no-repeat;
-  background-size: 220px 220px, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
-    100% 100%, 100% 100%, 100% 100%, 100% 100%;
-}
-
-.stageMesh::before,
-.stageMesh::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.stageMesh::before {
-  background:
-    radial-gradient(78% 58% at 16% -14%, rgba(255, 255, 255, 0.55), transparent 64%),
-    radial-gradient(68% 64% at 116% 20%, rgba(255, 255, 255, 0.3), transparent 72%),
-    radial-gradient(82% 82% at 88% 122%, rgb(var(--mesh-shade-rgb) / 0.2), transparent 68%),
-    linear-gradient(125deg, rgba(255, 255, 255, 0.5), transparent 36%, rgba(255, 255, 255, 0.2) 70%, transparent 100%);
-  mix-blend-mode: soft-light;
-}
-
-.stageMesh::after {
+    radial-gradient(120% 90% at 50% -20%, rgba(255, 255, 255, 0.05), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 45%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
-    inset 0 -1px 0 rgb(var(--mesh-shade-rgb) / 0.34),
-    inset 0 -56px 82px -86px rgb(var(--mesh-shade-rgb) / 0.42);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(255, 255, 255, 0.07);
 }
 
 .composerPinFrame {

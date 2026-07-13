@@ -150,8 +150,8 @@ export default function ComposerCase() {
             <div className={caseStyles.prose}>
               <p>
                 Агент стартует вслепую, потому что параметры запуска рассеяны по конфигурациям и
-                памяти пользователя. Codex распределяет контракт между AGENTS.md и облачным
-                окружением. Claude Code опирается на permissions, hooks и MCP. Kiro держит
+                памяти пользователя: Codex распределяет контракт между AGENTS.md и облачным
+                окружением, Claude Code опирается на permissions, hooks и MCP, а Kiro держит
                 дисциплину через спеки.
               </p>
               <p>
