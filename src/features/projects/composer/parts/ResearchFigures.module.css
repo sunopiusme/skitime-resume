@@ -48,12 +48,16 @@
   border-bottom: 1px solid var(--composer-hairline);
 }
 
+/* Заголовки колонок — стандарт подзаголовков кейса
+   (как tldrKicker): обычный текст полужирным, метрики prose,
+   без капса и mono. */
 .sourceTableHead span {
-  font-family: var(--composer-font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+  color: var(--composer-ink);
 }
 
 .sourceList {
@@ -79,15 +83,19 @@
   border-bottom: none;
 }
 
+/* Название источника переносится на вторую строку вместо
+   ellipsis: «GitHub Copilot coding ag…» больше не обрезается.
+   Метрики prose (15/24), вес обычный — иерархию колонок
+   держит полужирная шапка. */
 .sourceName {
   min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  text-wrap: pretty;
   font-family: var(--font-sans), sans-serif;
-  font-size: 0.95rem;
-  font-weight: 500;
-  letter-spacing: -0.005em;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 24px;
   color: var(--composer-ink);
   transition: color var(--composer-duration-hover) ease;
 }
@@ -95,8 +103,9 @@
 .sourceType {
   min-width: 0;
   font-family: var(--font-sans), sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: -0.005em;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  line-height: 24px;
   color: var(--composer-ink-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -116,8 +125,8 @@
   min-width: 0;
   font-family: var(--font-sans), sans-serif;
   color: var(--composer-ink-muted);
-  font-size: 0.85rem;
-  letter-spacing: -0.005em;
+  font-size: 15px;
+  letter-spacing: -0.01em;
   /* Раньше nowrap → длинный «Product Hunt /
      Reddit / форумы» вылезал и наезжал на
      соседнюю sourceSignal-колонку. Сейчас
@@ -125,16 +134,16 @@
      ячейки. */
   white-space: normal;
   text-wrap: pretty;
-  line-height: 1.4;
+  line-height: 24px;
 }
 
 .sourceSignal {
   min-width: 0;
   color: var(--composer-ink-muted);
   font-family: var(--font-sans), sans-serif;
-  font-size: 0.92rem;
-  line-height: 1.5;
-  letter-spacing: -0.005em;
+  font-size: 15px;
+  line-height: 24px;
+  letter-spacing: -0.01em;
   text-wrap: pretty;
 }
 
