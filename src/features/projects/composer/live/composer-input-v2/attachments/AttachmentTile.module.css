@@ -51,16 +51,15 @@
   display: block;
 }
 
-/* Аудио — компактная пилюля в геометрии карточки:
-   радиус 999px, как у mic/submit-кнопок рядом. Без
-   обводки — отделяется от карточки только тоном.
-   Иконка без собственной подложки, крестик в ряду. */
+/* Аудио — однострочная пилюля: иконка, имя, размер и крестик
+   на одной базовой линии. Радиус 999px — геометрия mic/submit
+   кнопок; без обводки, отделяется от карточки только тоном. */
 .audioTile {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  height: 44px;
-  padding: 0 10px 0 16px;
+  gap: 8px;
+  height: 36px;
+  padding: 0 6px 0 14px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
 }
@@ -69,28 +68,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   color: var(--c-ink-muted);
   flex-shrink: 0;
 }
 
 .audioIcon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.audioMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+  width: 15px;
+  height: 15px;
 }
 
 .audioName {
   font-size: 0.8rem;
   font-weight: 500;
-  line-height: 1.25;
   color: var(--c-ink);
   white-space: nowrap;
   overflow: hidden;
@@ -99,10 +90,10 @@
 }
 
 .audioSize {
-  font-size: 0.72rem;
-  line-height: 1.25;
+  font-size: 0.8rem;
   color: var(--c-ink-subtle);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* Крестик аудио-чипа — в ряду, служебный: тихий по

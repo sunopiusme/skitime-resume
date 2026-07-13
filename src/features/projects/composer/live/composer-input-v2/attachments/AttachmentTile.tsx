@@ -74,21 +74,17 @@ export function AttachmentTile({ attachment, onRemove, onReorder }: Props) {
           </button>
         </>
       ) : (
-        /* Аудио — компактная строка-чип: иконка, имя+размер и
-           крестик в одном ряду. Крестик больше не висит поверх
-           угла — он часть чипа, как в референсных композерах. */
+        /* Аудио — однострочный чип: иконка, имя, размер и крестик
+           на одной базовой линии. Без двухэтажной меты — при
+           однострочной высоте она сбивалась в тесный блок. */
         <div className={styles.audioTile}>
           <span className={styles.audioIcon} aria-hidden="true">
             <AudioIcon />
           </span>
-          <div className={styles.audioMeta}>
-            <span className={styles.audioName} title={name}>
-              {name}
-            </span>
-            <span className={styles.audioSize}>
-              Audio · {formatBytes(size)}
-            </span>
-          </div>
+          <span className={styles.audioName} title={name}>
+            {name}
+          </span>
+          <span className={styles.audioSize}>{formatBytes(size)}</span>
           <button
             type="button"
             className={styles.removeInline}
