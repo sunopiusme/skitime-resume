@@ -703,13 +703,20 @@ export default function ComposerInput() {
       setPrompt("");
       attachments.clear();
       setSending(false);
-      setTransient({ text: "ГОТОВО К НОВОЙ ЗАДАЧЕ", mood: "idle" });
-      const readyTimer = window.setTimeout(() => {
-        setTransient((current) =>
-          current?.text === "ГОТОВО К НОВОЙ ЗАДАЧЕ" ? null : current,
-        );
-      }, 1900);
-      sendTimers.current = [readyTimer];
+      // Фаза «думает» (как в ChatGPT): по тексту бежит белый шиммер,
+      // в слоте — песочные часы. Держим ~6с, чтобы статус успел
+      // прочитаться и запомниться, затем — «готово» → покой.
+      setTransient({ text: "ДУМАЕТ", mood: "ponder" });
+      const thinkTimer = window.setTimeout(() => {
+        setTransient({ text: "ГОТОВО К НОВОЙ ЗАДАЧЕ", mood: "idle" });
+        const readyTimer = window.setTimeout(() => {
+          setTransient((current) =>
+            current?.text === "ГОТОВО К НОВОЙ ЗАДАЧЕ" ? null : current,
+          );
+        }, 1900);
+        sendTimers.current = [readyTimer];
+      }, 6000);
+      sendTimers.current = [thinkTimer];
     }, 720);
     sendTimers.current = [submitTimer];
   };
@@ -783,7 +790,7 @@ export default function ComposerInput() {
         }}
       />
       <div className={styles.stack}>
-        <div className={styles.warning} role="status">
+        <div className={styles.lcdRow} role="status">
           <LcdMarquee
             status={lcdStatus}
             mood={petMood}
@@ -792,7 +799,6 @@ export default function ComposerInput() {
             colorMode={lcdColorMode}
           />
         </div>
-
         <div
           className={styles.card}
           data-drag={dragOver}

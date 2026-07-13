@@ -97,10 +97,6 @@ function radarLabelCoords(index: number) {
 export function LabSourceMap() {
   return (
     <div className={styles.figure} aria-label="Карта источников">
-      <header className={styles.stageHeader}>
-        <h3 className={styles.stageTitle}>Откуда взята рамка</h3>
-      </header>
-
       <div className={styles.sourceTable}>
         <div className={styles.sourceTableHead} aria-hidden="true">
           <span>Источник</span>
@@ -125,7 +121,7 @@ export function LabSourceMap() {
               <span
                 className={styles.sourceType}
                 data-type={source.type}
-                title={`надёжность ${SOURCE_TYPE_RANK[source.type]}/4`}
+                title={`вес источника ${SOURCE_TYPE_RANK[source.type]}/4`}
               >
                 {SOURCE_TYPE_LABELS[source.type]}
               </span>
@@ -158,9 +154,6 @@ export function LabSourceMap() {
 export function LabCapabilityMatrix() {
   return (
     <div className={styles.figure} aria-label="Матрица признаков">
-      <header className={styles.stageHeader}>
-        <h3 className={styles.stageTitle}>Что ADE обязан показывать</h3>
-      </header>
       <div className={styles.matrix}>
         <span className={`${styles.cell} ${styles.blank}`} />
         {capabilities.map((capability) => (
@@ -178,7 +171,7 @@ export function LabCapabilityMatrix() {
                   key={`${source.id}-${capability.key}`}
                   className={`${styles.cell} ${styles.signalCell}`}
                   data-active={active}
-                  aria-label={`${capability.label}: ${active ? "наблюдается" : "не главный признак"}`}
+                  aria-label={`${capability.label}: ${active ? "есть сигнал" : "не ключевой сигнал"}`}
                 >
                   <span
                     className={active ? styles.signalDot : styles.signalDash}
@@ -206,12 +199,6 @@ export function LabFrictionRadar() {
 
   return (
     <div className={styles.figure} aria-label="Радар трения">
-      <header className={styles.stageHeader}>
-        <h3 className={styles.stageTitle}>Где автономность начинает стоить дорого</h3>
-        <p className={styles.stageKicker}>
-          Высокая оценка означает зону, где агенту нельзя верить на слово: нужны видимый контекст, права, trace и проверка.
-        </p>
-      </header>
       <div className={styles.radarLayout}>
         <div className={styles.radarPanel}>
           <svg
@@ -302,135 +289,125 @@ export function LabFrictionRadar() {
 }
 
 export function LabWorkflowDisk() {
-  const activeIndex = 1;
+  const activeIndex = 4;
+
+  /* ── Геометрия ──────────────────────────
+     Узлы стоят в центрах семи колонок legend-рейла
+     (вьюпорт 960 / 7 колонок, рейл с gap 0): график и
+     подписи делят одну координатную систему — узел 05
+     стоит ровно над колонкой «выполнение». Ось X не
+     нужна, её роль играет сам рейл. */
+  const BASE_Y = 304;
+  const nodes = [
+    { x: 69, y: 272 },
+    { x: 206, y: 244 },
+    { x: 343, y: 210 },
+    { x: 480, y: 172 },
+    { x: 617, y: 122 },
+    { x: 754, y: 92 },
+    { x: 891, y: 72 },
+  ] as const;
+
+  /* Монотонная кривая с горизонтальными касательными в каждом
+     узле (control points смещены только по X): подъём читается
+     как спокойные ступени — без волнистости свободных безье. */
+  const graphPath = nodes
+    .map((point, index) => {
+      if (index === 0) return `M ${point.x} ${point.y}`;
+      const prev = nodes[index - 1]!;
+      const c = Math.round((point.x - prev.x) * 0.45);
+      return `C ${prev.x + c} ${prev.y}, ${point.x - c} ${point.y}, ${point.x} ${point.y}`;
+    })
+    .join(" ");
+  const first = nodes[0]!;
+  const last = nodes[nodes.length - 1]!;
+  const graphArea = `${graphPath} L ${last.x} ${BASE_Y} L ${first.x} ${BASE_Y} Z`;
+  const active = nodes[activeIndex]!;
 
   return (
-    <div className={styles.figure} aria-label="Схема процесса">
-      <header className={styles.stageHeader}>
-        <h3 className={styles.stageTitle}>Петля работы, которую можно проверить</h3>
-      </header>
+    <div className={styles.figure} aria-label="Проверяемость workflow">
+      <div className={styles.workflowBoard}>
+        <svg
+          className={styles.workflowChart}
+          viewBox="0 0 960 340"
+          role="img"
+          aria-label="Проверяемость растет от намерения к ревью"
+        >
+          <defs>
+            <linearGradient id="workflowAreaGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0.14" />
+              <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+            </linearGradient>
+          </defs>
 
-      <div className={styles.workflowLayout}>
-        <div className={styles.workflowPanel}>
-          <svg
-            className={styles.workflowCircuit}
-            viewBox="40 160 680 950"
-            role="img"
-            aria-label="Электрическая схема проверяемой работы"
+          <text x="20" y="34" className={styles.workflowChartAxisLabel}>
+            проверяемость
+          </text>
+          <text
+            x="940"
+            y="336"
+            textAnchor="end"
+            className={styles.workflowChartAxisLabel}
           >
-            <defs>
-              <pattern id="wfGridMinor" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 H 0 V 40" fill="none" className={styles.wfGridMinor} />
-              </pattern>
-              <pattern id="wfGridMajor" width="200" height="200" patternUnits="userSpaceOnUse">
-                <rect width="200" height="200" fill="url(#wfGridMinor)" />
-                <path d="M 200 0 H 0 V 200" fill="none" className={styles.wfGridMajor} />
-              </pattern>
-              <marker
-                id="workflowArrow"
-                viewBox="0 0 10 10"
-                refX="7"
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
-                orient="auto"
+            решение человека
+          </text>
+
+          {/* Единственная опорная линия фигуры — базовая ось.
+              Сетка, вертикали и пунктирные сбросы убраны: рост
+              кривой виден и без них, а стадии подписаны прямо
+              под узлами. */}
+          <path d={`M 20 ${BASE_Y} H 940`} className={styles.workflowChartAxis} />
+
+          <path d={graphArea} className={styles.workflowGraphArea} />
+          <path d={graphPath} className={styles.workflowGraphLine} />
+
+          {/* Связка с легендой: тонкая вертикаль от активного
+              узла до оси — взгляд сам спускается к колонке 05. */}
+          <line
+            x1={active.x}
+            y1={active.y + 16}
+            x2={active.x}
+            y2={BASE_Y}
+            className={styles.workflowActiveDrop}
+          />
+
+          {nodes.map((point, index) => {
+            const step = workflowSteps[index]!;
+            const isActive = index === activeIndex;
+
+            return (
+              <g
+                key={step.label}
+                className={styles.workflowGraphPoint}
+                data-active={isActive}
               >
-                <path d="M 0 0 L 10 5 L 0 10 Z" className={styles.workflowArrow} />
-              </marker>
-            </defs>
+                {isActive ? (
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r="11"
+                    className={styles.workflowGraphRing}
+                  />
+                ) : null}
+                <circle
+                  cx={point.x}
+                  cy={point.y}
+                  r={isActive ? 5 : 4}
+                  className={styles.workflowGraphNode}
+                />
+              </g>
+            );
+          })}
+        </svg>
 
-            {/* Чертёжная сетка (всё на шаге 40 px) */}
-            <rect width="720" height="1280" className={styles.workflowGrid} />
-
-            {/* ── Шины питания ───────────────────────── */}
-            {/* Верхняя шина +V: левый угол → отвод резистора → дроссель → правый угол */}
-            <path d="M 120 240 H 280" className={styles.workflowWire} />
-            <path d="M 440 240 H 600" className={styles.workflowWire} />
-            <path
-              d="M 280 240 a 20 20 0 0 1 40 0 a 20 20 0 0 1 40 0 a 20 20 0 0 1 40 0 a 20 20 0 0 1 40 0"
-              className={styles.workflowInductor}
-            />
-            {/* Правая шина +V → вывод 8 */}
-            <path d="M 600 240 V 560 H 440" className={styles.workflowWire} />
-            {/* Левая шина: верхний угол → батарея → земляная шина */}
-            <path d="M 120 240 V 342" className={styles.workflowWire} />
-            <path d="M 120 378 V 1000" className={styles.workflowWire} />
-            {/* Нижняя земляная шина */}
-            <path d="M 120 1000 H 640" className={styles.workflowWire} />
-
-            {/* ── Батарея 9 В ────────────────────────── */}
-            <line x1="86" y1="342" x2="154" y2="342" className={styles.workflowBatteryPlate} />
-            <line x1="100" y1="354" x2="140" y2="354" className={styles.workflowBatteryPlate} />
-            <line x1="86" y1="366" x2="154" y2="366" className={styles.workflowBatteryPlate} />
-            <line x1="100" y1="378" x2="140" y2="378" className={styles.workflowBatteryPlate} />
-
-            {/* ── Резистор 40 кΩ: верхняя шина → вывод 7 ── */}
-            <path d="M 200 240 V 400" className={styles.workflowWire} />
-            <rect x="182" y="400" width="36" height="120" className={styles.workflowResistor} />
-            <path d="M 200 520 V 560 H 280" className={styles.workflowWire} />
-
-            {/* ── Времязадающий конденсатор 2.2 μF: выводы 6/2 → земля ── */}
-            <path d="M 280 640 H 240 V 720 H 280" className={styles.workflowWire} />
-            <path d="M 240 720 V 832" className={styles.workflowWire} />
-            <line x1="206" y1="832" x2="274" y2="832" className={styles.workflowCapacitor} />
-            <line x1="206" y1="848" x2="274" y2="848" className={styles.workflowCapacitor} />
-            <path d="M 240 848 V 1000" className={styles.workflowWire} />
-
-            {/* ── Конденсатор управления 1 μF: вывод 5 → земля ── */}
-            <path d="M 440 640 H 640 V 832" className={styles.workflowWire} />
-            <line x1="606" y1="832" x2="674" y2="832" className={styles.workflowCapacitor} />
-            <line x1="606" y1="848" x2="674" y2="848" className={styles.workflowCapacitor} />
-            <path d="M 640 848 V 1000" className={styles.workflowWire} />
-
-            {/* ── Ядро (агент): этап «выполнение» ───── */}
-            <rect x="280" y="520" width="160" height="240" rx="2" className={styles.workflowChipBody} />
-            <text x="360" y="640" className={styles.workflowChipTitle}>выполнение</text>
-            <text x="300" y="560" className={styles.workflowPinLabel}>7</text>
-            <text x="300" y="640" className={styles.workflowPinLabel}>6</text>
-            <text x="300" y="720" className={styles.workflowPinLabel}>2</text>
-            <text x="420" y="560" className={styles.workflowPinLabel}>8</text>
-            <text x="420" y="640" className={styles.workflowPinLabel}>5</text>
-            <text x="420" y="720" className={styles.workflowPinLabel}>3</text>
-            <text x="360" y="732" className={styles.workflowPinLabel}>1</text>
-
-            {/* ── Выход: вывод 3 → лампа → земля (активная цепь) ── */}
-            <path d="M 360 760 V 1000" className={styles.workflowWire} />
-            <path d="M 440 720 H 520 V 836" className={styles.workflowWireActive} markerEnd="url(#workflowArrow)" />
-            <path d="M 476 880 a 44 44 0 1 0 88 0 a 44 44 0 1 0 -88 0" className={styles.workflowLamp} />
-            <path d="M 489 849 L 551 911 M 551 849 L 489 911" className={styles.workflowLampCross} />
-            <path d="M 520 924 V 1000" className={styles.workflowWire} />
-
-            {/* ── Узлы соединений ───────────────────── */}
-            <circle cx="200" cy="240" r="7" className={styles.workflowDot} />
-            <circle cx="240" cy="720" r="7" className={styles.workflowDot} />
-            <circle cx="240" cy="1000" r="7" className={styles.workflowDot} />
-            <circle cx="360" cy="1000" r="7" className={styles.workflowDot} />
-            <circle cx="520" cy="1000" r="7" className={styles.workflowDot} />
-            <circle cx="520" cy="1000" r="13" className={styles.workflowDotHalo} />
-
-            {/* ── Земля ─────────────────────────────── */}
-            <path d="M 360 1000 V 1040" className={styles.workflowGroundStem} />
-            <line x1="328" y1="1040" x2="392" y2="1040" className={styles.workflowGroundLine} />
-            <line x1="340" y1="1052" x2="380" y2="1052" className={styles.workflowGroundLine} />
-            <line x1="352" y1="1064" x2="368" y2="1064" className={styles.workflowGroundLine} />
-
-            {/* ── Подписи этапов (зеркалят список справа) ── */}
-            <text x="70" y="360" className={styles.workflowVerticalText}>намерение</text>
-            <text x="360" y="212" textAnchor="middle" className={styles.workflowComponentText}>план</text>
-            <text x="164" y="460" className={styles.workflowVerticalText}>контекст</text>
-            <text x="188" y="840" className={styles.workflowVerticalText}>доступ</text>
-            <text x="694" y="840" className={styles.workflowVerticalText}>проверка</text>
-            <text x="435" y="884" textAnchor="middle" className={styles.workflowComponentText}>ревью</text>
-          </svg>
-        </div>
-        <div className={styles.workflowList}>
+        <div className={styles.workflowStageRail}>
           {workflowSteps.map((step, index) => (
             <div
               key={step.label}
-              className={styles.workflowItem}
+              className={styles.workflowStage}
               data-active={index === activeIndex}
             >
-              <span className={styles.workflowHead}>
+              <span className={styles.workflowStageHead}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <strong>{step.label}</strong>
               </span>
@@ -444,86 +421,57 @@ export function LabWorkflowDisk() {
 }
 
 export function LabEvidenceStack() {
-  /* Доказательная база как горизонтальный фан-чарт.
-     Шесть рисок слева направо, каждая привязана к пункту
-     evidenceStack: пара чисел (меньшее сверху, большее снизу)
-     отсылает к референсу, а сверху над риской лежит caps-метка
-     класса доказательства, снизу — короткое описание. */
-  const pairs: ReadonlyArray<readonly [number, number]> = [
-    [20, 50],
-    [30, 75],
-    [40, 100],
-    [48, 120],
-    [80, 200],
-    [100, 250],
-  ];
-
-  const W = 1200;
-  const padX = 80;
-  const cy = 220;
+  /* Доказательная база как горизонтальная фан-лента.
+     Шесть рисок слева направо — по одной на каждый класс
+     доказательства. Высота риски кодирует силу доказательства
+     (strength из research.ts), лента из тонких линий проходит
+     через все колонки и «дышит» вместе с данными: видно, как
+     доказательная база набирает вес от лога сессии к PR. */
+  const W = 960;
+  const padX = 64;
+  const cy = 190;
   const innerW = W - padX * 2;
 
-  const maxSpan = 150;
-  const ruleSpan = maxSpan + 36;
-  const ruleTop = cy - ruleSpan / 2;
-  const ruleBottom = cy + ruleSpan / 2;
+  const spanFor = (strength: number) => 40 + (strength - 1) * 28;
+  const maxSpan = spanFor(5);
 
-  const numberOffset = 18;
-  const labelGap = 28;
-  const detailGap = 28;
-
-  const numberTopY = ruleTop - numberOffset;
-  const labelY = numberTopY - labelGap;
-  const numberBottomY = ruleBottom + numberOffset + 14;
-  const detailY = numberBottomY + detailGap;
-
-  const topPad = numberOffset + 22 + labelGap + 14;
-  const bottomPad = numberOffset + 22 + detailGap + 18;
-  const H = cy + maxSpan / 2 + bottomPad + (ruleSpan - maxSpan) / 2;
-  const viewboxTop = cy - maxSpan / 2 - topPad - (ruleSpan - maxSpan) / 2;
-
-  const columns = pairs.map(([lo, hi], i) => {
-    const x = padX + (innerW * i) / (pairs.length - 1);
-    const span = hi - lo;
-    const yTop = cy - span / 2;
-    const yBottom = cy + span / 2;
-    const item = evidenceStack[i]!;
-    return { x, yTop, yBottom, lo, hi, item };
+  const columns = evidenceStack.map((item, i) => {
+    const x = padX + (innerW * i) / (evidenceStack.length - 1);
+    const span = spanFor(item.strength);
+    return { x, yTop: cy - span / 2, yBottom: cy + span / 2, item };
   });
 
-  const left = columns[0]!;
-  const right = columns[columns.length - 1]!;
+  const labelY = cy - maxSpan / 2 - 56;
+  const strengthY = labelY + 22;
+  const detailY = cy + maxSpan / 2 + 36;
 
-  const lineCount = 56;
-  const fanLines = Array.from({ length: lineCount }, (_, i) => {
-    const t = i / (lineCount - 1);
-    const y1 = left.yTop + t * (left.yBottom - left.yTop);
-    const y2 = right.yTop + t * (right.yBottom - right.yTop);
-    return { y1, y2 };
+  const viewTop = labelY - 14;
+  const viewBottom = detailY + 18;
+
+  const lineCount = 36;
+  const ribbons = Array.from({ length: lineCount }, (_, lineIndex) => {
+    const t = lineIndex / (lineCount - 1);
+    return columns
+      .map((col) => `${col.x},${(col.yTop + t * (col.yBottom - col.yTop)).toFixed(1)}`)
+      .join(" ");
   });
 
   return (
     <div className={styles.figure} aria-label="Доказательная база">
-      <header className={styles.stageHeader}>
-        <h3 className={styles.stageTitle}>Что делает работу пригодной для ревью</h3>
-      </header>
-
       <div className={styles.evidenceFan}>
         <svg
           className={styles.evidenceFanSvg}
-          viewBox={`0 ${viewboxTop} ${W} ${H - viewboxTop}`}
+          viewBox={`0 ${viewTop} ${W} ${viewBottom - viewTop}`}
           role="img"
           aria-hidden="true"
           preserveAspectRatio="xMidYMid meet"
         >
           <g className={styles.evidenceFanBeam}>
-            {fanLines.map((line, i) => (
-              <line
+            {ribbons.map((points, i) => (
+              <polyline
                 key={i}
-                x1={left.x}
-                y1={line.y1}
-                x2={right.x}
-                y2={line.y2}
+                points={points}
+                fill="none"
                 stroke="currentColor"
                 strokeWidth={0.5}
                 strokeLinecap="round"
@@ -535,9 +483,9 @@ export function LabEvidenceStack() {
             <g key={i} className={styles.evidenceFanRule}>
               <line
                 x1={col.x}
-                y1={ruleTop}
+                y1={col.yTop}
                 x2={col.x}
-                y2={ruleBottom}
+                y2={col.yBottom}
                 stroke="currentColor"
                 strokeWidth={2}
                 strokeLinecap="square"
@@ -552,19 +500,11 @@ export function LabEvidenceStack() {
               </text>
               <text
                 x={col.x}
-                y={numberTopY}
+                y={strengthY}
                 textAnchor="middle"
                 className={styles.evidenceFanNumberSvg}
               >
-                {col.lo}
-              </text>
-              <text
-                x={col.x}
-                y={numberBottomY}
-                textAnchor="middle"
-                className={styles.evidenceFanNumberSvg}
-              >
-                {col.hi}
+                {col.item.strength}/5
               </text>
               <text
                 x={col.x}

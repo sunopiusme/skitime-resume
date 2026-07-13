@@ -6,22 +6,27 @@ import styles from "./ProjectSidebar.module.css";
 /* ─────────────────────────────────────────
    Sidebar preview, разрезанный пополам.
    Слева — верхняя половина живого сайдбара
-   (нав, проекты, чаты), уходящая в туман
+   (нав, проекты, сессии), уходящая в туман
    фона. Справа — нижняя половина: хвост
-   списка, футер с настройками и апгрейдом.
+   списка, футер с настройками, логами и diff.
    Никаких прогресс-баров и анимаций — это
    статичная превью-сцена.
    ───────────────────────────────────────── */
 
-type ChatItem = {
+type SessionStatus = "running" | "review" | "done";
+
+type SessionItem = {
   title: string;
+  branch: string;
+  evidence: string;
   age: string;
+  status: SessionStatus;
   active?: boolean;
 };
 
 type ProjectGroup = {
   name: string;
-  chats: ChatItem[];
+  sessions: SessionItem[];
   more?: boolean;
   empty?: boolean;
 };
@@ -35,7 +40,7 @@ type NavItem = {
 };
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { icon: "edit", label: "Новый чат", shortcut: ["⌘", "N"] },
+  { icon: "edit", label: "Новая сессия", shortcut: ["⌘", "N"] },
   { icon: "search", label: "Поиск", shortcut: ["⌘", "G"] },
   { icon: "grid", label: "Плагины" },
   { icon: "clock", label: "Автоматизации" },
@@ -44,29 +49,113 @@ const NAV_ITEMS: readonly NavItem[] = [
 const PROJECTS: readonly ProjectGroup[] = [
   {
     name: "ZenPulse",
-    chats: [
-      { title: "Быстрая настройка — если ты уж…", age: "2мес", active: true },
-      { title: "в chatinput в настрой дня е…", age: "2мес" },
-      { title: "после ввода в инпут в наст…", age: "2мес" },
-      { title: "нужно пересмотреть дизай…", age: "2мес" },
-      { title: "[Image #1] на главной стра…", age: "2мес" },
+    sessions: [
+      {
+        title: "Проверить hooks перед запуском",
+        branch: "feat/hooks-guard",
+        evidence: "diff + tests",
+        age: "4м",
+        status: "review",
+        active: true,
+      },
+      {
+        title: "Собрать контекст проекта",
+        branch: "ctx/project-map",
+        evidence: "12 файлов",
+        age: "2м",
+        status: "running",
+      },
+      {
+        title: "Сравнить diff с критерием",
+        branch: "fix/risk-rules",
+        evidence: "2 риска",
+        age: "12м",
+        status: "review",
+      },
+      {
+        title: "Обновить трейс сессии",
+        branch: "trace/session-log",
+        evidence: "лог",
+        age: "8м",
+        status: "running",
+      },
+      {
+        title: "Закрыть сценарий PR",
+        branch: "release/pr-flow",
+        evidence: "PR #42",
+        age: "1ч",
+        status: "done",
+      },
     ],
     more: true,
   },
   {
     name: "horizon-sprint",
-    chats: [
-      { title: "Найти физику бега персон…", age: "2мес" },
-      { title: "Найди практики для TMA и…", age: "2мес" },
-      { title: "Починить пропавший initTelegram…", age: "2мес" },
-      { title: "Переработать UI 456 Runner", age: "2мес" },
-      { title: "Интегрировать Telegram Mi…", age: "2мес" },
+    sessions: [
+      {
+        title: "Развести план и выполнение",
+        branch: "plan/execution-split",
+        evidence: "spec",
+        age: "6м",
+        status: "review",
+      },
+      {
+        title: "Проверить права CLI",
+        branch: "chore/permissions",
+        evidence: "policy",
+        age: "3м",
+        status: "running",
+      },
+      {
+        title: "Вернуть потерянный контекст",
+        branch: "fix/context-restore",
+        evidence: "trace",
+        age: "2ч",
+        status: "done",
+      },
+      {
+        title: "Снять браузерный smoke",
+        branch: "test/browser-smoke",
+        evidence: "screenshot",
+        age: "9м",
+        status: "running",
+      },
+      {
+        title: "Собрать evidence pack",
+        branch: "review/evidence-pack",
+        evidence: "PR",
+        age: "25м",
+        status: "review",
+      },
     ],
     more: true,
   },
-  { name: "cmux", chats: [], empty: true },
-  { name: "Glim", chats: [] },
+  {
+    name: "cmux",
+    sessions: [
+      {
+        title: "Рефакторинг auth flow",
+        branch: "worktree/auth-flow",
+        evidence: "lint",
+        age: "5м",
+        status: "running",
+      },
+    ],
+  },
+  { name: "Glim", sessions: [], empty: true },
 ];
+
+const STATUS_LABELS: Record<SessionStatus, string> = {
+  running: "Выполняется",
+  review: "Ревью",
+  done: "Готово",
+};
+
+const STATUS_TITLES: Record<SessionStatus, string> = {
+  running: "Агент выполняет работу",
+  review: "Diff ожидает ревью",
+  done: "Работа закрыта",
+};
 
 function NavIcon({ kind }: { kind: NavIconKind }) {
   const common = {
@@ -129,6 +218,49 @@ function FolderIcon() {
     >
       <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
     </svg>
+  );
+}
+
+function SessionState({ status }: { status: SessionStatus }) {
+  if (status === "running") {
+    return (
+      <span
+        className={styles.sessionState}
+        data-status={status}
+        aria-label={STATUS_TITLES[status]}
+        title={STATUS_TITLES[status]}
+      >
+        <span className={styles.sessionSpinner} aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="12" height="12" fill="none">
+            <circle
+              cx="8"
+              cy="8"
+              r="6"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              opacity="0.22"
+            />
+            <path
+              d="M14 8a6 6 0 0 0-6-6"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
+        </span>
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={styles.sessionState}
+      data-status={status}
+      aria-label={STATUS_TITLES[status]}
+      title={STATUS_TITLES[status]}
+    >
+      {STATUS_LABELS[status]}
+    </span>
   );
 }
 
@@ -396,19 +528,30 @@ function SidebarBody() {
               </span>
               <span className={styles.projectName}>{project.name}</span>
             </div>
-            {project.empty ? (
-              <p className={styles.projectEmpty}>Нет чатов</p>
+            {project.empty || project.sessions.length === 0 ? (
+              <p className={styles.projectEmpty}>Нет сессий</p>
             ) : (
-              <ul className={styles.chats}>
-                {project.chats.map((chat) => (
+              <ul className={styles.sessions}>
+                {project.sessions.map((session) => (
                   <li
-                    key={chat.title}
-                    className={styles.chatRow}
-                    data-active={chat.active ? "true" : undefined}
-                    aria-current={chat.active ? "true" : undefined}
+                    key={`${project.name}-${session.title}`}
+                    className={styles.sessionRow}
+                    data-active={session.active ? "true" : undefined}
+                    data-status={session.status}
+                    aria-current={session.active ? "true" : undefined}
                   >
-                    <span className={styles.chatTitle}>{chat.title}</span>
-                    <span className={styles.chatAge}>{chat.age}</span>
+                    <span className={styles.sessionMain}>
+                      <span className={styles.sessionTitle}>{session.title}</span>
+                      <span className={styles.sessionMeta}>
+                        <span className={styles.sessionBranch}>{session.branch}</span>
+                        <span className={styles.sessionDivider} aria-hidden="true" />
+                        <span className={styles.sessionEvidence}>{session.evidence}</span>
+                      </span>
+                    </span>
+                    <span className={styles.sessionSide}>
+                      <SessionState status={session.status} />
+                      <span className={styles.sessionAge}>{session.age}</span>
+                    </span>
                   </li>
                 ))}
                 {project.more ? (
@@ -437,13 +580,8 @@ function SidebarBody() {
           <span>Настройки</span>
         </span>
         <span className={styles.footerActions}>
-          <span className={styles.footerPhone} aria-hidden="true">
-            <svg viewBox="0 0 12 18" width="13" height="18" fill="none">
-              <rect x="0.6" y="0.6" width="10.8" height="16.8" rx="1.8" stroke="currentColor" />
-              <path d="M4.6 14.6h2.8" stroke="currentColor" strokeLinecap="round" />
-            </svg>
-          </span>
-          <span className={styles.upgrade}>Улучшить</span>
+          <span className={styles.footerChip}>Логи</span>
+          <span className={`${styles.footerChip} ${styles.footerChipStrong}`}>Diff</span>
         </span>
       </div>
     </>

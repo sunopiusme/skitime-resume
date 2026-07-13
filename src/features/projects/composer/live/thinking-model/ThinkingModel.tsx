@@ -305,8 +305,28 @@ export default function ThinkingModel({
         </header>
       ) : (
         <header className={styles.header}>
-          <span className={phaseClassName} aria-live="polite">
-            {phaseLabel}
+          <span className={styles.headerInert}>
+            {/* Декоративный chevron (всегда раскрыт): тот же знак, что
+                у сворачиваемого режима, но без кнопки — журнал не
+                сворачивается. */}
+            <span
+              className={`${styles.chevron} ${styles.chevronOpen}`}
+              aria-hidden="true"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </span>
+            <span className={phaseClassName} aria-live="polite">
+              {phaseLabel}
+            </span>
           </span>
         </header>
       )}

@@ -43,6 +43,32 @@
   --composer-stage-graphic: 620px;
   --composer-stage-legend: 440px;
 
+  /* ─── Mesh-палитра презентационных сцен ───
+     Единая для сцен кейса и обложек в списке проектов.
+     Психология/маркетинг палитры: молочный белый — «воздух»
+     и чистота premium-продукта; ненасыщенный голубой —
+     доверие и технологичность (низкая chroma = «дорого»,
+     высокая = «дёшево»); пудровый periwinkle и лаванда —
+     спокойствие без холода; тёплое дыхание у нижней кромки
+     снимает стерильность. Тёмный продукт на светлой пастели
+     получает максимальный figure/ground контраст — как
+     product-shot в keynote. */
+  --mesh-surface-hi: #f4f8fd; /* фарфоровый свет */
+  --mesh-surface: #e8eef7; /* базовая поверхность сцены */
+  --mesh-surface-lo: #dbe5f2; /* нижняя ступень базового градиента */
+  --mesh-core: rgba(252, 254, 255, 0.9); /* молочное ядро — «свет витрины» */
+  --mesh-periwinkle: rgba(196, 211, 245, 0.85); /* пудровый periwinkle */
+  --mesh-sky: rgba(184, 213, 244, 0.8); /* холодный sky */
+  --mesh-lavender: rgba(206, 206, 240, 0.6); /* молочная лаванда */
+  --mesh-azure: rgba(164, 192, 236, 0.7); /* голубой глубже — заземляет */
+  --mesh-warm: rgba(248, 232, 220, 0.4); /* тёплое дыхание */
+  /* Тень/кант сцены — слейтово-голубой, каналы для rgb()/alpha. */
+  --mesh-shade-rgb: 96 122 166;
+  /* Чернила на пастельной поверхности (тёмная иерархия). */
+  --mesh-ink: #1a2334;
+  --mesh-ink-muted: rgba(26, 35, 52, 0.62);
+  --mesh-ink-subtle: rgba(26, 35, 52, 0.36);
+
   /* Spacing-шкала на сетке 8pt (шаг 4px): 4·1, 4·2, 4·3, 4·4, 4·6, 4·8, 4·12, 4·16 */
   --composer-space-1: 4px;
   --composer-space-2: 8px;
@@ -56,13 +82,15 @@
   /* Единый ритм «заголовок → тело» для всех уровней:
      секция (h2), фигура (h3) и header секции делят один отступ,
      чтобы при скролле дистанция «заголовок→данные» не плавала. */
-  --composer-head-gap: clamp(20px, 2.4vw, 32px);
+  --composer-head-gap: clamp(16px, 1.8vw, 24px);
 
-  /* Адаптивные отступы для разных контекстов */
-  --composer-space-prose: clamp(24px, 2.5vw, 32px);
-  --composer-space-section-inner: clamp(48px, 5vw, 96px);
-  --composer-space-section-outer: clamp(96px, 10vw, 160px);
-  --composer-space-hero: clamp(64px, 8vw, 128px);
+  /* Адаптивные отступы для разных контекстов.
+     Плотный ритм по 8pt-сетке (как референсы): связанные блоки близко,
+     крупный разрыв оставлен только между секциями (section-outer). */
+  --composer-space-prose: clamp(20px, 1.6vw, 24px);
+  --composer-space-section-inner: clamp(32px, 3.2vw, 48px);
+  --composer-space-section-outer: clamp(64px, 6vw, 96px);
+  --composer-space-hero: clamp(48px, 5vw, 80px);
 
   /* Обратная совместимость (deprecated, используйте новые токены выше) */
   --composer-section-gap: var(--composer-space-section-outer);

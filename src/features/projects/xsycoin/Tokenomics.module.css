@@ -1,0 +1,222 @@
+/* ─────────────────────────────────────────
+   Секция «Токеномика $XSY» — первая после hero.
+   3D-монета на «продуктовой» подсветке короны,
+   тезис, ряд цифр и проза об экономике игры.
+   Тёмная сцена в тон hero-затмению и секциям меню.
+   ───────────────────────────────────────── */
+.section {
+  /* Те же холодные сине-белые каналы, что у короны hero-затмения:
+     подсветка монеты и rim-обводка цифр продолжают ту же сцену. */
+  --edge: 232 241 255;
+  --haze: 150 188 240;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(28px, 4vh, 52px);
+  padding: clamp(56px, 10vh, 128px) clamp(20px, 4vw, 64px);
+  background: var(--composer-surface);
+  color: var(--composer-ink);
+}
+
+/* ─── Монета: продуктовый кадр ───
+   Монета парит в студийном свете: позади — мягкое эллиптическое сияние
+   (ключевой свет, чуть выше центра), под ней — отдельная контактная
+   тень-«пол», которая заземляет монету в сцену. Никакого плоского круга.
+   Сам PNG плавно «дышит» по вертикали, тень-пол дышит в противофазе. */
+.coinStage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(260px, 34vw, 400px);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+/* Ключевой свет позади монеты — широкое мягкое эллиптическое сияние,
+   смещённое чуть вверх (свет «из-за» монеты). Холодное ядро + голубая
+   дымка по краю, как корона затмения, но вытянутое и без жёсткого края. */
+.glow {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 96%;
+  height: 78%;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(closest-side, rgb(var(--edge) / 0.4), transparent 78%),
+    radial-gradient(closest-side, rgb(var(--haze) / 0.26), transparent 90%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* Контактная тень-«пол» — плоский тёмный эллипс под монетой. Отрывает
+   её от фона и даёт ощущение, что монета стоит/парит над поверхностью,
+   а не наклеена. Дышит в противофазе с монетой (сжимается, когда монета
+   поднимается). */
+.glow::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -16%;
+  width: 64%;
+  height: 16%;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.62), transparent 80%);
+  filter: blur(8px);
+  animation: coinShadow 7s ease-in-out infinite;
+}
+
+.coin {
+  position: relative;
+  z-index: 1;
+  width: clamp(180px, 26vw, 300px);
+  height: auto;
+  /* Лёгкий холодный rim вокруг металла + мягкая собственная тень для
+     объёма. Без жёсткой круглой тени — её роль теперь у .glow::after. */
+  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.45))
+    drop-shadow(0 0 22px rgb(var(--edge) / 0.16));
+  animation: coinFloat 7s ease-in-out infinite;
+}
+
+/* ─── Подпись: kicker + тезис ─── */
+.caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1vh, 14px);
+  max-width: 640px;
+  text-align: center;
+}
+
+.kicker {
+  margin: 0;
+  font-family: var(--composer-font-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(22px, 2.8vw, 34px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--composer-ink);
+  text-wrap: balance;
+}
+
+/* ─── Ряд цифр ───
+   Спецификация, не таблица. Четыре колонки висят на одном тонком
+   волоске сверху, без вертикальных линий, рамок и фона: число держит
+   вес, воздух разделяет. На узком — 2×2 с тем же волоском над рядами. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: clamp(20px, 3vw, 44px);
+  row-gap: 0;
+  width: 100%;
+  max-width: 720px;
+  margin: 0;
+  padding-top: clamp(22px, 2.4vw, 30px);
+  border-top: 1px solid var(--composer-hairline);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.statLabel {
+  margin: 0;
+  font-family: var(--composer-font-mono), monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+}
+
+.statValue {
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 28px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  white-space: nowrap;
+  color: var(--composer-ink);
+}
+
+.statNote {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.35;
+  white-space: nowrap;
+  color: var(--composer-ink-muted);
+}
+
+/* ─── Проза ─── */
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 1.6vh, 20px);
+  width: 100%;
+  max-width: 640px;
+}
+
+.prose p {
+  margin: 0;
+  font-size: clamp(14px, 1.4vw, 16px);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  color: var(--composer-ink-muted);
+  text-wrap: pretty;
+}
+
+@media (max-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 420px;
+    row-gap: clamp(20px, 5vw, 28px);
+  }
+}
+
+@keyframes coinFloat {
+  0%,
+  100% {
+    transform: translateY(-6px);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+/* Тень-«пол» дышит в противофазе с монетой: когда монета вверху (фаза 0/100)
+   — тень меньше и бледнее (объект дальше от пола), когда монета внизу (50%)
+   — тень шире и плотнее. Даёт честное ощущение парения. */
+@keyframes coinShadow {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(0.86);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.08);
+    opacity: 1;
+  }
+}
+
+/* Уважаем системную настройку: при reduce — монета и тень неподвижны. */
+@media (prefers-reduced-motion: reduce) {
+  .coin,
+  .glow::after {
+    animation: none;
+  }
+}

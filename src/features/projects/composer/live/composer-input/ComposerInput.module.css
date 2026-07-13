@@ -17,8 +17,11 @@
   --c-line: var(--composer-hairline);
   --c-line-soft: rgba(255, 255, 255, 0.06);
   --c-ink: var(--composer-ink);
-  --c-ink-muted: rgba(255, 255, 255, 0.76);
-  --c-ink-subtle: rgba(255, 255, 255, 0.52);
+  --c-ink-muted: rgba(255, 255, 255, 0.78);
+  /* Subtle поднят с 0.52: placeholder и второстепенные глифы
+     проседали ниже комфортного контраста на #242424 (читались
+     как disabled). 0.58 ≈ 4.6:1 — выше WCAG AA для текста. */
+  --c-ink-subtle: rgba(255, 255, 255, 0.58);
   --c-surface: #242424;
   --c-surface-soft: #202020;
   /* Фон плашек warning/context: на тон темнее карточки
@@ -60,6 +63,28 @@
   user-select: none;
   -webkit-user-select: none;
   cursor: default;
+  /* Обновленный фон с Apple 2026 mesh gradient для профессиональной презентации */
+  background:
+    /* зерно — убирает бандинг на больших площадях градиента */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.3' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E"),
+    /* Центральное ядро - мягкий белый с голубоватым оттенком */
+    radial-gradient(60% 50% at 50% 45%, rgba(250, 252, 255, 0.95), transparent 65%),
+    /* Верх-лево: мягкий periwinkle (Apple-inspired) */
+    radial-gradient(48% 48% at 18% 20%, rgba(162, 185, 255, 0.7), transparent 58%),
+    /* Верх-право: мягкий cyan/mint */
+    radial-gradient(45% 45% at 82% 18%, rgba(172, 230, 225, 0.65), transparent 55%),
+    /* Центр-низ: едва заметный теплый акцент (персиковый) */
+    radial-gradient(50% 40% at 50% 85%, rgba(255, 230, 200, 0.35), transparent 55%),
+    /* Ниж-лево: лавандовый тон */
+    radial-gradient(47% 47% at 15% 85%, rgba(200, 195, 250, 0.55), transparent 57%),
+    /* Ниж-право: насыщенный небесно-синий */
+    radial-gradient(50% 50% at 85% 80%, rgba(140, 180, 250, 0.5), transparent 60%);
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+    no-repeat, no-repeat;
+  /* Профессиональная тень для презентации */
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Единственное исключение — textarea: туда вводят
@@ -70,43 +95,56 @@
   user-select: text;
   -webkit-user-select: text;
   cursor: text;
+  caret-color: var(--composer-focus);
 }
 
-/* ── Stack: warning (top) + card + context (bottom) ─ */
-/* Обе плашки «выдвигаются» из-под карточки:
-   уже по бокам на 12px, чуть темнее по фону.
-   Карточка перекрывает их радиусами по z. */
+/* ── Stack: card + context (bottom) ─ */
+/* Раньше сверху жила отдельная .warning-плашка, но
+   LCD-пилюля стала частью .card (см. .lcdRow), так что
+   стек сократился до двух строк: card и нижний drawer. */
 .stack {
   position: relative;
   display: grid;
 }
 
-/* ── Warning row (top drawer) ──────────── */
-/* Открытые углы = радиус card, чтобы
-   ящик читался как часть одной оболочки.
-   pad-x = card pad-x для совпадения вертикали
-   контента с тем, что внутри карточки.
-
-   Padding асимметричный: визуально box частично
-   уходит под card через margin-bottom: -16px.
-   Видимая высота = top + content + bottom − 16,
-   и контент должен быть оптически по центру
-   именно ВИДИМОЙ зоны, а не всего box'а.
-   Поэтому top меньше bottom на 4px (после
-   вычета overlap получаем симметрию). */
-.warning {
+/* ── LCD row (top drawer) ──────────────── */
+/* Верхняя плашка — зеркало нижнего drawer'а (.context):
+   отдельный sibling карточки в .stack, выезжающий из-под
+   ВЕРХА card'а (margin-bottom:-16 подтыкает её под карточку,
+   которая z-index'ом выше и накрывает стык). Отличие от
+   нижней: поджата по бокам (margin x = 8), так что не во всю
+   ширину card'а, а с воздухом по краям — отдельный объект
+   над инпутом. Скругление только сверху. Внутри ровным
+   инсетом (padding 4) утоплен экран (.lcd).
+   display:flex обязателен ещё и функционально: без него span
+   .lcd остаётся inline, height игнорируется, а canvas
+   (height:100%) теряет опору — resize-петля множит attribute-
+   высоту на DPR каждый кадр (бесконечный рост экрана). */
+.lcdRow {
   display: flex;
-  align-items: center;
-  gap: var(--c-gap-icon);
-  margin: 0 12px -16px;
-  padding: 8px var(--c-pad-x) 24px;
-  border-radius: var(--c-card-radius) var(--c-card-radius) 0 0;
-  /* Drawer на тон ТЕМНЕЕ приподнятой карточки (#242424) — читается
-     как утопленный «ящик из-под» неё, даёт контраст и глубину.
-     #1f1f1f — промежуточный тон: темнее карточки, но без резкого
-     провала, который давал #1a1a1a без рамки. */
+  align-items: flex-start;
+  /* Поджатие по бокам: 8px воздуха слева/справа, чтобы плашка
+     была уже card'а (нижний drawer идёт во всю ширину). */
+  margin: 0 8px -16px;
+  /* Верхний padding 4 = зазор безеля до экрана. Нижний 4 + overlap
+     16: низ плашки и экрана уходит под карточку на 12px (= SCREEN_TUCK
+     в LcdMarquee), ровно пряча скруглённые нижние углы линзы (r12). */
+  padding: 4px 4px 4px;
+  /* Закругление крупнее (ближе к нижнему drawer'у / card 24).
+     Только сверху; низ прямой, тонет под карточкой. Концентрично
+     экрану: 16 = screen-radius 12 + зазор 4. */
+  border-radius: 16px 16px 0 0;
+  /* На тон темнее карточки — «ящик из-под» неё, как у .context. */
   background: var(--c-drawer);
-  font-size: 0.82rem;
+  /* Кромки плашки: верхний свет-блик + тусклое кольцо по периметру —
+     без них тёмный безель растворялся в фоне страницы и LCD «висел»
+     в пустоте. Низ кольца прячется под карточкой. */
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* Свой stacking-контекст (ниже card z-index:1): запирает z-index
+     стеклянной крышки (.glass z-index:2) ВНУТРИ плашки, иначе она
+     перебивает карточку и вылезает на передний план над её низом. */
   position: relative;
   z-index: 0;
 }
@@ -125,56 +163,174 @@
   margin: -16px 0 0;
   padding: 24px var(--c-pad-x) 12px;
   border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
-  /* На тон темнее карточки — см. .warning. */
+  /* На тон темнее карточки — «ящик из-под» неё, контраст
+     даёт глубину без рамки. */
   background: var(--c-drawer);
+  /* Тусклое кольцо по периметру — нижняя и боковые кромки drawer'а
+     не растворяются в фоне страницы (верх кольца уходит под card). */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 /* ── LCD dot-matrix статусная панель ─────
    Занимает пространство между питомцем/статусом
    и компактной help-иконкой справа. Сам экран —
    canvas; контейнер задаёт высоту панели. Текст
-   центрирован, при смене статуса — dissolve-переход. */
+   центрирован, при смене статуса — dissolve-переход.
+
+   Раньше жила внутри отдельной .warning-плашки
+   с housing'ом и нависающей cover-lens (inset: -3px -4px)
+   — это давало «две оболочки» (серая плашка + стекло).
+   Теперь LCD встроен в .card через .lcdRow, и housing
+   обрезается по радиусу обёртки, а не нависает наружу. */
 .lcd {
   position: relative;
   flex: 1;
   min-width: 0;
-  height: 20px; /* LCD marquee — 7×3 dot grid, snapped to 8pt */
+  /* Высота под dot-matrix (CONTENT_H 21px) + тёмный запас снизу.
+     Низ экрана (где SVG-линза загибает нижние углы, r12) уходит под
+     карточку на 12px (= SCREEN_TUCK; tuck = lcdRow overlap 16 −
+     padding-bottom 4), полностью пряча скруглённые углы линзы.
+     Контент центрируется по видимой зоне (cssH − SCREEN_TUCK). */
+  height: 40px;
   cursor: pointer;
+  /* Скруглён только сверху (концентрично безелю .lcdRow: 16 − 4 = 12);
+     низ прямой и уходит под карточку — экран «врезан» в плашку, как
+     плашка врезана в input. */
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  /* Чуть-чуть бокового воздуха внутри экрана: pet zone и
+     alert zone канваса отступают от радиуса. */
+  padding: 0 6px;
 }
 
+/* Колодец (housing): тёмная утопленная ниша, в которой
+   «лежит» дисплей. Сейчас вписана в размеры .lcdRow —
+   inset 0, чтобы housing не вылезал за радиус 18 и не
+   ломал скругление card'а. Подложка LED-матрицы — холодный
+   charcoal, чуть темнее drawer'а, с едва заметным
+   прохладным верхним отсветом. */
 .lcd::before {
   content: "";
   position: absolute;
-  inset: -3px -4px -1px;
-  border-radius: 9px 9px 3px 3px;
+  inset: 0;
+  border-radius: inherit;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.055), transparent 28%),
-    radial-gradient(70% 110% at 50% 10%, rgba(255, 232, 194, 0.035), transparent 62%),
-    rgba(0, 0, 0, 0.18);
+    radial-gradient(82% 130% at 50% -10%, rgba(186, 208, 240, 0.022), transparent 64%),
+    rgba(4, 6, 10, 0.42);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.055),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.36);
+    inset 0 1px 1px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 0.5px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
   pointer-events: none;
+  z-index: 0;
 }
 
+/* Scanline — тонкая бегущая полоса по стеклу. Намеренно
+   слабая, mix-blend screen: читается как развёртка, а не
+   решётка. Под reduced-motion выключается ниже. */
 .lcd::after {
   content: "";
   position: absolute;
-  inset: -3px -4px -1px;
-  border-radius: 9px 9px 3px 3px;
+  inset: 0;
+  border-radius: inherit;
   background:
     repeating-linear-gradient(
       to bottom,
-      rgba(255, 255, 255, 0.024) 0,
-      rgba(255, 255, 255, 0.024) 1px,
+      rgba(255, 255, 255, 0.02) 0,
+      rgba(255, 255, 255, 0.02) 1px,
       transparent 1px,
       transparent 3px
     );
   mix-blend-mode: screen;
-  opacity: 0.18;
+  opacity: 0.14;
   pointer-events: none;
+  z-index: 3;
   animation: scanline 4800ms linear infinite;
 }
+
+/* ── Cover-glass: стеклянная крышка над дисплеем ─────────
+   Теперь точно по размеру .lcd (inset 0, радиус 18) —
+   никакого нависания наружу, всё стекло вписано в pill.
+   Материал прежний: backdrop blur+saturate, выпуклый
+   блик-cap, преломляющая фаска по краю, нижний inner-shadow
+   как толщина крышки. Tint нейтральный, чтобы крышка
+   одинаково работала поверх всех 18 data-color режимов
+   canvas. */
+.glass {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 2;
+  pointer-events: none;
+  /* Преломление: свечение точек чуть «плывёт» под стеклом.
+     Fallback-blur (до сборки url-фильтра / не-Chromium) держим
+     минимальным — 0.5px заметно мылил точки и съедал контраст. */
+  backdrop-filter: blur(0.2px) saturate(1.08);
+  -webkit-backdrop-filter: blur(0.2px) saturate(1.08);
+  /* Convex tint: белёсая дымка в верхней части, к низу прозрачно —
+     не давим контраст точек и не рисуем «коробку». Снижена, чтобы
+     не выбеливать тёмный фон между точками (это и читалось как муть). */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.01) 26%,
+    transparent 50%
+  );
+  box-shadow:
+    /* верхний catchlight cap — выпуклость стекла */
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    /* нижний inner shadow — толщина крышки (мягкая, без жёсткой
+       линии-«дна»; rim по периметру убран — он рисовал прямоугольник) */
+    inset 0 -8px 14px -9px rgba(0, 0, 0, 0.5);
+}
+
+/* Скрытый контейнер SVG-фильтра liquid glass — не влияет
+   на поток/раскладку. */
+.glassDefs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Specular highlight cap: мягкий эллипс света у верхней
+   кромки + тонкий диагональный glare-штрих по стеклу. */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(
+      120% 80% at 50% -28%,
+      rgba(255, 255, 255, 0.22),
+      rgba(255, 255, 255, 0.05) 38%,
+      transparent 60%
+    ),
+    linear-gradient(
+      104deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.07) 47%,
+      transparent 56%
+    );
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* Преломляющая фаска по краю с микро-хроматикой — тот же
+   язык, что аберрация ламп в canvas: тёплый верх-лево,
+   холодный низ-право. */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 1px 1px 1px rgba(255, 200, 150, 0.1),
+    inset -1px -1px 1px rgba(150, 220, 255, 0.1);
+  pointer-events: none;
+}
+
 
 .lcdCanvas {
   position: relative;
@@ -182,15 +338,16 @@
   display: block;
   width: 100%;
   height: 100%;
-  /* Aged VFD glow: плотный core + короткий bloom.
-     Дальний ореол намеренно слабый, чтобы на чёрном
-     фоне страницы экран не превращался в neon sign. */
+  /* LED-glow база: бело-горячее ядро + прохладный bloom,
+     в тон белым точкам (раньше тут было бирюзовое гало
+     поверх янтарных точек — рассинхрон убран). Дальний
+     ореол слабый, чтобы экран не превращался в neon sign. */
   filter:
-    drop-shadow(0 0 1px rgba(111, 240, 214, 0.56))
-    drop-shadow(0 0 3px rgba(111, 240, 214, 0.34))
-    drop-shadow(0 0 8px rgba(111, 240, 214, 0.16))
-    brightness(1.04)
-    saturate(0.98);
+    drop-shadow(0 0 1px rgba(212, 230, 255, 0.6))
+    drop-shadow(0 0 3px rgba(196, 220, 255, 0.34))
+    drop-shadow(0 0 8px rgba(180, 210, 255, 0.16))
+    brightness(1.05)
+    saturate(1.02);
   will-change: filter;
 }
 
@@ -215,20 +372,26 @@
    но не перехватывает весь chat input. */
 .lcdCanvas[data-color="typing"] {
   filter:
-    drop-shadow(0 0 1px rgba(134, 221, 207, 0.42))
-    drop-shadow(0 0 3px rgba(134, 221, 207, 0.22))
-    drop-shadow(0 0 7px rgba(134, 221, 207, 0.09))
+    drop-shadow(0 0 1px rgba(190, 210, 240, 0.44))
+    drop-shadow(0 0 3px rgba(178, 202, 236, 0.22))
+    drop-shadow(0 0 7px rgba(168, 196, 232, 0.09))
     brightness(1)
-    saturate(0.88);
+    saturate(0.92);
 }
 
+/* Запись: чистое золотое гало в тон переливу (voiceSpectrum).
+   Структура 1:1 как у access-full (один hue на всех трёх радиусах,
+   те же opacity/blur/brightness) — раньше voice размазывал три
+   разных янтаря (204/74 → 188/64 → 180/60), и ореол читался как
+   «мутный непонятный» отлив. Единый #ffcd4a (255, 205, 74) даёт
+   плотный, читаемый glow, как у «полного доступа». */
 .lcdCanvas[data-color="voice"] {
   filter:
-    drop-shadow(0 0 1px rgba(255, 47, 47, 0.76))
-    drop-shadow(0 0 4px rgba(255, 47, 47, 0.5))
-    drop-shadow(0 0 10px rgba(255, 47, 47, 0.22))
-    brightness(1.12)
-    saturate(1.18);
+    drop-shadow(0 0 1px rgba(255, 205, 74, 0.72))
+    drop-shadow(0 0 4px rgba(255, 205, 74, 0.46))
+    drop-shadow(0 0 10px rgba(255, 205, 74, 0.2))
+    brightness(1.1)
+    saturate(1.12);
 }
 
 .lcdCanvas[data-color="decode"] {
@@ -242,11 +405,11 @@
 
 .lcdCanvas[data-color="warning"] {
   filter:
-    drop-shadow(0 0 1px rgba(228, 165, 95, 0.58))
-    drop-shadow(0 0 3px rgba(228, 165, 95, 0.34))
-    drop-shadow(0 0 7px rgba(228, 165, 95, 0.14))
-    brightness(1.05)
-    saturate(0.92);
+    drop-shadow(0 0 1px rgba(255, 150, 60, 0.7))
+    drop-shadow(0 0 3px rgba(255, 140, 60, 0.4))
+    drop-shadow(0 0 7px rgba(255, 130, 60, 0.16))
+    brightness(1.14)
+    saturate(1.1);
 }
 
 .lcdCanvas[data-color="danger"] {
@@ -258,14 +421,27 @@
     saturate(1.18);
 }
 
-.lcdCanvas[data-color="access-standard"],
+/* Раньше access-standard и success делили один фильтр с зелёным
+   68/255/153 — а потом отдельный блок для access-standard
+   перекрывал его снизу. Это тихий баг: браузер применял только
+   последний filter, success-ветка вообще получала чужой зелёный.
+   Сейчас у каждого режима свой фильтр и свой оттенок. */
+.lcdCanvas[data-color="access-standard"] {
+  filter:
+    drop-shadow(0 0 1px rgba(52, 211, 153, 0.56))
+    drop-shadow(0 0 3px rgba(52, 211, 153, 0.3))
+    drop-shadow(0 0 8px rgba(52, 211, 153, 0.13))
+    brightness(1.04)
+    saturate(0.98);
+}
+
 .lcdCanvas[data-color="success"] {
   filter:
-    drop-shadow(0 0 1px rgba(68, 255, 153, 0.58))
-    drop-shadow(0 0 3px rgba(68, 255, 153, 0.32))
-    drop-shadow(0 0 8px rgba(68, 255, 153, 0.14))
+    drop-shadow(0 0 1px rgba(132, 204, 22, 0.58))
+    drop-shadow(0 0 3px rgba(132, 204, 22, 0.32))
+    drop-shadow(0 0 8px rgba(132, 204, 22, 0.13))
     brightness(1.05)
-    saturate(1);
+    saturate(0.98);
 }
 
 .lcdCanvas[data-color="files"] {
@@ -277,22 +453,13 @@
     saturate(1);
 }
 
-.lcdCanvas[data-color="access-standard"] {
-  filter:
-    drop-shadow(0 0 1px rgba(73, 229, 143, 0.54))
-    drop-shadow(0 0 3px rgba(73, 229, 143, 0.28))
-    drop-shadow(0 0 8px rgba(73, 229, 143, 0.12))
-    brightness(1.03)
-    saturate(0.98);
-}
-
 .lcdCanvas[data-color="access-review"] {
   filter:
-    drop-shadow(0 0 1px rgba(46, 168, 255, 0.66))
-    drop-shadow(0 0 4px rgba(46, 168, 255, 0.4))
-    drop-shadow(0 0 9px rgba(46, 168, 255, 0.16))
-    brightness(1.08)
-    saturate(1.08);
+    drop-shadow(0 0 1px rgba(62, 192, 200, 0.64))
+    drop-shadow(0 0 4px rgba(62, 192, 200, 0.38))
+    drop-shadow(0 0 9px rgba(62, 192, 200, 0.16))
+    brightness(1.06)
+    saturate(1.04);
 }
 
 .lcdCanvas[data-color="access-full"] {
@@ -306,10 +473,10 @@
 
 .lcdCanvas[data-color="branch"] {
   filter:
-    drop-shadow(0 0 1px rgba(0, 230, 118, 0.6))
-    drop-shadow(0 0 3px rgba(0, 230, 118, 0.34))
-    drop-shadow(0 0 8px rgba(0, 230, 118, 0.14))
-    brightness(1.04)
+    drop-shadow(0 0 1px rgba(45, 212, 191, 0.58))
+    drop-shadow(0 0 3px rgba(45, 212, 191, 0.32))
+    drop-shadow(0 0 8px rgba(45, 212, 191, 0.13))
+    brightness(1.03)
     saturate(0.96);
 }
 
@@ -324,11 +491,11 @@
 
 .lcdCanvas[data-color="model-max"] {
   filter:
-    drop-shadow(0 0 1px rgba(216, 199, 255, 0.55))
-    drop-shadow(0 0 4px rgba(148, 220, 255, 0.26))
-    drop-shadow(0 0 9px rgba(216, 199, 255, 0.12))
-    brightness(1.05)
-    saturate(0.98);
+    drop-shadow(0 0 1px rgba(157, 78, 221, 0.7))
+    drop-shadow(0 0 4px rgba(157, 78, 221, 0.44))
+    drop-shadow(0 0 10px rgba(157, 78, 221, 0.18))
+    brightness(1.09)
+    saturate(1.1);
 }
 
 .lcdCanvas[data-color="model-low"] {
@@ -351,9 +518,9 @@
 
 .lcdCanvas[data-color="model-high"] {
   filter:
-    drop-shadow(0 0 1px rgba(46, 168, 255, 0.66))
-    drop-shadow(0 0 4px rgba(46, 168, 255, 0.4))
-    drop-shadow(0 0 9px rgba(46, 168, 255, 0.16))
+    drop-shadow(0 0 1px rgba(91, 141, 255, 0.66))
+    drop-shadow(0 0 4px rgba(91, 141, 255, 0.4))
+    drop-shadow(0 0 9px rgba(91, 141, 255, 0.16))
     brightness(1.08)
     saturate(1.08);
 }
@@ -396,26 +563,55 @@
      ловит свет через inset-highlight, давая физически приподнятый
      край вместо нарисованного контура. */
   background: var(--c-surface);
+  /* Хейрлайн-кольцо по периметру (0 0 0 1px) даёт карточке
+     читаемый край на тёмном фоне: одной верхней кромки-блика
+     мало — низ и бока растворялись в странице. Кольцо тусклое
+     в покое и заметно ярчает на фокусе: состояние «поле активно»
+     считывается с расстояния, без цветного glow (палитра
+     монохромная). */
   box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.055),
     0 1px 1px rgba(0, 0, 0, 0.42),
     0 14px 34px rgba(0, 0, 0, 0.36),
     inset 0 1px 0 rgba(255, 255, 255, 0.085);
   position: relative;
   z-index: 1;
+  transition:
+    background-color var(--composer-duration-lift) ease,
+    box-shadow var(--composer-duration-lift) ease;
+}
+
+/* Hover вне фокуса — едва заметный подъём кольца:
+   приглашение к взаимодействию, не спорит с фокусом. */
+.card:hover:not([data-focus="true"]) {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.085),
+    0 1px 1px rgba(0, 0, 0, 0.42),
+    0 14px 34px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.085);
 }
 
 .card[data-drag="true"] {
   background: var(--c-surface-soft);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 1px 1px rgba(0, 0, 0, 0.42),
+    0 14px 34px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.085);
 }
 
 .card[data-focus="true"] {
+  background: #272727;
   box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
     0 1px 1px rgba(0, 0, 0, 0.42),
-    0 14px 34px rgba(0, 0, 0, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.11);
+    0 18px 40px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-.card[data-typing="true"] {
+/* Только когда фокус уже снят, но текст остался:
+   при активном фокусе побеждает data-focus (#272727). */
+.card[data-typing="true"]:not([data-focus="true"]) {
   background: #262626;
 }
 
@@ -714,6 +910,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  /* Высота строки фиксирована высотой idle-пилюль
+     (PermissionPicker = 8+20+8 = 36px). Без этого при
+     записи pickers (36px) сменяются на VoiceRecorder и
+     кнопки (32px), и тулбар — а с ним вся карточка —
+     проседал на 4px. min-height держит высоту стабильной,
+     align-items:center центрирует более низкий контент. */
+  min-height: 36px;
 }
 
 .toolbarLeft,
@@ -905,6 +1108,19 @@ button.iconBtn[data-loading="true"] svg {
 
 .sendBtn:not(:disabled):hover {
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* Keyboard-focus: видимое кольцо только для focus-visible
+   (mouse-клик кольца не рисует). Двухслойное — тёмный зазор
+   + светлый контур, читается на любом фоне кнопки. */
+.sendBtn:focus-visible,
+button.iconBtn:focus-visible,
+.modeChipClose:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--c-surface),
+    0 0 0 3.5px rgba(255, 255, 255, 0.55);
 }
 
 .sendBtn:disabled,
@@ -912,9 +1128,11 @@ button.iconBtn[data-loading="true"] svg {
   /* Ghost-пилюля поверх card: лёгкий светлый overlay
      (а не sunken-фон темнее card, как было раньше) —
      disabled читается как «слот недоступен», а не
-     как вдавленная в поверхность negative space. */
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.34);
+     как вдавленная в поверхность negative space.
+     Контраст поднят (0.06→0.09 фон, 0.34→0.42 глиф):
+     на скриншотах кнопка пропадала в карточке. */
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.42);
   cursor: not-allowed;
 }
 
@@ -1386,8 +1604,10 @@ button.iconBtn[data-loading="true"] svg {
     padding: 8px 8px;
     font-size: 0.78rem;
   }
-  .warning {
-    margin: 0 8px -16px;
+  .lcdRow {
+    /* На узких экранах воздух по бокам ужимаем до inset ≈ 4,
+       чтобы pill не подъедал всю ширину card'а. */
+    margin: -8px -8px -8px;
   }
   .context {
     margin: -16px 0 0;

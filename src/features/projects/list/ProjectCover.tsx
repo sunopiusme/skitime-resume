@@ -1,20 +1,73 @@
+import ComposerInputV2 from "@/features/projects/composer/live/composer-input-v2/ComposerInput";
+
 import styles from "./ProjectCover.module.css";
 
 type Props = {
   title: string;
-  eyebrow: string;
+  year: string;
+  index: string;
+  slug?: string;
 };
 
 /**
- * Плоский постер проекта: заливает свою ячейку без рамки и фона.
- * Композиция в две зоны — крупный заголовок и тонкая категория.
- * Номер и год специально не дублируем: они уже есть в своих колонках.
+ * Обложка-постер проекта для карточки списка. Заливает свою ячейку.
+ * Композиция держит декоративный индекс сверху, а название и год —
+ * внутри самой карточки, без отдельной подписи и тегов.
  */
-export default function ProjectCover({ title, eyebrow }: Props) {
+export default function ProjectCover({ title, year, index, slug }: Props) {
+  if (slug === "composer") {
+    return (
+      <div
+        className={`${styles.cover} ${styles.composerCover}`}
+        role="img"
+        aria-label={`${title}, ${year}`}
+      >
+        <span className={styles.composerIssue} aria-hidden="true">
+          {index}
+        </span>
+
+        <div className={styles.composerPreview} aria-hidden="true" inert>
+          <div className={styles.composerPreviewScale}>
+            <ComposerInputV2 preview />
+          </div>
+        </div>
+
+        <span className={styles.composerMeta}>
+          <span className={styles.composerTitle}>{title}</span>
+          <span className={styles.composerYear}>{year}</span>
+        </span>
+      </div>
+    );
+  }
+
+  if (slug === "xsycoin") {
+    return (
+      <div
+        className={`${styles.cover} ${styles.xsycoinCover}`}
+        role="img"
+        aria-label={`${title}, ${year}`}
+      >
+        <span className={styles.xsycoinIssue} aria-hidden="true">
+          {index}
+        </span>
+
+        <span className={styles.xsycoinMeta}>
+          <span className={styles.xsycoinTitle}>{title}</span>
+          <span className={styles.xsycoinYear}>{year}</span>
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.cover} role="img" aria-label={title}>
-      <span className={styles.title}>{title}</span>
-      <span className={styles.eyebrow}>{eyebrow}</span>
+    <div className={styles.cover} role="img" aria-label={`${title}, ${year}`}>
+      <span className={styles.index} aria-hidden="true">
+        {index}
+      </span>
+      <span className={styles.meta}>
+        <span className={styles.title}>{title}</span>
+        <span className={styles.year}>{year}</span>
+      </span>
     </div>
   );
 }

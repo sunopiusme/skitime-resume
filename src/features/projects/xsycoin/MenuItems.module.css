@@ -1,0 +1,156 @@
+/* ─────────────────────────────────────────
+   Секция «Пункты меню» — три iOS-подобные «папки»
+   с сеткой 2×2 круглых иконок, под ними центрированные
+   заголовок и подпись.
+
+   Размеры и цвета взяты из Figma-спеки:
+   плитка 176×176 #202020, радиус 52px, padding 16px, gap 16px;
+   ячейка 64×64 rgba(0,0,0,0.61), круглая; глиф 28px.
+   ───────────────────────────────────────── */
+.section {
+  /* Холодный сине-белый свет обводки — те же каналы, что у короны
+     hero-затмения: rim-light на плитках продолжает ту же сцену. */
+  --edge: 232 241 255;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(28px, 4vh, 52px);
+  padding: clamp(56px, 10vh, 128px) clamp(20px, 4vw, 64px);
+  background: var(--composer-surface);
+  color: var(--composer-ink);
+}
+
+/* Ряд из трёх «папок». На узких экранах переносятся и центрируются. */
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* «Папка» — скруглённый тёмный контейнер 176×176 с сеткой 2×2.
+   Обводка — тонкий rim-light по краю (см. ::before): светится только
+   с части периметра, как блик источника света при затмении. Без glow:
+   мягкая тень снизу нужна лишь для отрыва плитки от фона. */
+.tile {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 64px);
+  grid-auto-rows: 64px;
+  gap: 16px;
+  width: 176px;
+  height: 176px;
+  padding: 16px;
+  border-radius: 52px;
+  background-color: #202020;
+  box-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.85);
+}
+
+/* Ячейка-иконка — полупрозрачно-чёрная (rgba 0,0,0,0.61). Обводка —
+   такой же rim-light по краю (::before); форма задаётся модификатором. */
+.cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background-color: rgba(0, 0, 0, 0.61);
+}
+
+/* Rim-light: 2px-рамка-штрих, вырезанная маской так, чтобы красить
+   только кромку (border-box минус content-box) — никакого падающего
+   света внутрь. Яркость разложена по углам через conic-gradient:
+   0°=верх, 90°=право, 180°=низ, 270°=лево (по часовой). Пик — в
+   нижне-правом углу (≈135°, самый яркий), мягкий добор — в нижне-левом
+   (≈225°); остальной периметр приглушён до базовой кромки. */
+.tile::before,
+.cell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgb(var(--edge) / 0.12) 0deg,
+    rgb(var(--edge) / 0.12) 95deg,
+    rgb(var(--edge) / 0.85) 135deg,
+    rgb(var(--edge) / 0.12) 180deg,
+    rgb(var(--edge) / 0.5) 225deg,
+    rgb(var(--edge) / 0.12) 270deg,
+    rgb(var(--edge) / 0.12) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Формы ячеек: круг или скруглённый квадрат (радиус 24px). */
+.shapeCircle {
+  border-radius: 50%;
+}
+
+.shapeRounded {
+  border-radius: 24px;
+}
+
+.emoji {
+  font-size: 28px;
+  line-height: 32px;
+  letter-spacing: -1px;
+}
+
+/* Брендовая иконка — внутри тёмной ячейки белый «монетный» бейдж 24px
+   с символом XSYCOIN, как в Figma (frame-137 → ton_symbol). */
+.coin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #ffffff;
+}
+
+.coinGlyph {
+  width: 15.2px;
+  height: 15.2px;
+  object-fit: contain;
+  /* Логотип-исходник белый — инвертируем в чёрный на белом бейдже. */
+  filter: invert(1);
+}
+
+/* Подпись под папками — заголовок и пояснение по центру. */
+.caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1vh, 14px);
+  max-width: 560px;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(15px, 1.4vw, 18px);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--composer-ink-subtle);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: clamp(18px, 2.2vw, 28px);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--composer-ink);
+}

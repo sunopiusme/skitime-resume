@@ -1,34 +1,297 @@
 /* ─────────────────────────────────────────
-   Cover — плоский постер.
-   Заливает ячейку, без рамки и фона.
-   Композиция: крупный title по центру вертикали,
-   тонкая категория снизу.
+   Cover — постер карточки.
+   Заливает ячейку обложки. Композиция: крупный
+   индекс выпуска сверху (визуальный якорь), название
+   и год — внутри карточки, без тегов под обложкой.
    ───────────────────────────────────────── */
 .cover {
   display: grid;
   grid-template-rows: 1fr auto;
+  gap: 24px;
   width: 100%;
   height: 100%;
-  min-height: 132px;
+  box-sizing: border-box;
+  padding: clamp(16px, 1.6vw, 24px);
+  background: var(--composer-surface-raised);
   color: var(--composer-ink);
+}
+
+.index {
+  display: flex;
+  align-items: flex-start;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 3rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+  color: var(--composer-ink);
+  opacity: 0.32;
+  font-variant-numeric: tabular-nums;
+}
+
+.meta {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
 }
 
 .title {
-  display: flex;
-  align-items: center;
-  max-width: 10ch;
   color: var(--composer-ink);
-  font-family: var(--font-sans), sans-serif;
-  font-size: clamp(1.45rem, 2vw, 1.9rem);
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 1.02;
+  font-size: 1.22rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.16;
   text-wrap: balance;
 }
 
-.eyebrow {
-  font-size: 0.64rem;
-  letter-spacing: 0.2em;
+.year {
+  color: var(--composer-ink-muted);
+  font-size: 0.85rem;
+  letter-spacing: 0;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────
+   Composer cover — постер на единой mesh-палитре
+   (globals.css, --mesh-*): та же молочно-голубая сцена,
+   что и stage в кейсе, — обложка и кейс читаются как
+   один продукт. Композиция точек под формат 4:3:
+   свет витрины над верхней третью (там живёт индекс),
+   periwinkle/sky держат верхние углы, azure глубже
+   заземляет правый низ под тёмным превью композера,
+   тёплое дыхание у нижней кромки снимает стерильность.
+   ───────────────────────────────────────── */
+.composerCover {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 0;
+  background-color: var(--mesh-surface);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E"),
+    /* молочное ядро — «свет витрины», чуть влево к индексу */
+    radial-gradient(76% 62% at 40% 24%, var(--mesh-core), transparent 66%),
+    /* верх-лево: пудровый periwinkle */
+    radial-gradient(58% 70% at -8% -12%, var(--mesh-periwinkle), transparent 68%),
+    /* верх-право: холодный sky */
+    radial-gradient(54% 66% at 108% -6%, var(--mesh-sky), transparent 70%),
+    /* низ-лево: молочная лаванда */
+    radial-gradient(56% 70% at -10% 108%, var(--mesh-lavender), transparent 70%),
+    /* низ-право: azure глубже — заземляет тёмное превью */
+    radial-gradient(68% 84% at 108% 110%, var(--mesh-azure), transparent 72%),
+    /* тёплое дыхание у нижней кромки */
+    radial-gradient(50% 36% at 46% 104%, var(--mesh-warm), transparent 62%),
+    linear-gradient(165deg, rgba(255, 255, 255, 0.55) 0%, transparent 38%, rgb(var(--mesh-shade-rgb) / 0.16) 80%, transparent 100%),
+    linear-gradient(135deg, var(--mesh-surface-hi) 0%, var(--mesh-surface) 52%, var(--mesh-surface-lo) 100%);
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+    no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 220px 220px, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
+    100% 100%, 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* Ambient-блик сверху — как stageMesh::before, но мягче:
+   на маленьком постере soft-light быстро пережигает. */
+.composerCover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(78% 58% at 16% -14%, rgba(255, 255, 255, 0.5), transparent 64%),
+    linear-gradient(125deg, rgba(255, 255, 255, 0.45), transparent 36%, rgba(255, 255, 255, 0.18) 70%, transparent 100%);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+/* Кант сцены: молочная верхняя кромка + слейтовое утяжеление низа. */
+.composerCover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgb(var(--mesh-shade-rgb) / 0.34),
+    inset 0 -44px 64px -68px rgb(var(--mesh-shade-rgb) / 0.42);
+  pointer-events: none;
+}
+
+.composerIssue {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 4;
+  color: var(--mesh-ink-subtle);
+  font-size: 2.7rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.composerPreview {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.composerPreviewScale {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translate(-28%, -50%);
+  width: var(--composer-measure-hero);
+}
+
+.composerMeta {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 4;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  max-width: 38%;
+  color: var(--mesh-ink);
+  text-align: left;
+}
+
+/* All-caps wordmark: капс закреплён в слое представления (не зависит
+   от написания title в метаданных), трекинг расширен — капс без
+   разрядки читается тесно. Едина с .xsycoinTitle для общего ритма. */
+.composerTitle {
+  font-size: 1.28rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.08;
   text-transform: uppercase;
-  color: var(--composer-ink-subtle);
+}
+
+.composerYear {
+  color: var(--mesh-ink-muted);
+  font-size: 0.85rem;
+  letter-spacing: 0;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 560px) {
+  .composerMeta {
+    max-width: 42%;
+  }
+}
+
+/* ─────────────────────────────────────────
+   XSYCOIN cover — серо-чёрный mesh-постер.
+   Та же поскерная композиция, что и у composer
+   (индекс сверху-слева, название и год снизу-слева),
+   но палитра ахроматическая: антрацит → графит → уголь.
+   Светлое ядро смещено к индексу как «свет студии»,
+   тёмные углы заземляют сцену, тонкая зернистость
+   снимает банинг на градиентах. Чернила — светлые,
+   потому что поверхность тёмная.
+   ───────────────────────────────────────── */
+.xsycoinCover {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 0;
+  background-color: #141414;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+    /* приглушённый студийный свет — чуть влево к индексу */
+    radial-gradient(76% 62% at 38% 22%, rgba(86, 86, 90, 0.85), transparent 64%),
+    /* верх-право: холодный графит */
+    radial-gradient(56% 66% at 110% -8%, rgba(58, 58, 62, 0.9), transparent 68%),
+    /* низ-лево: глубокий уголь */
+    radial-gradient(60% 72% at -12% 112%, rgba(10, 10, 11, 0.95), transparent 70%),
+    /* низ-право: ещё темнее — заземляет угол */
+    radial-gradient(70% 84% at 110% 112%, rgba(6, 6, 7, 0.95), transparent 72%),
+    /* верх-лево: лёгкое серебро на кромке */
+    radial-gradient(46% 58% at -6% -10%, rgba(118, 118, 124, 0.5), transparent 66%),
+    linear-gradient(165deg, rgba(255, 255, 255, 0.06) 0%, transparent 36%, rgba(0, 0, 0, 0.5) 82%, transparent 100%),
+    linear-gradient(135deg, #2b2b2e 0%, #1a1a1c 52%, #0a0a0b 100%);
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+    no-repeat, no-repeat, no-repeat;
+  background-size: 220px 220px, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
+    100% 100%, 100% 100%, 100% 100%;
+}
+
+/* Ambient-блик сверху — мягкое серебро, soft-light,
+   как у composer::before, но холоднее и тише. */
+.xsycoinCover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(78% 58% at 18% -14%, rgba(255, 255, 255, 0.14), transparent 62%),
+    linear-gradient(125deg, rgba(255, 255, 255, 0.08), transparent 38%, rgba(0, 0, 0, 0.3) 72%, transparent 100%);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+/* Кант сцены: тонкая светлая верхняя кромка + утяжеление низа. */
+.xsycoinCover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    inset 0 -44px 64px -68px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.xsycoinIssue {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 4;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 2.7rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.xsycoinMeta {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 4;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  max-width: 60%;
+  color: #ffffff;
+  text-align: left;
+}
+
+/* All-caps wordmark: капс закреплён в слое представления (не зависит
+   от того, как вписан title в метаданных), трекинг расширен — капс
+   без разрядки читается тесно. Чуть «тикерный» характер под крипто. */
+.xsycoinTitle {
+  font-size: 1.28rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.08;
+  text-transform: uppercase;
+}
+
+.xsycoinYear {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  letter-spacing: 0;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }

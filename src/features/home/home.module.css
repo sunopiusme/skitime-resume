@@ -8,7 +8,9 @@
   position: relative;
   min-height: 100svh;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  /* Topbar — fixed (вне потока, как в кейсе/списке): в гриде две строки —
+     hero (1fr) и футер (auto, прижат вниз). */
+  grid-template-rows: 1fr auto;
   padding:
     clamp(20px, 2.6vw, 32px)
     clamp(20px, 4vw, 48px)
@@ -47,23 +49,52 @@
 
 /* ---------------- Top bar ---------------- */
 
+/* Идентичен кейсу и списку проектов: fixed, full-bleed фон на всю
+   ширину, контент у краёв экрана, 16px без капса, цвет rgba .6. */
 .topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding-bottom: clamp(16px, 1.4vw, 20px);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--composer-ink-muted);
+  padding:
+    clamp(10px, 1vw, 14px)
+    clamp(20px, 2.4vw, 40px);
+  background: var(--composer-surface);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.6);
   animation: homeFade 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .brand {
-  color: var(--composer-ink);
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.46em;
+  min-height: 40px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 520;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+/* X-марка стоит ПОСЛЕ фамилии, 1.3em — оптическое равенство
+   с заглавной «Ф». Без размера SVG растягивается в натуральную
+   величину — отсюда и «здоровая» иконка. */
+.brandLogo {
+  width: 1.3em;
+  height: 1.3em;
+  flex-shrink: 0;
+  opacity: 0.96;
 }
 
 .navLinks {
@@ -77,7 +108,7 @@
 .navLinks a {
   display: inline-flex;
   align-items: center;
-  height: 32px;
+  height: 40px;
   padding: 0 16px;
   border-radius: 999px;
   color: var(--composer-ink-muted);
@@ -152,8 +183,10 @@
   font-family: var(--font-sans), sans-serif;
   /* Спокойнее, чем раньше: на 1440px примерно 4.25rem ≈ 68px. */
   font-size: clamp(2rem, 5vw, 4.5rem);
-  font-weight: 600;
-  letter-spacing: -0.025em;
+  /* Вес базовой (жирной) части выровнен с заголовками composer (500);
+     постерный масштаб и тонкий акцент сохраняются. */
+  font-weight: 500;
+  letter-spacing: -0.03em;
   line-height: 1.05;
   text-wrap: balance;
   font-kerning: normal;
@@ -173,9 +206,10 @@
 }
 
 .subtitle {
-  max-width: 46ch;
+  /* Мера и кегль выровнены с .lede на странице проектов. */
+  max-width: 52ch;
   color: var(--composer-ink-muted);
-  font-size: clamp(0.98rem, 1.15vw, 1.1rem);
+  font-size: clamp(1rem, 1.2vw, 1.18rem);
   font-weight: 400;
   letter-spacing: -0.005em;
   line-height: 1.5;
@@ -278,18 +312,26 @@
 
 /* ---------------- Footer ---------------- */
 
+/* Зеркало хедера, как в списке проектов: full-bleed (компенсирует
+   горизонтальный паддинг страницы), 16px, цвет rgba .6. */
 .footer {
+  margin-inline: calc(-1 * clamp(20px, 4vw, 48px));
+  padding: clamp(10px, 1vw, 14px) 0 0;
+  animation: homeFade 360ms cubic-bezier(0.2, 0.7, 0.2, 1) 400ms both;
+}
+
+.footerInner {
+  width: 100%;
+  padding-inline: clamp(20px, 2.4vw, 40px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px 16px;
-  padding-top: clamp(16px, 1.4vw, 20px);
-  font-size: 0.8rem;
+  font-size: 16px;
   font-weight: 400;
-  letter-spacing: -0.005em;
-  color: var(--composer-ink-subtle);
-  animation: homeFade 360ms cubic-bezier(0.2, 0.7, 0.2, 1) 400ms both;
+  letter-spacing: 0em;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .socials {
@@ -304,10 +346,10 @@
 .socials a {
   display: inline-flex;
   align-items: center;
-  height: 28px;
-  padding: 0 12px;
+  height: 40px;
+  padding: 0 16px;
   border-radius: 999px;
-  color: var(--composer-ink-subtle);
+  color: var(--composer-ink-muted);
   transition:
     background-color 160ms ease,
     color 160ms ease;
@@ -367,8 +409,8 @@
     grid-column: 1 / -1;
   }
 
-  .footer {
-    font-size: 0.75rem;
+  .footerInner {
+    font-size: 0.66rem;
   }
 }
 

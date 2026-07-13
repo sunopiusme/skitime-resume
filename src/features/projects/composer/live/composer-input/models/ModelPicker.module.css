@@ -37,6 +37,7 @@
 .triggerLabel {
   color: var(--c-ink);
   white-space: nowrap;
+  font-weight: 600;
 }
 
 .triggerLevel {

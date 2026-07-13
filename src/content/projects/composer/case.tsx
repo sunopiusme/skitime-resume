@@ -10,7 +10,7 @@ import {
   LabWorkflowDisk,
 } from "@/features/projects/composer/parts/ResearchFigures";
 import ThinkingModel from "@/features/projects/composer/live/thinking-model/ThinkingModel";
-import ComposerInput from "@/features/projects/composer/live/composer-input/ComposerInput";
+import ComposerInputV2 from "@/features/projects/composer/live/composer-input-v2/ComposerInput";
 import ProjectSidebar from "@/features/projects/composer/live/project-sidebar/ProjectSidebar";
 import caseStyles from "@/features/projects/composer/case.module.css";
 
@@ -18,12 +18,19 @@ import { thinkingModelSnippet } from "./snippets/thinking-model";
 import { composerInputSnippet } from "./snippets/composer-input";
 import { projectSidebarSnippet } from "./snippets/project-sidebar";
 
+/* Нарратив кейса собран как доказательная цепочка:
+   контекст (что изменилось) → метод (как кодировались источники) →
+   находки (где агентам нужен контроль) → тезис → три решения
+   (контракт, трейс, workflow) → закрытие. Research идёт ДО решений,
+   потому что требования к контракту, трейсу и ревью рождаются из
+   карты трения — секции решений читаются как ответы на находки. */
 export default function ComposerCase() {
   return (
     <main id="main" tabIndex={-1} className={caseStyles.page}>
       <header className={caseStyles.topbar} aria-label="Шапка сайта">
         <Link className={caseStyles.brand} href="/" aria-label="Данила Фурманов, на главную">
-          Данила Фурманов
+          Фурманов
+          <img src="/xlogo.svg" alt="" aria-hidden="true" className={caseStyles.brandLogo} />
         </Link>
         <nav className={caseStyles.navLinks} aria-label="Основная навигация">
           <Link href="/">Главная</Link>
@@ -44,56 +51,136 @@ export default function ComposerCase() {
           </div>
         </section>
 
-        {/* 01 — Что изменилось */}
+        {/* 01 — Контекст: что изменилось */}
         <section className={caseStyles.part}>
           <div className={caseStyles.column}>
-            <blockquote className={caseStyles.pullQuote}>
-              ADE начинается там, где интерфейс показывает не «магический ответ», а намерение,
-              границы доступа, ход работы и следы, по которым результат можно принять или отклонить.
-            </blockquote>
-          </div>
-
-          <div className={caseStyles.column}>
-            <h2 className={caseStyles.sectionTitle}>Что изменилось в рабочей поверхности</h2>
+            <h2 className={caseStyles.sectionTitle}>Рабочая поверхность изменилась</h2>
             <div className={caseStyles.prose}>
               <p>
-                Composer здесь не продуктовый анонс, а вскрытие рабочей поверхности. Короткие
-                демо ADE обычно показывают счастливый путь в стерильном репозитории. Самое важное
-                остается за кадром: что происходит, когда агент получает старый код, мутный контекст
-                и задачу, которую нельзя проверить на глаз.
+                С генерацией кода агенты давно справляются. Слабое место ADE в другом. Агент меняет
+                репозиторий быстрее, чем человек успевает собрать в голове картину риска.
               </p>
               <p>
-                ADE перестает быть редактором с подсказками. Он выбирает контекст, строит план,
-                меняет файлы и приносит человеку уже готовый diff. В этот момент разработчик
-                становится не автором каждой строки, а диспетчером процесса, который может ошибаться
-                быстро и убедительно. Главная проблема не в генерации. Главная проблема в проверке:
-                агент успевает сделать больше, чем команда успевает понять.
+                В демо всё выглядит безупречно. Чистый репозиторий, прямая задача, готовый
+                результат. Живой проект устроен грязнее. Старый код, который страшно трогать.
+                Контекст, которого нет в файлах. Зависимости, о которых помнит один человек в
+                команде. В такой среде разработчик больше не автор каждой строки. Он тот, кто
+                впускает агента в код, наблюдает за его работой и принимает её результат.
               </p>
               <p>
-                Дальше я разбираю эту поверхность по слоям — от контракта перед запуском до ревью —
-                а в конце показываю исследование, из которого эти слои выросли.
+                Поэтому ещё до того, как изменения станут PR, среда должна отвечать на три вопроса.
+                Что агенту разрешено. Что он делает прямо сейчас. И почему его работу можно
+                принять.
               </p>
             </div>
           </div>
         </section>
 
-        {/* 02 — Контракт перед запуском */}
+        {/* 02 — Метод: как кодировались источники */}
         <section className={caseStyles.part}>
           <div className={caseStyles.column}>
-            <div className={caseStyles.partHeader}>
-              <h2 className={caseStyles.sectionTitle}>Контракт перед запуском</h2>
-            </div>
+            <h2 className={caseStyles.sectionTitle}>Источник важен только по сигналу</h2>
             <div className={caseStyles.prose}>
               <p>
-                Композер в ADE не <code>textarea</code>. Это контракт перед запуском. В одном кадре
-                должны быть задача, контекст, окружение, ветка, модель и режим доступа. Если этого
-                нет, пользователь не запускает работу, а бросает намерение в темную коробку. В Codex
-                часть контракта держат AGENTS.md и облачное окружение. В Claude Code эту роль
-                берут права, hooks и MCP, в Kiro: спеки, steering и agent hooks.
+                Документация рассказывает, что продукт обещает. Отзывы показывают, где обещание
+                трещит. Дорогие длинные сессии, потерянный контекст, бесконечные запросы прав,
+                недоверие к diff, ревью, которое никто не успевает читать. Поэтому я не смешивал
+                источники как равные факты, у каждого своя роль.
               </p>
               <p>
-                Технически это слой управления. Для продукта это способ не потерять авторство в
-                системе, которая уже действует сама.
+                Кодировал я не бренды, а поверхности риска. Облачная песочница Codex, итог которой
+                может стать pull request. Права, hooks и MCP у Claude Code. Спеки Kiro, от
+                требований к дизайну и задачам. Менеджер агентов и артефакты у Antigravity. Issue,
+                который у Copilot уходит агенту и возвращается pull request'ом.
+              </p>
+              <p>
+                Ассистент отвечает на вопросы. ADE ведёт весь цикл. И если интерфейс не показывает
+                оркестрацию, права, контекст и проверку, он прячет от разработчика самую опасную
+                часть продукта.
+              </p>
+            </div>
+          </div>
+
+          <div className={caseStyles.wide}>
+            <InlineFigure
+              caption="Официальные документы отделены от пользовательского трения. Иначе карта путает обещание продукта с тем, что реально ломает работу."
+              frame="plain"
+            >
+              <LabSourceMap />
+            </InlineFigure>
+          </div>
+
+          <div className={caseStyles.wide}>
+            <InlineFigure
+              frame="plain"
+              caption="Матрица не выбирает победителя. Она показывает повторяющиеся способности категории, которые нельзя прятать за полем чата."
+            >
+              <LabCapabilityMatrix />
+            </InlineFigure>
+          </div>
+        </section>
+
+        {/* 03 — Находки: где агентам нужен контроль */}
+        <section className={caseStyles.part}>
+          <div className={caseStyles.column}>
+            <h2 className={caseStyles.sectionTitle}>Где агентам нужен контроль</h2>
+            <div className={caseStyles.prose}>
+              <p>
+                Повторяющееся трение бьет по одному месту: автономность повышает скорость и
+                одновременно цену ошибки. Деньги сгорают на длинных сессиях, контекст устаревает,
+                доступ требует подтверждений, diff все равно нужно читать.
+              </p>
+              <p>
+                Называть это UX-мелочами удобно, но неверно. Это список контрольных поверхностей,
+                без которых агентная разработка превращается в ставку на уверенный текст.
+              </p>
+            </div>
+          </div>
+
+          <div className={caseStyles.wide}>
+            <InlineFigure
+              frame="plain"
+              caption="Карта показывает не статистику рынка, а повторяющиеся точки отказа. Из них рождаются требования к контракту, трейсу и ревью."
+            >
+              <LabFrictionRadar />
+            </InlineFigure>
+          </div>
+        </section>
+
+        {/* Тезис — вывод исследования и мост к трём решениям */}
+        <section className={caseStyles.part}>
+          <div className={caseStyles.column}>
+            <blockquote className={caseStyles.pullQuote}>
+              <span className={caseStyles.pullQuoteKicker}>Тезис</span>
+              <span className={caseStyles.pullQuoteText}>
+                ADE заслуживает запуска только тогда, когда интерфейс показывает цель, контекст,
+                доступ, ход работы и доказательства. Все остальное остается чатом с правами на
+                репозиторий.
+              </span>
+            </blockquote>
+          </div>
+        </section>
+
+        {/* 04 — Решение 1: контракт перед запуском */}
+        <section className={caseStyles.part}>
+          <div className={caseStyles.column}>
+            <h2 className={caseStyles.sectionTitle}>Контракт перед запуском</h2>
+            <div className={caseStyles.prose}>
+              <p>
+                Композер в ADE не <code>textarea</code>. Это место, где намерение становится
+                исполняемым контрактом: задача, файлы, проект, ветка, окружение, модель и режим
+                доступа.
+              </p>
+              <p>
+                Если один параметр спрятан, продукт перекладывает риск на память пользователя.
+                Codex распределяет контракт между AGENTS.md и облачным окружением. Claude Code
+                опирается на permissions, hooks и MCP. Kiro держит дисциплину через specs и
+                steering. Интерфейс обязан собрать это в кадр, иначе автономность начинается
+                вслепую.
+              </p>
+              <p>
+                Пользователь должен остановить агент до первого изменения, а не разбирать
+                последствия после готового diff.
               </p>
             </div>
           </div>
@@ -106,8 +193,10 @@ export default function ComposerCase() {
             aria-label="Композер: разбор слоёв"
           >
             <div className={caseStyles.composerPinDock} aria-hidden="false">
-              <div className={caseStyles.composerPinFrame}>
-                <ComposerInput />
+              <div className={`${caseStyles.composerStage} ${caseStyles.stageMesh}`}>
+                <div className={caseStyles.composerPinFrame}>
+                  <ComposerInputV2 />
+                </div>
               </div>
             </div>
           </section>
@@ -122,35 +211,38 @@ export default function ComposerCase() {
           </div>
         </section>
 
-        {/* 03 — Наблюдаемый трейс */}
+        {/* 05 — Решение 2: наблюдаемый трейс */}
         <section className={caseStyles.part}>
           <div className={caseStyles.column}>
-            <div className={caseStyles.partHeader}>
-              <h2 className={caseStyles.sectionTitle}>Наблюдаемый трейс работы агента</h2>
-            </div>
+            <h2 className={caseStyles.sectionTitle}>Наблюдаемый трейс работы агента</h2>
             <div className={caseStyles.prose}>
               <p>
-                После запуска первый слой контроля становится интерфейсом: короткий журнал того,
-                что агент читает, какие инструменты запускает, где застрял и на каких следах человек
-                сможет проверить результат. Это не приватная цепочка мысли, а рабочая картина
-                процесса.
+                После запуска контроль держится не на доверии к модели, а на рабочем журнале: что
+                прочитано, какие команды запущены, где агент изменил файл и чем подтвержден
+                результат.
+              </p>
+              <p>
+                Это не chain-of-thought и не театр размышлений. Нужен операционный след, по которому
+                ревьюер восстановит причинность без открытия десяти вкладок.
               </p>
             </div>
           </div>
 
-          <div className={caseStyles.column}>
-            <InlineFigure frame="plain">
-              <ThinkingModel mode="inline" />
-            </InlineFigure>
+          <div className={caseStyles.wide}>
+            <div className={`${caseStyles.composerStage} ${caseStyles.stageMesh}`}>
+              <div className={caseStyles.composerPinFrame}>
+                <ThinkingModel mode="inline" collapsible={false} />
+              </div>
+            </div>
           </div>
 
           <div className={caseStyles.column}>
             <div className={caseStyles.prose}>
               <p>
-                Сценарий вынесен из UI намеренно. <code>useThinkingTimeline</code> отдает фазу,
-                раскрытые шаги и позицию печати; компонент только рисует состояние. Один и тот же
-                трейс поэтому живет в hero, в разборе внутри статьи и в статичном варианте для
-                <code>prefers-reduced-motion</code>.
+                Сценарий вынесен из UI, чтобы журнал не зависел от анимации.{" "}
+                <code>useThinkingTimeline</code> управляет фазой, раскрытыми шагами и печатью;
+                компонент только рендерит состояние. Поэтому один трейс работает в hero, в статье и
+                в статичном режиме для <code>prefers-reduced-motion</code>.
               </p>
             </div>
           </div>
@@ -165,56 +257,53 @@ export default function ComposerCase() {
           </div>
         </section>
 
-        {/* 04 — Workflow, доказательства и ревью */}
+        {/* 06 — Решение 3: workflow, доказательства и ревью */}
         <section className={caseStyles.part}>
           <div className={caseStyles.column}>
-            <div className={caseStyles.partHeader}>
-              <h2 className={caseStyles.sectionTitle}>Workflow, доказательства и ревью</h2>
-            </div>
+            <h2 className={caseStyles.sectionTitle}>Работа должна доходить до решения</h2>
             <div className={caseStyles.prose}>
               <p>
-                Дальше нужен не ответ ассистента, а диспетчерская: несколько линий работы, явные
-                ограничения, доказательства и место для человеческого решения. ADE нельзя
-                проектировать как один чат — работа проходит через план, контекст, доступ,
-                выполнение, проверку и ревью, и каждый из этих слоёв должен быть виден.
+                Чат не выдерживает агентную разработку. Он смешивает план, доступ, команды,
+                результат и ревью в одну ленту, где все выглядит одинаково важным.
+              </p>
+              <p>
+                ADE нужна диспетчерская: линии работ, ограничения, доказательства и явная точка, где
+                человек принимает или отклоняет diff.
               </p>
             </div>
           </div>
 
           <div className={caseStyles.wide}>
             <InlineFigure
-              caption="ADE нельзя проектировать как один чат. Работа проходит через план, контекст, доступ, выполнение, проверку и ревью."
+              caption="Проверяемость растет только когда путь отделен на стадии: намерение, спека, контекст, доступ, выполнение, проверка, ревью."
               frame="plain"
             >
               <LabWorkflowDisk />
             </InlineFigure>
           </div>
 
-          <div className={caseStyles.wide}>
-            <InlineFigure
-              caption="Автономная работа становится пригодной для ревью только тогда, когда рядом лежат лог сессии, команды, тесты, diff, снимки и pull request."
-              frame="plain"
-            >
-              <LabEvidenceStack />
-            </InlineFigure>
-          </div>
-
           <div className={caseStyles.column}>
             <div className={caseStyles.prose}>
               <p>
-                Дальше не схема, а рабочая поверхность. Сайдбар разрезан пополам: сверху навигация,
-                проекты и начало чатов; снизу хвост списка и системный футер. Между ними оставлена
-                пустота страницы, потому что в ADE пауза важнее декоративного разделителя.
+                Сайдбар здесь не меню чатов. Он показывает работы в разных состояниях: агент еще
+                действует, diff ждет ревью, задача уже закрыта. Сверху навигация и проекты; снизу
+                хвост списка и системный футер; между ними пустое поле страницы. Пауза оставлена
+                специально: в ADE важнее дистанция между задачами, чем еще один декоративный
+                разделитель.
               </p>
             </div>
           </div>
 
           <div className={caseStyles.wide}>
             <InlineFigure
-              caption="Превью сайдбара ADE: проекты группируют сессии с явным статусом работы (выполнение, проверка, ревью), а не бесконечный поток сообщений."
+              caption="Проекты группируют сессии со статусом: выполнение, проверка, ревью. Это рабочий архив, не бесконечный поток сообщений."
               frame="plain"
             >
-              <ProjectSidebar />
+              <div className={`${caseStyles.composerStage} ${caseStyles.stageMesh}`}>
+                <div className={caseStyles.composerPinFrame}>
+                  <ProjectSidebar />
+                </div>
+              </div>
             </InlineFigure>
           </div>
 
@@ -230,113 +319,49 @@ export default function ComposerCase() {
           <div className={caseStyles.column}>
             <div className={caseStyles.prose}>
               <p>
-                Сайдбар перестал быть списком бесед. Проекты теперь группируют сессии с явным
-                статусом работы: <code>running</code> показывает активное выполнение,{" "}
-                <code>review</code> что diff готов к проверке, <code>done</code> что работа
-                принята. Каждая сессия привязана к задаче и ветке, а не просто к истории сообщений.
+                Сайдбар обязан отвечать на один вопрос: что требует моего решения сейчас.{" "}
+                <code>running</code> означает, что агент еще действует; <code>review</code>, что
+                diff готов и нужен человек; <code>done</code>, что задача закрыта.
               </p>
               <p>
-                Это не декоративное изменение. Статус делает работу наблюдаемой: человек видит,
-                на каком этапе находится каждая сессия, и может вернуться к проверке или ревью
-                в любой момент. Сайдбар становится рабочим архивом, а не панелью тревоги с
-                бесконечным прогрессом.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* 05 — Как мы кодировали источники (research-обоснование) */}
-        <section className={caseStyles.part}>
-          <div className={caseStyles.column}>
-            <h2 className={caseStyles.sectionTitle}>Как мы кодировали источники</h2>
-            <div className={caseStyles.prose}>
-              <p>
-                Эти слои выросли не из вкуса, а из исследования. Я смешал документы, категорийные
-                тексты, академическое описание Claude Code и отзывы пользователей. Не как равные
-                доказательства. Документы говорят, что системы обещают. Отзывы показывают, где это
-                обещание начинает скрипеть: лимиты, цена длинных сессий, потерянный контекст, diff
-                без доверия и ревью, которое внезапно стало узким местом.
-              </p>
-              <p>
-                Я кодировал источники не по брендам, а по тому, какую часть рабочей системы они
-                вскрывают. Codex важен как облачная задача, которая доходит до pull request. Claude
-                Code показывает слой прав, hooks, transcript и MCP. Kiro держит дисциплину через
-                спеки и steering. Antigravity связывает редактор с менеджером агентов. Copilot
-                coding agent делегирует задачу из issue в фоновую работу.
-              </p>
-              <p>
-                Разница становится резкой. Ассистент отвечает. ADE держит цикл работы: оркестрацию,
-                права, контекст, проверку, спеки и параллельные сессии. Если интерфейс этого не
-                показывает, он скрывает самую рискованную часть продукта.
+                История сообщений вторична. Важны задача, ветка, статус и доказательства. Без этого
+                боковая панель быстро превращается в кладбище разговоров, где невозможно отличить
+                прогресс от шума.
               </p>
             </div>
           </div>
 
           <div className={caseStyles.wide}>
             <InlineFigure
-              caption="У источников разный вес. Продуктовые факты лежат отдельно от пользовательского трения, иначе карта быстро превращается в шум."
+              caption="Ревью начинается не с уверенного ответа, а с пакета следов: сессия, команды, тесты, diff, снимки, pull request."
               frame="plain"
             >
-              <LabSourceMap />
-            </InlineFigure>
-          </div>
-
-          <div className={caseStyles.wide}>
-            <InlineFigure
-              frame="plain"
-              caption="Матрица не ранжирует продукты. Она показывает, какие способности повторяются в категории и почему их нельзя прятать за обычным полем чата."
-            >
-              <LabCapabilityMatrix />
-            </InlineFigure>
-          </div>
-        </section>
-
-        {/* 06 — Где агентам нужен контроль (research-обоснование) */}
-        <section className={caseStyles.part}>
-          <div className={caseStyles.column}>
-            <div className={caseStyles.partHeader}>
-              <h2 className={caseStyles.sectionTitle}>Где агентам нужен контроль</h2>
-            </div>
-            <div className={caseStyles.prose}>
-              <p>
-                Пользовательские жалобы сходятся в одном месте: автономность ускоряет работу,
-                но повышает цену ошибки. Длинные сессии стоят денег, контекст вымывается, команды
-                требуют прав, а diff все равно приходится читать. Это легко назвать мелочами UX,
-                хотя на деле перед нами список поверхностей, без которых агентная разработка
-                становится азартной игрой — те самые слои контракта, трейса и ревью из разбора выше.
-              </p>
-            </div>
-          </div>
-
-          <div className={caseStyles.wide}>
-            <InlineFigure
-              frame="plain"
-              caption="Не статистика, а карта повторяющегося трения, из которого вырастают требования к ADE."
-            >
-              <LabFrictionRadar />
+              <LabEvidenceStack />
             </InlineFigure>
           </div>
         </section>
 
         {/* Закрытие */}
-        <section className={caseStyles.column}>
-          <h2 className={caseStyles.sectionTitle}>ADE как среда доказательной работы</h2>
-          <div className={caseStyles.prose}>
-            <p>
-              Composer здесь не клон Codex, Claude Code, Antigravity или Kiro. Это способ проверить
-              рамку: собрать источники, закодировать наблюдения и превратить их в интерфейсные
-              решения. Настоящего бэкенда LLM, очереди задач, интеграции с GitHub и MCP-сервера
-              здесь нет намеренно. Все поведения детерминированы, чтобы проверять интерфейс, а не
-              инфраструктуру.
-            </p>
-            <p>
-              Полная версия потребовала бы фоновых сессий, изолированных worktrees, журнала
-              подтверждений, ревью diff, браузерных проверок и памяти проекта. Но вывод уже виден.
-            </p>
-            <p>
-              ADE не место, где AI выполнил работу. Это среда, где каждый шаг можно объяснить,
-              проверить и принять человеком.
-            </p>
+        <section className={caseStyles.part}>
+          <div className={caseStyles.column}>
+            <h2 className={caseStyles.sectionTitle}>ADE как доказательная среда</h2>
+            <div className={caseStyles.prose}>
+              <p>
+                Composer не клон Codex, Claude Code, Antigravity или Kiro. Это проверка рамки: взять
+                источники, закодировать сигналы и превратить их в интерфейсные решения.
+              </p>
+              <p>
+                Я сознательно не строил backend LLM, очередь задач, GitHub-интеграцию и MCP-сервер.
+                Детерминированные сценарии лучше подходят для этой задачи: они проверяют форму
+                контроля, а не надежность инфраструктуры.
+              </p>
+              <p>
+                Полная версия потребует фоновых сессий, изолированных worktrees, журнала
+                подтверждений, diff review, браузерных проверок и памяти проекта. Но главный критерий
+                уже ясен: ADE не должен просить верить агенту. Он должен показывать, почему результат
+                можно принять.
+              </p>
+            </div>
           </div>
         </section>
       </article>

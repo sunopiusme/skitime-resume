@@ -1,18 +1,17 @@
 /* ─────────────────────────────────────────
-   Projects list — каталожная таблица.
-   • Тон/chrome — с главной (топбар, футер, паддинги).
-   • Таблица закрыта рамкой по периметру.
-   • Внутри — только горизонтальные хайрлайны строк.
-     Никаких вертикальных линий и заливок шапки —
-     сетку держат типографика и колонки.
+   Projects list — сетка карточек.
+   Chrome (fixed-хедер, full-bleed футер), заголовок
+   и лид выровнены с composer-кейсом и главной.
+   Ритм по 8pt-сетке.
    ───────────────────────────────────────── */
 .page {
   position: relative;
   min-height: 100svh;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  /* Topbar — fixed (вне потока, как в кейсе): в гриде две строки —
+     контент (1fr) и футер (auto, прижат вниз). */
+  grid-template-rows: 1fr auto;
   --list-page-max: var(--composer-page-max);
-  --list-section-gap: clamp(32px, 4vw, 56px);
   padding:
     clamp(20px, 2.6vw, 32px)
     clamp(20px, 4vw, 48px)
@@ -22,24 +21,52 @@
 }
 
 /* ─────────────────────────────────────────
-   Top bar
+   Top bar — идентичен кейсу/главной: full-bleed
+   фон на всю ширину, контент у краёв экрана,
+   16px без капса.
    ───────────────────────────────────────── */
 .topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding-bottom: clamp(16px, 1.4vw, 20px);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--composer-ink-muted);
+  padding:
+    clamp(10px, 1vw, 14px)
+    clamp(20px, 2.4vw, 40px);
+  background: var(--composer-surface);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .brand {
-  color: var(--composer-ink);
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.46em;
+  min-height: 40px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 520;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+/* X-марка стоит ПОСЛЕ фамилии, 1.3em — оптическое равенство
+   с заглавной «Ф» (см. home.module.css). */
+.brandLogo {
+  width: 1.3em;
+  height: 1.3em;
+  flex-shrink: 0;
+  opacity: 0.96;
 }
 
 .navLinks {
@@ -51,7 +78,7 @@
 .navLinks a {
   display: inline-flex;
   align-items: center;
-  height: 32px;
+  height: 40px;
   padding: 0 16px;
   border-radius: 999px;
   color: var(--composer-ink-muted);
@@ -71,35 +98,36 @@
 }
 
 /* ─────────────────────────────────────────
-   Section
+   Section — центрированное полотно.
+   Верхний padding очищает fixed-хедер.
    ───────────────────────────────────────── */
 .section {
   display: grid;
   width: min(100%, var(--list-page-max));
   margin: 0 auto;
-  gap: var(--list-section-gap);
-  padding: clamp(44px, 7vw, 96px) 0 clamp(44px, 6vw, 80px);
+  gap: clamp(32px, 3.2vw, 48px);
+  padding: clamp(80px, 9vw, 120px) 0 clamp(40px, 4vw, 56px);
 }
 
+/* Заголовок/лид — как hero кейса и главной. */
 .heroHead {
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: clamp(16px, 2vw, 24px);
-  max-width: 680px;
+  gap: clamp(16px, 1.8vw, 24px);
+  max-width: min(100%, 920px);
   margin: 0 auto;
   padding: 0 clamp(16px, 4vw, 56px);
 }
 
 .title {
   margin: 0;
-  max-width: 14ch;
   color: var(--composer-ink);
   font-family: var(--font-sans), sans-serif;
-  font-size: clamp(1.9rem, 4.2vw, 4rem);
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 1.05;
+  font-size: 56px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 56px;
   text-wrap: balance;
   font-kerning: normal;
   font-feature-settings: "ss01", "cv11";
@@ -107,9 +135,10 @@
 }
 
 .lede {
-  max-width: 46ch;
+  max-width: 52ch;
+  margin-inline: auto;
   color: var(--composer-ink-muted);
-  font-size: clamp(0.98rem, 1.15vw, 1.1rem);
+  font-size: clamp(1rem, 1.2vw, 1.18rem);
   font-weight: 400;
   letter-spacing: -0.005em;
   line-height: 1.5;
@@ -117,166 +146,185 @@
 }
 
 /* ─────────────────────────────────────────
-   Table
-   Колонки: index 56 / cover 220 / title 1fr / year 88 / tags 240.
+   Card grid — 3 обложки в ряд, неполный ряд
+   центрируется (flex вместо grid): одна карточка
+   стоит по центру, четыре — тройка + одна по центру.
    ───────────────────────────────────────── */
-.tableWrap {
-  width: 100%;
-  max-width: var(--list-page-max);
-  margin: 0 auto;
-  border-top: 1px solid var(--composer-hairline-strong);
-  border-bottom: 1px solid var(--composer-hairline-strong);
-}
-
-.tableHead,
-.rowLink {
-  display: grid;
-  grid-template-columns:
-    56px
-    220px
-    minmax(0, 1fr)
-    88px
-    minmax(180px, 240px);
-  gap: clamp(16px, 2vw, 28px);
-  align-items: stretch;
-}
-
-/* ── Header — одна тонкая капс-строка ── */
-.tableHead {
-  padding: clamp(12px, 0.8vw, 12px) clamp(16px, 1.4vw, 24px);
-  border-bottom: 1px solid var(--composer-hairline-strong);
-  font-size: 0.66rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
-  align-items: center;
-}
-
-/* Шапка перебивает любое наследие .colXxx из строки:
-   у неё нет min-height, нет flex-direction column,
-   только горизонтальные капс-метки. */
-.tableHead > span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 0;
-  height: auto;
-  flex-direction: row;
-  gap: 0;
-  padding: 0;
-  font-size: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  color: inherit;
-  font-weight: 400;
-}
-
-/* ── Rows ── */
-.table {
+.grid {
+  --grid-gap: clamp(16px, 2vw, 32px);
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-}
-
-.row {
-  border-bottom: 1px solid var(--composer-hairline);
-}
-
-.row:last-child {
-  border-bottom: none;
-}
-
-.rowLink {
-  padding: clamp(20px, 2vw, 24px) clamp(16px, 1.4vw, 24px);
-  color: inherit;
-  transition: background 180ms ease;
-}
-
-.rowLink:hover,
-.rowLink:focus-visible {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-/* ── Cells ── */
-.colIndex {
   display: flex;
-  align-items: center;
-  font-size: 0.78rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
-  font-variant-numeric: tabular-nums;
-}
-
-.colCover {
-  display: flex;
-  align-items: stretch;
-  justify-content: flex-start;
-  min-height: clamp(140px, 14vw, 200px);
-}
-
-.colCover > * {
-  width: 100%;
-}
-
-.colTitle {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 12px;
+  /* Родительский grid растягивает ol на остаток высоты страницы —
+     без этих двух строк flex стретчит li ниже обложки и невидимая
+     зона карточки ловит курсор мимо ссылки. */
+  align-content: flex-start;
+  align-items: flex-start;
+  gap: var(--grid-gap);
+}
+
+.card {
+  list-style: none;
   min-width: 0;
+  flex: 0 1 calc((100% - 2 * var(--grid-gap)) / 3);
 }
 
-.rowTitle {
-  font-size: clamp(1.3rem, 1.8vw, 1.65rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.12;
-  color: var(--composer-ink);
+/* Обложка — рамка-панель с постером проекта внутри.
+   Hover — «spotlight»: курсор подсвечивает рамку и поверхность
+   карточки в точке наведения. Карточка и контент неподвижны —
+   ни zoom'а, ни lift'а; живёт только свет. Координаты (--mx/--my)
+   пишет ProjectCard напрямую в style. */
+.cover {
+  --mx: 50%;
+  --my: 50%;
+  display: block;
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--composer-hairline);
+  border-radius: var(--composer-radius-md);
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 240ms ease;
 }
 
-.rowSummary {
-  color: var(--composer-ink-muted);
-  font-size: clamp(0.92rem, 1vw, 1rem);
-  line-height: 1.55;
-  text-wrap: balance;
+.coverLink {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  border-radius: inherit;
+  color: inherit;
+  text-decoration: none;
 }
 
-.colYear {
-  display: flex;
-  align-items: center;
-  font-size: 0.8rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--composer-ink-muted);
-  font-variant-numeric: tabular-nums;
+.cover > :first-child {
+  width: 100%;
+  height: 100%;
 }
 
-.colTags {
-  display: flex;
-  align-items: center;
-  font-size: 0.66rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
-  text-wrap: balance;
+/* Внутренний свет: широкое мягкое пятно следует за курсором. */
+.coverSheen {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  border-radius: inherit;
+  background: radial-gradient(
+    340px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.07),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 360ms ease;
+  pointer-events: none;
+}
+
+/* Свет на рамке: тот же градиент, но узким кольцом по периметру —
+   рамка «загорается» рядом с курсором и гаснет вдали от него. */
+.coverRing {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.08) 55%,
+    transparent 75%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 360ms ease;
+  pointer-events: none;
+}
+
+.cover:has(.coverLink:hover) .coverSheen,
+.cover:has(.coverLink:hover) .coverRing {
+  opacity: 1;
 }
 
 /* ─────────────────────────────────────────
-   Footer
+   Светлая mesh-обложка — свой spotlight.
+   Белый блик на пастели не читается, поэтому:
+   блик — overlay (заметно высветляет полутона),
+   кольцо — слейтово-голубое из mesh-палитры,
+   а сама карточка на hover получает ambient bloom —
+   мягкое azure-свечение на чёрной странице.
+   ───────────────────────────────────────── */
+.coverLight {
+  transition:
+    border-color 240ms ease,
+    box-shadow 360ms ease;
+}
+
+.coverLight .coverSheen {
+  mix-blend-mode: overlay;
+  background: radial-gradient(
+    360px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.55),
+    transparent 70%
+  );
+}
+
+.coverLight .coverRing {
+  background: radial-gradient(
+    240px circle at var(--mx) var(--my),
+    rgb(var(--mesh-shade-rgb) / 0.8),
+    rgb(var(--mesh-shade-rgb) / 0.18) 55%,
+    transparent 75%
+  );
+}
+
+.coverLight:has(.coverLink:hover) {
+  box-shadow:
+    0 4px 24px rgba(140, 170, 220, 0.16),
+    0 16px 72px -16px rgba(164, 192, 236, 0.38);
+}
+
+/* Клавиатурный фокус — без курсора, поэтому ровная подсветка рамки. */
+.cover:has(.coverLink:focus-visible) {
+  border-color: var(--composer-hairline-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coverSheen,
+  .coverRing,
+  .coverLight {
+    transition: none;
+  }
+}
+
+/* ─────────────────────────────────────────
+   Footer — зеркало хедера: full-bleed, тот же
+   clamp-паддинг, кегль 16px и цвет rgba .6.
    ───────────────────────────────────────── */
 .footer {
+  margin-inline: calc(-1 * clamp(20px, 4vw, 48px));
+  padding: clamp(10px, 1vw, 14px) 0 0;
+}
+
+.footerInner {
+  width: 100%;
+  padding-inline: clamp(20px, 2.4vw, 40px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px 16px;
-  padding-top: clamp(16px, 1.4vw, 20px);
-  font-size: 0.8rem;
+  font-size: 16px;
   font-weight: 400;
-  letter-spacing: -0.005em;
-  color: var(--composer-ink-subtle);
+  letter-spacing: 0em;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .socials {
@@ -288,13 +336,14 @@
   padding: 0;
 }
 
+/* Таблетки как у навигации хедера. */
 .socials a {
   display: inline-flex;
   align-items: center;
-  height: 28px;
-  padding: 0 12px;
+  height: 40px;
+  padding: 0 16px;
   border-radius: 999px;
-  color: var(--composer-ink-subtle);
+  color: var(--composer-ink-muted);
   transition:
     background-color 160ms ease,
     color 160ms ease;
@@ -308,22 +357,10 @@
 
 /* ─────────────────────────────────────────
    Responsive
-   ≤ 1100px — прячем колонку тем
-   ≤ 720px  — карточный режим
    ───────────────────────────────────────── */
-@media (max-width: 1100px) {
-  .tableHead,
-  .rowLink {
-    grid-template-columns:
-      56px
-      190px
-      minmax(0, 1fr)
-      88px;
-  }
-
-  .colTags,
-  .tableHead .colTags {
-    display: none;
+@media (max-width: 900px) {
+  .card {
+    flex-basis: calc((100% - var(--grid-gap)) / 2);
   }
 }
 
@@ -332,27 +369,13 @@
     font-size: 0.66rem;
   }
 
-  .footer {
-    font-size: 0.75rem;
+  .footerInner {
+    font-size: 0.66rem;
   }
 }
 
-@media (max-width: 720px) {
-  .tableHead {
-    display: none;
-  }
-
-  .rowLink {
-    grid-template-columns: 140px minmax(0, 1fr);
-    gap: 16px;
-  }
-
-  .colIndex,
-  .rowLink .colYear {
-    display: none;
-  }
-
-  .colCover {
-    min-height: 0;
+@media (max-width: 560px) {
+  .card {
+    flex-basis: 100%;
   }
 }

@@ -1,0 +1,568 @@
+/* ─────────────────────────────────────────
+   XSYCOIN hero — «затмение».
+   Полноэкранная чёрная сцена: огромный диск
+   («земля») восходит снизу и закрывает солнце,
+   которое стоит ровно за его верхней кромкой.
+   Из-за кромки солнце даёт тонкую яркую обводку
+   и гладкую корону над дугой — без отдельных лучей.
+   Сверху — топбар сайта, ниже вордмарк, подпись и
+   реплика-пилюля.
+
+   Геометрия диска вынесена в переменные — крутизну
+   дуги и высоту восхода удобно подкручивать в одном месте.
+   ───────────────────────────────────────── */
+.stage {
+  --sphere-d: 200vw; /* диаметр «земли» — чем больше, тем положе дуга */
+  --sphere-top: 33vh; /* где стоит пик дуги от верха вьюпорта — поднят выше,
+                          чтобы корона заполнила центр, а вордмарк лёг на кромку */
+  --sun: 50%; /* горизонтальное положение солнца за кромкой */
+  /* центр диска (точка солнца) — от него расходятся струи короны */
+  --disk-cy: calc(var(--sphere-top) + var(--sphere-d) / 2);
+  /* Корона «под наши цвета» — холодный сине-белый, перекликается с
+     mesh у Composer. rgb-каналы под rgb()/alpha. */
+  --corona-edge: 232 241 255; /* почти белый с холодком — ближний свет */
+  --corona-haze: 150 188 240; /* голубая дымка — дальняя корона */
+
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  /* Те же токены поверхности/чернил, что у composer-кейса. Шрифт
+     наследуется от body (var(--font-sans)), как и в composer. */
+  background: var(--composer-surface);
+  color: var(--composer-ink);
+}
+
+/* ─── Топбар сайта — байт-в-байт с composer-кейсом (full-bleed):
+   те же токены, clamp'ы и кегли, никаких локальных отклонений. ─── */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding:
+    clamp(10px, 1vw, 14px)
+    clamp(20px, 2.4vw, 40px);
+  background: var(--composer-surface);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.46em;
+  min-height: 40px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 520;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.brandLogo {
+  width: 1.3em;
+  height: 1.3em;
+  flex-shrink: 0;
+  opacity: 0.96;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 0.6vw, 8px);
+}
+
+.navLinks a {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  color: var(--composer-ink-muted);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.navLinks a[aria-current="page"] {
+  color: var(--composer-ink);
+}
+
+.navLinks a:hover,
+.navLinks a:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--composer-ink);
+}
+
+/* ─── Сцена света ─── */
+.scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Звёздное поле — главный sci-fi-якорь: ощущение «мы в космосе».
+   Два слоя точек разной плотности и яркости тихо дрейфуют по диагонали
+   с разной скоростью — даёт параллакс глубины, а не мерцание. Точки
+   нарисованы радиальными градиентами и тайлятся background-size. */
+.stars {
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  background-image:
+    radial-gradient(1.4px 1.4px at 18% 32%, rgb(var(--corona-edge) / 0.9), transparent 60%),
+    radial-gradient(1.1px 1.1px at 74% 14%, rgb(var(--corona-edge) / 0.7), transparent 60%),
+    radial-gradient(1.6px 1.6px at 47% 68%, rgb(var(--corona-edge) / 0.85), transparent 60%),
+    radial-gradient(1px 1px at 88% 54%, rgb(var(--corona-haze) / 0.8), transparent 60%),
+    radial-gradient(1.2px 1.2px at 32% 88%, rgb(var(--corona-edge) / 0.6), transparent 60%),
+    radial-gradient(0.9px 0.9px at 62% 42%, rgb(var(--corona-haze) / 0.7), transparent 60%),
+    radial-gradient(1.3px 1.3px at 8% 72%, rgb(var(--corona-edge) / 0.65), transparent 60%),
+    radial-gradient(1px 1px at 95% 88%, rgb(var(--corona-edge) / 0.55), transparent 60%);
+  background-size: 540px 540px, 380px 380px, 660px 660px, 300px 300px,
+    480px 480px, 340px 340px, 600px 600px, 420px 420px;
+  opacity: 0.55;
+  pointer-events: none;
+  /* Очень медленный диагональный дрейф — космос «плывёт», не мигает. */
+  animation: starDrift 240s linear infinite;
+}
+
+/* Дымка короны: широкое мягкое свечение из точки солнца. Ближний
+   слой почти белый, дальний — голубая дымка. Нижняя половина уходит
+   под диск — видно только то, что поднимается над кромкой. */
+.haze {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    /* HDR-крона в апексе: расплавленное белое ядро — пик света и фокус
+       всего кадра. Самый тугой слой почти чисто-белый и пересвечен, как
+       настоящая корона в момент контакта; под ним — мягкие слои для объёма.
+       Плотность слоёв держит плавный HDR-спад, без «ваты» и без пустоты. */
+    radial-gradient(
+      4.5% 3% at var(--sun) var(--sphere-top),
+      #ffffff,
+      transparent 66%
+    ),
+    radial-gradient(
+      9% 6% at var(--sun) var(--sphere-top),
+      rgb(var(--corona-edge) / 0.95),
+      transparent 72%
+    ),
+    radial-gradient(
+      18% 12% at var(--sun) var(--sphere-top),
+      rgb(var(--corona-edge) / 0.62),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 26% at var(--sun) var(--sphere-top),
+      rgb(var(--corona-edge) / 0.34),
+      transparent 70%
+    ),
+    radial-gradient(
+      90% 62% at var(--sun) var(--sphere-top),
+      rgb(var(--corona-haze) / 0.2),
+      transparent 74%
+    );
+  pointer-events: none;
+  /* Тихое «дыхание» короны — настоящая корона на затмении пульсирует
+     яркостью. Диапазон узкий (±4%), период медленный — читается как
+     живой свет, не как пульсация индикатора. */
+  animation: coronaPulse 7200ms ease-in-out infinite;
+}
+
+/* Корона-лучи: чёткие радиальные волокна из точки солнца, видимые
+   только в полосе у самой кромки (radial-маска). Средняя угловая
+   частота + умеренный blur — лучи ясно читаются как корона (не «вата»),
+   но движутся плавно, без эффекта вертушки. Три несоразмерные частоты
+   на разных скоростях/направлениях дают живую неоднородность. */
+.streaks {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    /* Тонкие яркие волокна — основной слой короны. Внутри каждого луча
+       мягкий пик (узкий core с feather-спадом), а не плоская полоса —
+       читается как шёлковая нить света, не как спица колеса. */
+    repeating-conic-gradient(
+      from calc(var(--corona-spin) + 0deg) at var(--sun) var(--disk-cy),
+      transparent 0deg,
+      rgb(var(--corona-edge) / 0.95) 1.4deg,
+      transparent 3.6deg,
+      transparent 6deg
+    ),
+    repeating-conic-gradient(
+      from calc(var(--corona-spin) * -0.55 + 5deg) at var(--sun) var(--disk-cy),
+      transparent 0deg,
+      rgb(var(--corona-edge) / 0.62) 2.6deg,
+      transparent 6.4deg,
+      transparent 10.5deg
+    ),
+    repeating-conic-gradient(
+      from calc(var(--corona-spin) * 0.8 + 11deg) at var(--sun) var(--disk-cy),
+      transparent 0deg,
+      rgb(var(--corona-haze) / 0.7) 4deg,
+      transparent 9deg,
+      transparent 15deg
+    ),
+    /* Редкие острые «вспышки» — широко разнесённые яркие нити поверх
+       остальных; несоразмерная частота не даёт узору повторяться, корона
+       искрит отдельными лучами, как настоящая. */
+    repeating-conic-gradient(
+      from calc(var(--corona-spin) * -1.3 + 19deg) at var(--sun) var(--disk-cy),
+      transparent 0deg,
+      rgb(var(--corona-edge) / 0.85) 0.7deg,
+      transparent 2.4deg,
+      transparent 23deg
+    );
+  -webkit-mask-image:
+    radial-gradient(
+      circle at var(--sun) var(--disk-cy),
+      transparent calc(var(--sphere-d) / 2),
+      #000 calc(var(--sphere-d) / 2 + 1px),
+      rgba(0, 0, 0, 0.78) calc(var(--sphere-d) / 2 + 70px),
+      rgba(0, 0, 0, 0.4) calc(var(--sphere-d) / 2 + 200px),
+      transparent calc(var(--sphere-d) / 2 + 380px)
+    ),
+    /* Боковое угасание: лучи ярче всего у апекса и тают к краям дуги,
+       поэтому корона не «полосит» сбоку, а собирается у вершины. */
+    radial-gradient(
+      62% 74% at var(--sun) var(--sphere-top),
+      #000,
+      rgba(0, 0, 0, 0.22) 62%,
+      transparent 100%
+    );
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(
+      circle at var(--sun) var(--disk-cy),
+      transparent calc(var(--sphere-d) / 2),
+      #000 calc(var(--sphere-d) / 2 + 1px),
+      rgba(0, 0, 0, 0.78) calc(var(--sphere-d) / 2 + 70px),
+      rgba(0, 0, 0, 0.4) calc(var(--sphere-d) / 2 + 200px),
+      transparent calc(var(--sphere-d) / 2 + 380px)
+    ),
+    radial-gradient(
+      62% 74% at var(--sun) var(--sphere-top),
+      #000,
+      rgba(0, 0, 0, 0.22) 62%,
+      transparent 100%
+    );
+  mask-composite: intersect;
+  /* blur 1.5px: тонкие волокна остаются чёткими, но без алиасинга. */
+  filter: blur(1.5px);
+  opacity: 1;
+  pointer-events: none;
+  /* Свет «течёт» медленно: лучи дрейфуют вокруг точки солнца (--corona-spin
+     крутится линейно). Поверх — тихий шиммер яркости (coronaShimmer): не
+     синхронный с дрейфом период даёт ощущение переливающегося живого
+     света на дуге, а не равномерного вращения. */
+  animation:
+    coronaDrift 160s linear infinite,
+    coronaShimmer 9s ease-in-out infinite;
+}
+
+/* «Земля»: чёрный диск. Кромка — слоёная тень снаружи бокса: тонкая
+   чёткая линия + ближний и дальний ореол. Внутри остаётся чистый чёрный. */
+.earth {
+  position: absolute;
+  left: 50%;
+  top: var(--sphere-top);
+  width: var(--sphere-d);
+  height: var(--sphere-d);
+  transform: translateX(-50%);
+  z-index: 2;
+  border-radius: 50%;
+  background: #000000;
+  /* HDR-кромка: расплавленный белый core + плотный пересвеченный ближний
+     bloom на глубоком чёрном — высокий локальный контраст читается как
+     физическая яркость короны. Дальше — мягкие холодные ореолы для объёма. */
+  box-shadow:
+    0 0 0 1.5px #ffffff,
+    0 0 6px 1px #ffffff,
+    0 0 18px 3px rgb(var(--corona-edge) / 0.95),
+    0 0 40px 8px rgb(var(--corona-edge) / 0.5),
+    0 0 90px 20px rgb(var(--corona-edge) / 0.26),
+    0 0 200px 50px rgb(var(--corona-haze) / 0.2);
+  pointer-events: none;
+}
+
+/* HDR-пик в апексе короны. Тот же круг, что .earth (тот же диаметр и
+   центр), но заполнен чистым белым и обрезан вертикальной маской так,
+   что видна только узкая полоса прямо НАД верхней кромкой диска — там,
+   где диск встречается с солнцем. На mix-blend-mode: screen белый
+   складывается с чёрным диском как аддитивный свет: кромка «пересвечается»
+   и физически плывёт, чего не могут box-shadow/градиенты в обычном режиме.
+   Слой лежит выше .earth (z-index: 3) и ниже скримов/виньетки.
+
+   Геометрия: копируем размеры .earth (left 50%, ширина/высота --sphere-d,
+   transform translateX(-50%)), центрируем по тому же Y, что диск, и
+   сдвигаем маской так, чтобы белый «горизонт» лёг точно на кромку:
+   верхняя кромка диска в координатах сцены = --sphere-top, значит белый
+   прямоугольник центрируем по calc(var(--sphere-top) + 1px). */
+.peak {
+  position: absolute;
+  left: 50%;
+  top: var(--sphere-top);
+  width: var(--sphere-d);
+  height: var(--sphere-d);
+  transform: translateX(-50%);
+  z-index: 3;
+  border-radius: 50%;
+  background: #ffffff;
+  /* Оставляем только тугую пересвеченную полосу по горизонту кромки:
+     ядро ~2px + короткий быстрый спад (12px) — пересвеченное HDR-ядро,
+     а не мягкий ореол. Горизонтальная ellipse-маска собирает пик в апекс. */
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent calc(50% - 2px),
+      #000 50%,
+      #000 calc(50% + 2px),
+      transparent calc(50% + 12px)
+    ),
+    radial-gradient(
+      40% 7% at 50% 50%,
+      #000,
+      rgba(0, 0, 0, 0.5) 64%,
+      transparent 100%
+    );
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent calc(50% - 2px),
+      #000 50%,
+      #000 calc(50% + 2px),
+      transparent calc(50% + 12px)
+    ),
+    radial-gradient(
+      40% 7% at 50% 50%,
+      #000,
+      rgba(0, 0, 0, 0.5) 64%,
+      transparent 100%
+    );
+  mask-composite: intersect;
+  /* blur уменьшен (6→4): tighter ядро, читается как пересвет, не ореол. */
+  filter: blur(4px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  /* Тихое дыхание пересвета синхронно с короной (.haze) — пик
+     «пульсирует» вместе со всем светом сцены, читается как живой. */
+  animation: coronaPulse 7200ms ease-in-out infinite;
+}
+
+/* Верхний скрим: плавно гасит свечение к верху сцены в чистый чёрный
+   задолго до хедера — у топбара никакой светлой полосы и стыка, а
+   корона остаётся жить у дуги (скрим прозрачен к 36%). */
+.scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: linear-gradient(
+    to bottom,
+    #000000 0%,
+    #000000 14%,
+    rgba(0, 0, 0, 0.72) 24%,
+    transparent 36%
+  );
+  pointer-events: none;
+}
+
+/* Нижний виньет: гасит кромку у боковых краёв (где дуга уходит вниз)
+   и заземляет диск в чистый чёрный к низу экрана. */
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 0, 0, 0.5) 84%,
+    rgba(0, 0, 0, 0.86) 100%
+  );
+  pointer-events: none;
+}
+
+/* Киношное плёночное зерно поверх всей сцены — тонкий движущийся шум
+   из SVG feTurbulence. Едва заметный, на overlay: убирает «цифровую
+   стерильность» градиентов и даёт фактуру кинокадра. Двигается быстро
+   и мелко (zerno «кипит»), но из-за низкой opacity не отвлекает. */
+.grain {
+  position: absolute;
+  inset: -50%;
+  z-index: 6;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  animation: grainShift 0.6s steps(4) infinite;
+}
+
+/* Виньетка кадра — мягкое затемнение по углам поверх всего: собирает
+   композицию к центру и читается как объектив, ключ к «cinematic». */
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: radial-gradient(
+    120% 90% at 50% 42%,
+    transparent 52%,
+    rgba(0, 0, 0, 0.4) 82%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  pointer-events: none;
+}
+
+/* ─── Контент ─── */
+.content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(11px, 1.5vh, 16px);
+  /* Отступ сверху очищает fixed-топбар и сажает блок «вордмарк+подпись»
+     в чистый чёрный НАД самой кромкой (--sphere-top): зазор небольшой,
+     чтобы заголовок «дышал» с короной и персонажами как один блок, а не
+     висел в пустоте у верха экрана. Подкручивается этим одним clamp'ом. */
+  padding-top: clamp(64px, 10vh, 120px);
+}
+
+.wordmark {
+  width: clamp(280px, 33vw, 520px);
+  height: auto;
+  /* Чуть приглушён, чтобы самым ярким элементом кадра была HDR-кромка,
+     а не текст — свет держит фокус, вордмарк ниже по иерархии. */
+  opacity: 0.88;
+  user-select: none;
+}
+
+/* Фоновое медиа под пилюлей (персонажи). screen растворяет чёрный фон
+   ролика в чёрной сцене — виден только светлый контент, без бокса.
+   Вписывается в нижнюю область по ширине И высоте (max-height +
+   object-fit: contain). При уходе окна в фон видео ставится на паузу
+   (см. HeroVideo) — паузный кадр держит картинку без потери яркости. */
+.media {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--sphere-top) + clamp(56px, 9vh, 120px));
+  transform: translateX(-50%);
+  z-index: 5;
+  width: min(86vw, 780px);
+  max-height: calc(100svh - var(--sphere-top) - clamp(96px, 14vh, 180px));
+  pointer-events: none;
+}
+
+/* Видео задаёт высоту медиа-бокса по своему аспекту. */
+.mediaVideo {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: calc(100svh - var(--sphere-top) - clamp(96px, 14vh, 180px));
+  object-fit: contain;
+  mix-blend-mode: screen;
+  opacity: 1;
+}
+
+@media (max-width: 560px) {
+  .stage {
+    --sphere-d: 320vw;
+    --sphere-top: 30vh;
+  }
+}
+
+/* ─── Движение света: всё медленно, ровно, без пульса ──────────────
+   Регистрируем угол как настоящий <angle>, чтобы анимировать его
+   внутри conic-градиента. Корона-плюмы дрейфуют по кругу с постоянной
+   яркостью — ощущение текущего света, не вертушки и не мерцания. */
+@property --corona-spin {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@keyframes coronaDrift {
+  from {
+    --corona-spin: 0deg;
+  }
+  to {
+    --corona-spin: 360deg;
+  }
+}
+
+/* Шиммер лучей: тихий перелив яркости поверх дрейфа. Узкий диапазон
+   (±8%) и период, не кратный дрейфу, — свет на дуге переливается, как
+   живая корона, без видимого «дыхания» или вращения вентилятора. */
+@keyframes coronaShimmer {
+  0%, 100% {
+    opacity: 0.86;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Мягкая пульсация яркости ядра короны. */
+@keyframes coronaPulse {
+  0%, 100% {
+    opacity: 0.94;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Диагональный дрейф звёздного поля — на величину одного тайла, чтобы
+   цикл был бесшовным (фон периодичен по background-size). */
+@keyframes starDrift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-540px, -380px, 0);
+  }
+}
+
+/* Кипение зерна: дёрганый сдвиг тайла шума — классический film grain. */
+@keyframes grainShift {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-6%, 4%);
+  }
+  50% {
+    transform: translate(4%, -5%);
+  }
+  75% {
+    transform: translate(-3%, -3%);
+  }
+  100% {
+    transform: translate(5%, 4%);
+  }
+}
+
+/* Уважаем системную настройку: при reduce — статичный кадр без движения. */
+@media (prefers-reduced-motion: reduce) {
+  .streaks,
+  .stars,
+  .grain,
+  .haze,
+  .peak {
+    animation: none;
+  }
+}

@@ -1,0 +1,17 @@
+/* Защита декоративных элементов кейса: эмодзи нельзя выделить, картинки
+   нельзя перетащить/сохранить через drag. Текст остаётся выделяемым. */
+
+/* Эмодзи-глифы внутри меню/карточек — нельзя выделить. */
+.case [class*="emoji"],
+.case [class*="Emoji"],
+.case [role="img"] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Картинки нельзя тянуть/перетаскивать и сохранить через drag. */
+.case img {
+  -webkit-user-drag: none;
+}

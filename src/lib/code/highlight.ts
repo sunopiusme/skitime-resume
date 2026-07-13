@@ -26,26 +26,42 @@ type HighlightResult = {
   renderedLines: number;
 };
 
+/* Тёплая тёмная палитра в духе One Dark / VS Code Dark+ (по референсу):
+   • comment — тёплый оливковый, курсив (не холодный серо-синий);
+   • number/const — оранжевый (#d19a66), самый узнаваемый акцент темы;
+   • string — зелёный (#98c379);
+   • function/support.function — золото (#dcdcaa): rgba()/var() читаются
+     как вызовы;
+   • type/class — тёплое золото (#e5c07b);
+   • property / attribute-name — светло-голубой (#9cdcfe);
+   • CSS-значения (grid и пр.) держим светлыми (fg), а не оранжевыми,
+     чтобы оранжевый оставался признаком ЧИСЕЛ;
+   • keyword/storage — фиолетовый (#c678dd); tag — синий (#61afef);
+     null/undefined — красный (#e06c75).
+   Bg = #1a1a1a (== --composer-surface-sunken): насыщенные токены и
+   зелёная/красная заливка diff-строк получают «воздух».
+   Diff-строки СОХРАНЯЮТ подсветку синтаксиса (как в референсе): фон-
+   полоса + знак в гаттере несут состояние, а токены остаются цветными
+   (раньше строку целиком перекрашивали в один зелёный/красный). */
 const THEME_NAME = "composer-code" as const;
-const DIFF_ADD_CODE_COLOR = "#9fdcc9";
-const DIFF_REMOVE_CODE_COLOR = "#ffa69e";
 
 const THEME: ThemeRegistration = {
   name: THEME_NAME,
   type: "dark",
-  fg: "#eeeeee",
-  bg: "#202020",
+  fg: "#d6d6d6",
+  bg: "#1a1a1a",
   settings: [
     {
       settings: {
-        foreground: "#eeeeee",
-        background: "#202020",
+        foreground: "#d6d6d6",
+        background: "#1a1a1a",
       },
     },
     {
       scope: ["comment", "punctuation.definition.comment"],
       settings: {
-        foreground: "#787878",
+        foreground: "#8a9468",
+        fontStyle: "italic",
       },
     },
     {
@@ -56,19 +72,13 @@ const THEME: ThemeRegistration = {
         "keyword.operator",
       ],
       settings: {
-        foreground: "#969696",
+        foreground: "#9aa0ac",
       },
     },
     {
-      scope: ["punctuation.definition.tag"],
+      scope: ["punctuation.definition.tag", "entity.name.tag"],
       settings: {
-        foreground: "#a6a6a6",
-      },
-    },
-    {
-      scope: ["entity.name.tag"],
-      settings: {
-        foreground: "#edbe88",
+        foreground: "#61afef",
       },
     },
     {
@@ -85,33 +95,30 @@ const THEME: ThemeRegistration = {
         "support.type",
       ],
       settings: {
-        foreground: "#8fbaf0",
-      },
-    },
-    {
-      scope: ["entity.other.attribute-name"],
-      settings: {
-        foreground: "#8fbaf0",
+        foreground: "#c678dd",
       },
     },
     {
       scope: [
+        "entity.other.attribute-name",
         "variable.other.property",
         "support.type.property-name",
         "meta.object-literal.key",
       ],
       settings: {
-        foreground: "#bebebe",
+        foreground: "#9cdcfe",
       },
     },
     {
-      scope: [
-        "string",
-        "string.quoted",
-        "string.template",
-      ],
+      scope: ["support.constant.property-value", "meta.property-value"],
       settings: {
-        foreground: "#7fe0cf",
+        foreground: "#d6d6d6",
+      },
+    },
+    {
+      scope: ["string", "string.quoted", "string.template"],
+      settings: {
+        foreground: "#98c379",
       },
     },
     {
@@ -119,10 +126,20 @@ const THEME: ThemeRegistration = {
         "constant.numeric",
         "constant.language",
         "constant.character",
-        "support.constant",
+        "constant.other.color",
       ],
       settings: {
-        foreground: "#bde2a8",
+        foreground: "#d19a66",
+      },
+    },
+    {
+      scope: [
+        "entity.name.function",
+        "support.function",
+        "meta.function-call.identifier",
+      ],
+      settings: {
+        foreground: "#dcdcaa",
       },
     },
     {
@@ -130,17 +147,15 @@ const THEME: ThemeRegistration = {
         "entity.name.type",
         "entity.name.class",
         "support.class.component",
-        "entity.name.function",
-        "support.function",
       ],
       settings: {
-        foreground: "#edbe88",
+        foreground: "#e5c07b",
       },
     },
     {
       scope: ["variable", "variable.other", "variable.parameter"],
       settings: {
-        foreground: "#eeeeee",
+        foreground: "#d6d6d6",
       },
     },
     {
@@ -150,7 +165,7 @@ const THEME: ThemeRegistration = {
         "constant.language.undefined",
       ],
       settings: {
-        foreground: "#eaa0a0",
+        foreground: "#e06c75",
       },
     },
   ],
@@ -179,11 +194,6 @@ function getHighlighter(): Promise<Highlighter> {
   return highlighterPromise;
 }
 
-function tintDiffLineCode(line: string, marker: Exclude<DiffMarker, null>): string {
-  const color = marker === "add" ? DIFF_ADD_CODE_COLOR : DIFF_REMOVE_CODE_COLOR;
-  return line.replace(/color:#[0-9a-fA-F]{6}/g, `color:${color}`);
-}
-
 function rewriteLines(
   html: string,
   diff: DiffMarker[] | undefined,
@@ -205,9 +215,10 @@ function rewriteLines(
   const annotated = lineSpans.map((line, i) => {
     const marker = diff?.[i] ?? null;
     const attrs = ` data-line-no="${i + 1}"${marker ? ` data-diff="${marker}"` : ""}`;
-    const themedLine = marker ? tintDiffLineCode(line, marker) : line;
+    // Diff-строки сохраняют подсветку синтаксиса (как в референсе):
+    // состояние несёт фон-полоса + знак в гаттере, не перекраска текста.
     return {
-      html: themedLine.replace(/^<span class="line"/, `<span class="line"${attrs}`),
+      html: line.replace(/^<span class="line"/, `<span class="line"${attrs}`),
       marker,
     };
   });

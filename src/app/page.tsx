@@ -8,7 +8,6 @@ export default function HomePage() {
   const telegramUrl = getTelegramUrl();
   const emailUrl = getEmailUrl();
   const contactUrl = telegramUrl ?? emailUrl;
-  const contactLabel = telegramUrl ? "Telegram" : emailUrl ? "Написать" : null;
 
   const socials = siteConfig.socials.filter((s) => s.url.trim().length > 0);
   const currently = siteConfig.currently.trim();
@@ -50,20 +49,15 @@ export default function HomePage() {
           aria-label={`${siteConfig.name} — на главную`}
           aria-current="page"
         >
-          {siteConfig.name}
+          Фурманов
+          <img src="/xlogo.svg" alt="" aria-hidden="true" className={styles.brandLogo} />
         </Link>
 
         <nav className={styles.navLinks} aria-label="Основная навигация">
+          <Link href="/" aria-current="page">
+            Главная
+          </Link>
           <Link href="/projects">Проекты</Link>
-          {contactUrl && contactLabel ? (
-            <a
-              href={contactUrl}
-              rel={telegramUrl ? "noopener noreferrer me" : "me"}
-              target={telegramUrl ? "_blank" : undefined}
-            >
-              {contactLabel}
-            </a>
-          ) : null}
         </nav>
       </header>
 
@@ -76,11 +70,13 @@ export default function HomePage() {
         ) : null}
 
         <h1 id="hero-title" className={styles.title}>
-          Продуктовый и UI-дизайн с <em className={styles.accent}>AI-native</em> процессом
+          Проектирую интерфейсы и довожу их до{" "}
+          <em className={styles.accent}>работающего кода</em>
         </h1>
 
         <p className={styles.subtitle}>
-          Проектирую интерфейсы, прототипы и продуктовые системы в духе SwiftUI с 2019 года.
+          С 2019 года занимаюсь продуктовым и UI дизайном. Прототипы собираю в коде, в связке
+          с AI агентами.
         </p>
 
         <div className={styles.actions} aria-label="Основные действия">
@@ -103,48 +99,41 @@ export default function HomePage() {
               />
             </svg>
           </Link>
-          {contactUrl && contactLabel ? (
-            <a
-              className={styles.secondaryAction}
-              href={contactUrl}
-              rel={telegramUrl ? "noopener noreferrer me" : "me"}
-              target={telegramUrl ? "_blank" : undefined}
-            >
-              {contactLabel}
-            </a>
-          ) : null}
+          {/* Кнопка-контакт показывается всегда. Пока контакты в siteConfig
+              пустые — ведёт на placeholder «#»; как только задан Telegram или
+              email, href и rel/target подхватываются автоматически. */}
+          <a
+            className={styles.secondaryAction}
+            href={contactUrl ?? "#"}
+            rel={telegramUrl ? "noopener noreferrer me" : emailUrl ? "me" : undefined}
+            target={telegramUrl ? "_blank" : undefined}
+          >
+            Связаться со мной
+          </a>
         </div>
 
-        <dl className={styles.colophon} aria-label="Краткая справка">
-          <div>
-            <dt>Роль</dt>
-            <dd>Продуктовый / UI-дизайнер</dd>
-          </div>
-          <div>
-            <dt>Локация</dt>
-            <dd>Удалённо · GMT+3</dd>
-          </div>
-        </dl>
       </section>
 
       <footer className={styles.footer} aria-label="Подвал">
-        <span>© {new Date().getFullYear()} {siteConfig.name}</span>
+        <div className={styles.footerInner}>
+          <span>© {new Date().getFullYear()} {siteConfig.name}</span>
 
-        {socials.length > 0 ? (
-          <ul className={styles.socials} aria-label="Профили в других сервисах">
-            {socials.map((s) => (
-              <li key={s.url}>
-                <a
-                  href={s.url}
-                  rel="noopener noreferrer me"
-                  target="_blank"
-                >
-                  {s.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : null}
+          {socials.length > 0 ? (
+            <ul className={styles.socials} aria-label="Профили в других сервисах">
+              {socials.map((s) => (
+                <li key={s.url}>
+                  <a
+                    href={s.url}
+                    rel="noopener noreferrer me"
+                    target="_blank"
+                  >
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       </footer>
     </main>
   );

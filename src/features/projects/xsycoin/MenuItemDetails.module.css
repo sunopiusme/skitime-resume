@@ -1,0 +1,124 @@
+/* ─────────────────────────────────────────
+   Список-расшифровка пунктов меню: иконка слева,
+   заголовок и описание справа. Тёмная сцена в тон
+   секции «Пункты меню» и hero-затмению.
+   ───────────────────────────────────────── */
+.section {
+  --edge: 232 241 255;
+
+  display: flex;
+  justify-content: center;
+  padding: 0 clamp(20px, 4vw, 64px) clamp(56px, 10vh, 128px);
+  background: var(--composer-surface);
+  color: var(--composer-ink);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(22px, 3vh, 36px);
+}
+
+/* Строка: иконка фиксированной колонкой, текст занимает остальное. */
+.row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: start;
+  gap: clamp(14px, 1.6vw, 24px);
+}
+
+/* Иконка — небольшая тёмная ячейка с тонкой rim-обводкой, как у плиток
+   выше (пик блика — нижне-правый угол через conic-gradient). */
+.icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: rgba(0, 0, 0, 0.61);
+}
+
+.iconCircle {
+  border-radius: 50%;
+}
+
+.icon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgb(var(--edge) / 0.12) 0deg,
+    rgb(var(--edge) / 0.12) 95deg,
+    rgb(var(--edge) / 0.85) 135deg,
+    rgb(var(--edge) / 0.12) 180deg,
+    rgb(var(--edge) / 0.5) 225deg,
+    rgb(var(--edge) / 0.12) 270deg,
+    rgb(var(--edge) / 0.12) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Монетный бейдж XSYCOIN — белый кружок с символом внутри. */
+.coin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #ffffff;
+}
+
+.coinGlyph {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  filter: invert(1);
+}
+
+/* Текстовая колонка. */
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* Выравниваем первую строку текста по центру иконки 44px. */
+  padding-top: clamp(2px, 0.4vw, 6px);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(15px, 1.4vw, 17px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--composer-ink);
+}
+
+.body {
+  margin: 0;
+  font-size: clamp(14px, 1.4vw, 16px);
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--composer-ink-muted);
+}

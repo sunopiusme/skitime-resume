@@ -3,17 +3,19 @@ import Link from "next/link";
 import { listProjects } from "@/content/projects/registry";
 import { siteConfig } from "@/design-system/site";
 
-import ProjectCover from "./ProjectCover";
+import ProjectCard from "./ProjectCard";
 import styles from "./ProjectsList.module.css";
 
 export default function ProjectsList() {
   const entries = listProjects();
+  const socials = siteConfig.socials.filter((s) => s.url.trim().length > 0);
 
   return (
     <main id="main" tabIndex={-1} className={styles.page}>
       <header className={styles.topbar} aria-label="Шапка сайта">
         <Link className={styles.brand} href="/" aria-label={`${siteConfig.name}, на главную`}>
-          {siteConfig.name}
+          Фурманов
+          <img src="/xlogo.svg" alt="" aria-hidden="true" className={styles.brandLogo} />
         </Link>
         <nav className={styles.navLinks} aria-label="Основная навигация">
           <Link href="/">Главная</Link>
@@ -29,70 +31,43 @@ export default function ProjectsList() {
             Проекты
           </h1>
           <p className={styles.lede}>
-            Подробные разборы: как устроена задача, где было сопротивление и какие решения дошли до кода.
+            Рассказываю о своих проектах так, как сам люблю читать про чужие.
           </p>
         </header>
 
-        <div className={styles.tableWrap} role="region" aria-label="Список проектов">
-          <div className={styles.tableHead} aria-hidden="true">
-            <span className={styles.colIndex}>№</span>
-            <span className={styles.colCover}>Обложка</span>
-            <span className={styles.colTitle}>Проект</span>
-            <span className={styles.colYear}>Год</span>
-            <span className={styles.colTags}>Темы</span>
-          </div>
-
-          <ol className={styles.table}>
-            {entries.map((entry, idx) => {
-              const issue = String(idx + 1).padStart(2, "0");
-              return (
-                <li key={entry.slug} className={styles.row}>
-                  <Link
-                    className={styles.rowLink}
-                    href={`/projects/${entry.slug}`}
-                    aria-label={`${entry.title}, ${entry.year}`}
-                  >
-                    <span className={styles.colIndex}>{issue}</span>
-
-                    <span className={styles.colCover}>
-                      <ProjectCover
-                        title={entry.title}
-                        eyebrow={entry.tags[0] ?? entry.role}
-                      />
-                    </span>
-
-                    <span className={styles.colTitle}>
-                      <span className={styles.rowTitle}>{entry.title}</span>
-                      <span className={styles.rowSummary}>{entry.summary}</span>
-                    </span>
-
-                    <span className={styles.colYear}>{entry.year}</span>
-
-                    <span className={styles.colTags}>{entry.tags.join(", ")}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+        <ol className={styles.grid} aria-label="Список проектов">
+          {entries.map((entry, idx) => {
+            const issue = String(idx + 1).padStart(2, "0");
+            return (
+              <li key={entry.slug} className={styles.card}>
+                <ProjectCard
+                  slug={entry.slug}
+                  title={entry.title}
+                  year={entry.year}
+                  index={issue}
+                />
+              </li>
+            );
+          })}
+        </ol>
       </section>
 
       <footer className={styles.footer} aria-label="Подвал">
-        <span>© {new Date().getFullYear()} {siteConfig.name}</span>
+        <div className={styles.footerInner}>
+          <span>© {new Date().getFullYear()} {siteConfig.name}</span>
 
-        {siteConfig.socials.length > 0 ? (
-          <ul className={styles.socials} aria-label="Профили в других сервисах">
-            {siteConfig.socials
-              .filter((s) => s.url.trim().length > 0)
-              .map((s) => (
+          {socials.length > 0 ? (
+            <ul className={styles.socials} aria-label="Профили в других сервисах">
+              {socials.map((s) => (
                 <li key={s.url}>
                   <a href={s.url} rel="noopener noreferrer me" target="_blank">
                     {s.label}
                   </a>
                 </li>
               ))}
-          </ul>
-        ) : null}
+            </ul>
+          ) : null}
+        </div>
       </footer>
     </main>
   );

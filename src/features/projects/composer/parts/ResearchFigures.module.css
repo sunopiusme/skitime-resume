@@ -5,43 +5,6 @@
   -webkit-user-select: none;
 }
 
-/* ─────────────────────────────────────────
-   Stage header — единая шапка всех фигур.
-   Только заголовок: служебный индекс «Этап 0N»
-   и счётчики убраны, чтобы данные оставались
-   главным объектом. margin-bottom — единственный
-   источник отступа «заголовок → данные» во всех
-   пяти фигурах.
-   ───────────────────────────────────────── */
-.stageHeader {
-  display: grid;
-  gap: clamp(8px, 1vw, 12px);
-  margin-bottom: var(--composer-head-gap);
-}
-
-/* Заголовок фигуры — подпись данных, а не вторая шапка секции.
-   Раньше он был clamp(24→32px)/600 и перекрикивал sectionTitle (h2,
-   28/500), который его вводит: h3 визуально крупнее h2 — инверсия
-   иерархии. Теперь 18px: чётко ниже h2, чётко выше прозы. */
-.stageTitle {
-  margin: 0;
-  font-family: var(--font-sans), sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
-  text-wrap: balance;
-}
-
-.stageKicker {
-  max-width: 58ch;
-  margin: 0;
-  color: var(--composer-ink-muted);
-  font-size: 0.84rem;
-  line-height: 1.45;
-  text-wrap: pretty;
-}
-
 .sourceLabel,
 .sourceRank,
 .axis,
@@ -201,19 +164,17 @@
 
 /* ─────────────────────────────────────────
    Capability matrix — editorial table.
-   Внешняя рамка задана контейнером, внутренние
-   разделители — только border-right + border-bottom
-   у клеток. Последняя колонка и последняя строка
-   снимают свои границы, чтобы не было двойных линий
-   на внешнем контуре.
+   Тот же язык, что у source table: только
+   горизонтальные hairline-разделители, ноль
+   вертикальных границ и внешних рамок. Обе
+   таблицы исследования читаются как один
+   типографический материал.
    ───────────────────────────────────────── */
 .matrix {
   display: grid;
-  grid-template-columns: minmax(150px, 0.9fr) repeat(6, minmax(92px, 1fr));
+  grid-template-columns: minmax(150px, 1.1fr) repeat(6, minmax(92px, 1fr));
   overflow-x: auto;
-  border: 1px solid var(--composer-hairline);
-  border-radius: var(--composer-radius-xs);
-  background: var(--composer-surface);
+  border-top: 1px solid var(--composer-hairline);
 }
 
 .matrixRow {
@@ -224,33 +185,41 @@
   min-height: 56px;
   display: flex;
   align-items: center;
-  padding: 12px;
-  border-right: 1px solid var(--composer-hairline);
+  padding: 12px 8px;
   border-bottom: 1px solid var(--composer-hairline);
   color: var(--composer-ink-muted);
   font-size: 0.8rem;
 }
 
-/* Внутренние разделители: убираем border-right у клеток последней
-   колонки и border-bottom у клеток последней строки, чтобы
-   внешний фрейм контейнера остался единственной рамкой. */
-.cell:nth-child(7n) {
-  border-right: none;
+/* Первая колонка прижата к левому краю ленты — как
+   .sourceName в таблице источников. Ячейки строк живут
+   внутри .matrixRow (display: contents), поэтому
+   адресуемся через first-child строки, а не через
+   nth-child сетки. */
+.blank,
+.matrixRow .cell:first-child {
+  padding-left: 0;
 }
 
-.cell:nth-last-child(-n + 7) {
+.matrixRow:last-child .cell {
   border-bottom: none;
 }
 
-/* Угловая ячейка остаётся пустой — никаких диагональных штриховок.
-   Тонкая подложка-сепаратор уже нарисована соседними клетками. */
+/* Угловая ячейка остаётся пустой. min-height: 0 — чтобы
+   шапка матрицы держала высоту axis-ячеек, а не дефолтных 56px. */
 .blank {
   background: transparent;
+  min-height: 0;
 }
 
 .axis {
   justify-content: center;
   text-align: center;
+  /* Шапка матрицы = шапка source table: один кегль,
+     один трекинг, один вертикальный ритм. */
+  min-height: 0;
+  padding-top: 16px;
+  padding-bottom: 12px;
   color: var(--composer-ink-subtle);
   font-family: var(--composer-font-mono);
   font-size: 0.66rem;
@@ -264,7 +233,7 @@
   z-index: 1;
   color: var(--composer-ink);
   background: var(--composer-surface);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-family: var(--font-sans), sans-serif;
   font-weight: 500;
   letter-spacing: -0.005em;
@@ -315,14 +284,6 @@
   display: grid;
   justify-items: center;
   padding: clamp(12px, 1.6vw, 20px);
-  border-radius: 24px;
-  background:
-    radial-gradient(
-      70% 70% at 50% 46%,
-      rgba(86, 86, 86, 0.16),
-      rgba(58, 58, 58, 0.08) 48%,
-      rgba(32, 32, 32, 0) 74%
-    );
 }
 
 .radar {
@@ -338,20 +299,20 @@
 .radar circle,
 .radar line {
   fill: none;
-  stroke: #5f5f5f;
+  stroke: rgba(255, 255, 255, 0.18);
   stroke-width: 0.6;
 }
 
 .radarThreshold {
-  stroke: #777777;
+  stroke: rgba(255, 255, 255, 0.3);
   stroke-dasharray: 1.6 3;
 }
 
 .radarShape {
-  fill: #343434;
-  fill-opacity: 0.88;
-  stroke: #d8d8d8;
+  fill: rgba(255, 255, 255, 0.1);
+  stroke: rgba(255, 255, 255, 0.85);
   stroke-width: 1.2;
+  stroke-linejoin: round;
 }
 
 .radarCore,
@@ -365,14 +326,14 @@
 }
 
 .radarCore {
-  fill: #d7d7d7;
+  fill: rgba(255, 255, 255, 0.88);
   font-size: 8px;
   font-weight: 650;
   letter-spacing: 0.04em;
 }
 
 .radarCoreSub {
-  fill: #9a9a9a;
+  fill: rgba(255, 255, 255, 0.45);
   font-size: 6.5px;
   letter-spacing: 0.08em;
 }
@@ -383,8 +344,8 @@
 }
 
 .radarPoint {
-  fill: #cfcfcf;
-  stroke: #202020;
+  fill: rgba(255, 255, 255, 0.85);
+  stroke: #050505;
   stroke-width: 1.4;
   transition:
     r var(--composer-duration-lift) ease,
@@ -394,19 +355,19 @@
 
 .radarNode[data-active="true"] .radarPoint {
   r: 5px;
-  fill: #e0e0e0;
-  stroke: #343434;
+  fill: #ffffff;
+  stroke: #050505;
 }
 
 .radarLabel {
-  fill: #c8c8c8;
+  fill: rgba(255, 255, 255, 0.78);
   font-size: 7.6px;
   font-weight: 650;
   letter-spacing: 0.04em;
 }
 
 .radarScore {
-  fill: #8a8a8a;
+  fill: rgba(255, 255, 255, 0.42);
   font-size: 6.6px;
   letter-spacing: 0.04em;
 }
@@ -507,6 +468,167 @@
   display: grid;
   justify-items: center;
   align-content: start;
+}
+
+.workflowBoard {
+  display: grid;
+  gap: clamp(20px, 2.4vw, 28px);
+  width: 100%;
+}
+
+.workflowChart {
+  width: 100%;
+  /* = viewBox 960×340. */
+  aspect-ratio: 48 / 17;
+  justify-self: stretch;
+  color: var(--composer-ink);
+  overflow: visible;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.workflowChart text {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+.workflowChartAxis {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.16);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.workflowChartAxisLabel {
+  fill: var(--composer-ink-subtle);
+  font-family: var(--composer-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workflowGraphArea {
+  fill: url(#workflowAreaGradient);
+}
+
+/* Одна линия, один вес. Прежний дублирующий «muted»-штрих
+   толщиной 14px рисовал грязный ореол вдоль всей кривой. */
+.workflowGraphLine {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.88);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Вертикаль от активного узла к оси — единственная
+   вспомогательная линия фигуры. */
+.workflowActiveDrop {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Узлы — точки, а не пилюли с цифрами: номер стадии живёт
+   в рейле прямо под узлом. Тёмная обводка в цвет фона
+   страницы «вырезает» точку из линии (punch-out). */
+.workflowGraphNode {
+  fill: rgba(255, 255, 255, 0.85);
+  stroke: #050505;
+  stroke-width: 3;
+}
+
+.workflowGraphPoint[data-active="true"] .workflowGraphNode {
+  fill: #ffffff;
+}
+
+/* Halo активного узла: тонкое кольцо вместо glow-фильтра. */
+.workflowGraphRing {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Рейл стадий — ось X графика. Gap 0 и центрирование колонок:
+   центр каждой колонки совпадает с X-координатой узла в SVG
+   (узлы стоят в центрах семи долей вьюпорта 960/7), поэтому
+   номер и название стадии читаются как подпись под точкой. */
+.workflowStageRail {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
+  padding-top: clamp(10px, 1.1vw, 14px);
+  border-top: 1px solid var(--composer-hairline);
+}
+
+.workflowStage {
+  position: relative;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 2px 8px 0;
+  color: var(--composer-ink-muted);
+  text-align: center;
+}
+
+/* Тик на hairline под активным узлом: яркий сегмент в том месте,
+   куда приходит вертикаль из графика — связка фигуры и легенды. */
+.workflowStage[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  top: calc(0px - clamp(10px, 1.1vw, 14px) - 1px);
+  left: 50%;
+  width: 28px;
+  height: 1px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.workflowStageHead {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  justify-items: center;
+}
+
+.workflowStageHead span {
+  color: var(--composer-ink-subtle);
+  font-family: var(--composer-font-mono);
+  font-size: 0.64rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+}
+
+.workflowStageHead strong {
+  color: var(--composer-ink-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+}
+
+.workflowStage p {
+  margin: 0;
+  color: var(--composer-ink-subtle);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.workflowStage[data-active="true"] .workflowStageHead span,
+.workflowStage[data-active="true"] .workflowStageHead strong {
+  color: var(--composer-ink);
+}
+
+.workflowStage[data-active="true"] p {
+  color: var(--composer-ink-muted);
 }
 
 .workflowCircuit {
@@ -987,23 +1109,17 @@
 }
 
 /* ─────────────────────────────────────────
-   Evidence fan — горизонтальная фан-диаграмма
-   (этап 05). Композиция повторяет референс,
-   повёрнутый на 90°: шесть вертикальных рисок
-   слева направо, у каждой пара чисел —
-   меньшее сверху, большее снизу. Между крайними
-   рисками плотный пучок прямых линий.
-   Никаких дополнительных подписей по бокам —
-   смысл несёт заголовок и подпись фигуры,
-   диаграмма работает как графическая «обложка»
-   доказательной базы.
+   Evidence fan — горизонтальная фан-лента
+   (этап 05). Шесть вертикальных рисок слева
+   направо, высота риски = сила доказательства
+   (strength из research.ts). Лента тонких
+   линий проходит через все риски и расширяется
+   вместе с данными — видно, как доказательная
+   база набирает вес от лога сессии к PR.
    ───────────────────────────────────────── */
 .evidenceFan {
-  /* Фан-диаграмма заполняет широкую направляющую (1120px) наравне
-     с петлёй работы и таблицами — это «обложка» доказательной базы,
-     а не мелкий вспомогательный эскиз. Прежний потолок 620px зажимал
-     SVG так, что подписи падали до ~7px и фигура читалась «маленькой»
-     рядом с полноширинной петлёй прямо над ней. */
+  /* Заполняет общую широкую ленту кейса (960px) наравне
+     с остальными фигурами. */
   width: 100%;
   margin: 0;
   color: var(--composer-ink);
@@ -1035,9 +1151,9 @@
 }
 
 .evidenceFanNumberSvg {
-  fill: var(--composer-ink);
+  fill: var(--composer-ink-subtle);
   font-family: var(--composer-font-mono);
-  font-size: 14px;
+  font-size: 12px;
   letter-spacing: 0.03em;
   font-variant-numeric: tabular-nums;
 }
@@ -1086,6 +1202,10 @@
     width: min(100%, var(--composer-stage-graphic, 520px));
   }
 
+  .workflowStageRail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .workflowList {
     justify-self: start;
     max-width: 100%;
@@ -1112,9 +1232,5 @@
 
   .diskList {
     display: grid;
-  }
-
-  .stack {
-    /* legacy: ничего не делает, оставлено для совместимости. */
   }
 }

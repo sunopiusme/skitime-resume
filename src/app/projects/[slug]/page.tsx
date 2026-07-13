@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getProject, isProjectSlug, listProjects, type ProjectSlug } from "@/content/projects/registry";
 import { siteConfig } from "@/design-system/site";
 import { JsonLd } from "@/lib/seo/jsonLd";
+import shield from "./case-shield.module.css";
 
 type Params = { slug: string };
 
@@ -66,7 +67,9 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
   return (
     <>
       <JsonLd data={articleLd} />
-      <Case />
+      <div className={shield.case}>
+        <Case />
+      </div>
     </>
   );
 }

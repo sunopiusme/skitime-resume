@@ -1,0 +1,421 @@
+/* ─────────────────────────────────────────
+   «Мини-профиль» — без рамки устройства.
+   Основной экран приложения (приглушён) + поверх
+   него shield-страница в стиле sheet iOS 27, где
+   Close — часть самой карточки. Чистый минимализм:
+   без цветных гало и шумных процентов.
+   Контент масштабируется через container-query-
+   юниты от .composition — без media-брейкпоинтов.
+   ───────────────────────────────────────── */
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(28px, 4vh, 52px);
+  padding: clamp(56px, 10vh, 128px) clamp(20px, 4vw, 64px);
+  background: var(--composer-surface);
+  color: var(--composer-ink);
+}
+
+/* ─── Подпись: kicker + заголовок — байт-в-байт с tokenomics ─── */
+.caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1vh, 14px);
+  max-width: 640px;
+  text-align: center;
+}
+
+.kicker {
+  margin: 0;
+  font-family: var(--composer-font-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--composer-ink-subtle);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(22px, 2.8vw, 34px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--composer-ink);
+  text-wrap: balance;
+}
+
+/* ─── Сцена ───
+   Бесшовный канвас без рамки и без обводки — это и есть «основной экран».
+   Sheet позиционируется абсолютно внутри. Container для cqw/cqh. */
+.composition {
+  container-type: size;
+  position: relative;
+  width: min(380px, 92vw);
+  aspect-ratio: 380 / 760;
+  border-radius: 6cqw;
+  overflow: hidden;
+}
+
+/* ─── Основной экран приложения — нейтральный тёмный, приглушён скримом ─── */
+.mainScreen {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 24%, #17171b, #0a0a0c 74%);
+}
+
+.mainMark {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  width: 14cqw;
+  height: auto;
+  transform: translateX(-50%);
+  opacity: 0.12;
+  filter: brightness(0) invert(1);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.55) 60%,
+    rgba(0, 0, 0, 0.78) 100%
+  );
+  pointer-events: none;
+}
+
+/* ─── Shield-страница (sheet) ───
+   Единая карточка: грабер, контент и Close внутри. Прижата к низу,
+   высота — по контенту. Выезжает снизу при появлении. */
+.sheet {
+  position: absolute;
+  left: 4cqw;
+  right: 4cqw;
+  bottom: 4cqh;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4cqw;
+  padding: 3.2cqw 5cqw 5cqw;
+  border-radius: 9cqw;
+  /* Волна засветки обрезается по скруглённой форме плашки. */
+  overflow: hidden;
+  background: linear-gradient(180deg, #202024, #161619);
+  box-shadow:
+    0 -1.4cqw 6cqw rgba(0, 0, 0, 0.5),
+    0 1cqw 3cqw rgba(0, 0, 0, 0.4);
+  /* Без fill-both: завершённая анимация с both перебивает inline-transform
+     по каскаду — тогда тяга стекла не работала бы. */
+  animation: sheetIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  /* Ничего внутри не выделяется текстом, нет синей подсветки тапа. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Жест тяги забирает на себя — без борьбы со скроллом. */
+  touch-action: none;
+  will-change: transform;
+  /* Пружинный возврат после отпускания (во время тяги отключён .dragging). */
+  transition: transform 0.55s cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+
+/* Во время тяги плашка следует за пальцем мгновенно, без сглаживания. */
+.sheet.dragging {
+  transition: none;
+}
+
+/* ─── Лёгкая волна света от точки клика ───
+   Слой-ребёнок .sheet (монтируется на каждый клик, key меняется; обрезается
+   её overflow:hidden). Мягкое белое пятно зарождается в точке (--gx/--gy)
+   и за ~0.7s расходится по всему sheet, угасая. Эффект тонкий, аддитивный. */
+.sheetGlow {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+  transform-origin: var(--gx, 50%) var(--gy, 50%);
+  background: radial-gradient(
+    30cqw 30cqw at var(--gx, 50%) var(--gy, 50%),
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.05) 46%,
+    transparent 70%
+  );
+  animation: glowSweep 0.72s ease-out both;
+}
+
+/* Свет рождается в точке и прокатывается по всей плашке, затем гаснет. */
+@keyframes glowSweep {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  22% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.8);
+  }
+}
+
+.grabber {
+  width: 10cqw;
+  height: 1.2cqw;
+  align-self: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.sheetTitle {
+  margin: 0 0 1cqw;
+  text-align: center;
+  font-size: 3.6cqw;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--composer-ink-subtle);
+}
+
+/* ─── Карусель персонажей — три одинаковых круглых пода ───
+   overflow:hidden + жёсткий размер спрайта → спрайт всегда внутри круга,
+   центрирован, ничего не вылезает и не «скачет» при переключении. */
+.carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5cqw;
+}
+
+.pod {
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, #2a2a30, #141417 74%);
+  /* Хайрлайн как у карточек в списке проектов. */
+  box-shadow: inset 0 0 0 1px var(--composer-hairline);
+}
+
+/* Боковые поды — кнопки. Контент неподвижен: на hover живёт только свет
+   (spotlight за курсором), без подъёма/зума. */
+.podSide {
+  appearance: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 15cqw;
+  height: 15cqw;
+}
+
+.podCenter {
+  width: 25cqw;
+  height: 25cqw;
+  box-shadow: inset 0 0 0 1px var(--composer-hairline-strong);
+}
+
+/* Spotlight: мягкое пятно следует за курсором внутри круга. */
+.podSheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 50%;
+  background: radial-gradient(
+    18cqw circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.14),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  pointer-events: none;
+}
+
+/* Кольцо: тот же градиент узкой каймой по периметру — рамка «загорается»
+   у курсора. Маска вырезает только 1px-кант. */
+.podRing {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 50%;
+  padding: 1px;
+  background: radial-gradient(
+    14cqw circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.65),
+    rgba(255, 255, 255, 0.08) 55%,
+    transparent 75%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  pointer-events: none;
+}
+
+.podSide:hover .podSheen,
+.podSide:hover .podRing {
+  opacity: 1;
+}
+
+/* Спрайт жёстко вписан в круг (контейн в коробке 62×62% круга). */
+.podImg {
+  display: block;
+  width: 62%;
+  height: 62%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.podCenter .podImg {
+  animation: fadeIn 0.4s ease both;
+}
+
+/* ─── Пагинация — «растущая пилюля»: активный сегмент вытягивается ─── */
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6cqw;
+}
+
+.dot {
+  width: 2cqw;
+  height: 2cqw;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.26);
+  cursor: pointer;
+  transition:
+    width 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.3s ease;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.dotActive {
+  width: 7cqw;
+  background: #ffffff;
+}
+
+.dotActive:hover {
+  background: #ffffff;
+}
+
+/* ─── Статы — тонкие чистые бары ─── */
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2.6cqw;
+  margin-top: 1cqw;
+}
+
+.statRow {
+  display: grid;
+  grid-template-columns: 16cqw 1fr;
+  align-items: center;
+  gap: 3cqw;
+}
+
+.statLabel {
+  font-size: 3cqw;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--composer-ink-subtle);
+}
+
+.bar {
+  position: relative;
+  height: 1.6cqw;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.barFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── Close — часть единой карточки ─── */
+.closeBtn {
+  margin-top: 1cqw;
+  height: 12cqw;
+  border: none;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 4cqw;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.closeBtn:hover {
+  opacity: 0.92;
+}
+
+.closeBtn:active {
+  transform: scale(0.985);
+}
+
+/* ─── Анимации ─── */
+@keyframes sheetIn {
+  from {
+    transform: translateY(6cqh);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .podCenter .podImg,
+  .sheetGlow {
+    animation: none;
+  }
+
+  .barFill,
+  .podSheen,
+  .podRing,
+  .sheetGlow,
+  .dot {
+    transition: none;
+  }
+}
