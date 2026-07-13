@@ -465,8 +465,13 @@
     font-size: 17px;
   }
 
-  /* Hero: ритм экранного «первого вью» приложения. */
+  /* Hero: ритм экранного «первого вью» приложения.
+     Выравнивание влево — как Large Title в нативном iOS-экране:
+     на компакте центрированный дисплей ломается на рваные строки,
+     а левый флаг даёт ровный, предсказуемый набор. */
   .hero {
+    justify-items: start;
+    text-align: left;
     padding: 96px 0 48px;
     gap: 20px;
   }
@@ -477,30 +482,37 @@
   }
 
   .title {
-    /* HIG Large Title: 34/41. Дисплейный кернинг убираем —
-       на этом кегле системная плотность выглядит нативнее. */
-    max-width: 15ch;
+    /* HIG Large Title: 34/41. Полная ширина колонки —
+       строки набираются естественно, без принудительных переносов. */
+    max-width: none;
     font-size: 34px;
     line-height: 41px;
     letter-spacing: -0.015em;
+    text-wrap: pretty;
   }
 
   .subtitle {
-    max-width: 40ch;
+    max-width: none;
     font-size: 17px; /* HIG Body */
-    line-height: 22px;
+    line-height: 24px;
     letter-spacing: -0.01em;
+    text-wrap: pretty;
   }
 
   /* Кнопки — полноширинный стек, как action-блок нативного экрана:
      capsule, высота 50pt, Body semibold. */
   .actions {
     width: 100%;
-    max-width: 400px;
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
     margin-top: 8px;
+  }
+
+  /* Колофон тоже на левый флаг, в ритме остального экрана. */
+  .colophon {
+    justify-content: flex-start;
+    gap: 6px 20px;
   }
 
   .primaryAction,
