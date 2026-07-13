@@ -325,22 +325,22 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Шкала: hairline-дорожка и светлое заполнение по score.
-   2px достаточно — полоса остаётся графикой, а не декором. */
+/* Шкала в духе научного графика: плотная полоса с острыми
+   углами, тёмно-синее заполнение на приглушённой дорожке. */
 .frictionTrack {
   display: block;
   width: 100%;
-  height: 2px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
+  height: 8px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
 .frictionFill {
   display: block;
   height: 100%;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0.85);
+  border-radius: 0;
+  background: #1e3a8a;
 }
 
 .frictionScaleItem p {
@@ -548,7 +548,7 @@
   fill: url(#wfGridMajor);
 }
 
-/* Чертёжная сетка: тонкая клетка 40px + усиленная линия каждые 200px. */
+/* Чертёжная сетка: тонкая кл��тка 40px + усиленная линия каждые 200px. */
 .wfGridMinor {
   stroke: rgba(255, 255, 255, 0.05);
   stroke-width: 1;

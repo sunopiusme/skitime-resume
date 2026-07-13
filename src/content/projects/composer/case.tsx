@@ -118,19 +118,13 @@ export default function ComposerCase() {
           </div>
 
           <div className={caseStyles.wide}>
-            <InlineFigure
-              caption="Официальные документы отделены от пользовательского трения. Иначе карта путает обещание продукта с тем, что реально ломает работу."
-              frame="plain"
-            >
+            <InlineFigure frame="plain">
               <LabSourceMap />
             </InlineFigure>
           </div>
 
           <div className={caseStyles.wide}>
-            <InlineFigure
-              frame="plain"
-              caption="Карта показывает не статистику рынка, а повторяющиеся точки отказа. Из них рождаются требования к контракту, трейсу и ревью."
-            >
+            <InlineFigure frame="plain">
               <LabFrictionRadar />
             </InlineFigure>
           </div>
@@ -271,7 +265,7 @@ export default function ComposerCase() {
           <div className={caseStyles.column}>
             <div className={caseStyles.prose}>
               <p>
-                Сайдбар ��десь ��е меню чатов. Он показывает работы в разных состояниях: агент ещё
+                Сайдбар здесь не меню чатов. Он показывает работы в разных состояниях: агент ещё
                 действует, diff ждёт ревью, задача уже закрыта. Сверху расположены навигация и
                 проекты, снизу хвост списка и системный футер, между ними пустое поле страницы.
                 Пауза оставлена специально. В ADE важнее дистанция между задачами, чем ещё один
