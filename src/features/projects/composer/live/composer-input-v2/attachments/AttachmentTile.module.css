@@ -45,12 +45,26 @@
   pointer-events: none;
 }
 
+/* Фото — компактный превью-квадрат в масштабе аудио-пилюли:
+   56px вместо 80px, чтобы ряд вложений не разрастался. */
 .imageTile {
-  width: 80px;
-  height: 80px;
+  position: relative;
+  width: 56px;
+  height: 56px;
   border-radius: var(--c-row-radius);
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
+}
+
+/* Hairline рисуется поверх картинки — inset box-shadow
+   самого тайла прятался бы под <img>. */
+.imageTile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  pointer-events: none;
 }
 
 .imageTile img {
@@ -140,18 +154,19 @@
   height: 11px;
 }
 
-/* Крестик: внутри тайла, в правом верхнем углу
-   с inset 6px. Без hover-effects — служебная
-   кнопка, не должна привлекать внимание. */
+/* Крестик фото: строго внутри тайла, в правом верхнем
+   углу с inset 4px под компактный 56px-превью. Служебная
+   кнопка — тёмная подложка для читаемости на любом фото,
+   без hover-effects. */
 .remove {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 4px;
+  right: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   padding: 0;
   border: none;
   border-radius: 999px;
@@ -161,6 +176,6 @@
 }
 
 .remove svg {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }
