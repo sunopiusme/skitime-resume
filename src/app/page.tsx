@@ -49,7 +49,7 @@ export default function HomePage() {
           aria-label={`${siteConfig.name} — на главную`}
           aria-current="page"
         >
-          Фурманов
+          <span className={styles.brandName}>Фурманов</span>
           <img src="/xlogo.svg" alt="" aria-hidden="true" className={styles.brandLogo} />
         </Link>
 
