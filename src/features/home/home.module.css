@@ -387,35 +387,164 @@
   }
 }
 
-/* ---------------- Responsive ---------------- */
+/* ---------------- Responsive — размерные классы Apple HIG ----------------
 
-@media (max-width: 840px) {
+   Regular (iPad, 768–1194px): десктопная композиция сохраняется,
+   но все интерактивные элементы добираются до минимальной
+   HIG-цели касания 44×44pt.
+
+   Compact (iPhone, ≤767px; iPhone 17 Pro Max = 440pt):
+   hero пересобирается как экран нативного приложения:
+   • навбар — 44pt контент + safe-area сверху, поля 20pt (Pro Max class);
+   • типографика по шкале SF: Large Title 34/41, Body 17/22, Footnote 13;
+   • кнопки — полноширинные capsule 50pt, вес semibold;
+   • нижний отступ уважает home-индикатор (safe-area-inset-bottom). */
+
+/* ─── Regular width (iPad) ─── */
+
+@media (min-width: 768px) and (max-width: 1194px) {
+  .navLinks a,
+  .socials a {
+    height: 44px;
+  }
+
+  .brand {
+    min-height: 44px;
+  }
+
   .topbar {
-    font-size: 0.66rem;
-  }
-
-  .navLinks {
-    gap: 16px;
-  }
-
-  .actions {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .primaryAction {
-    grid-column: 1 / -1;
-  }
-
-  .footerInner {
-    font-size: 0.66rem;
+    padding-top: max(clamp(10px, 1vw, 14px), env(safe-area-inset-top));
   }
 }
 
-@media (max-width: 480px) {
+/* ─── Compact width (iPhone) ─── */
+
+@media (max-width: 767px) {
+  .page {
+    /* Поля 20pt — layout margin класса Pro Max; safe areas по краям. */
+    padding:
+      calc(env(safe-area-inset-top) + 8px)
+      max(20px, env(safe-area-inset-left))
+      calc(env(safe-area-inset-bottom) + 12px)
+      max(20px, env(safe-area-inset-right));
+  }
+
+  /* Навбар как в нативном приложении: контентная зона 44pt,
+     сверху — статус-бар (safe-area), поля 20pt. */
+  .topbar {
+    padding:
+      calc(env(safe-area-inset-top) + 6px)
+      max(20px, env(safe-area-inset-left))
+      6px
+      max(20px, env(safe-area-inset-right));
+    font-size: 17px; /* HIG Body */
+  }
+
+  /* На компакте фамилия уходит — остаётся только X-марка. */
+  .brandName {
+    display: none;
+  }
+
+  .brand {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .brandLogo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .navLinks {
+    gap: 4px;
+  }
+
+  .navLinks a {
+    height: 44px; /* минимальная цель касания HIG */
+    padding: 0 14px;
+    font-size: 17px;
+  }
+
+  /* Hero: ритм экранного «первого вью» приложения.
+     Выравнивание влево — как Large Title в нативном iOS-экране:
+     на компакте центрированный дисплей ломается на рваные строки,
+     а левый флаг даёт ровный, предсказуемый набор. */
+  .hero {
+    justify-items: start;
+    text-align: left;
+    padding: 96px 0 48px;
+    gap: 20px;
+  }
+
+  .eyebrow {
+    font-size: 13px; /* HIG Footnote */
+    letter-spacing: 0.08em;
+  }
+
+  .title {
+    /* HIG Large Title: 34/41. Полная ширина колонки —
+       строки набираются естественно, без принудительных переносов. */
+    max-width: none;
+    font-size: 34px;
+    line-height: 41px;
+    letter-spacing: -0.015em;
+    text-wrap: pretty;
+  }
+
+  .subtitle {
+    max-width: none;
+    font-size: 17px; /* HIG Body */
+    line-height: 24px;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+
+  /* Кнопки — полноширинный стек, как action-блок нативного экрана:
+     capsule, высота 50pt, Body semibold. */
   .actions {
+    width: 100%;
+    display: grid;
     grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  /* Колофон тоже на левый флаг, в ритме остального экрана. */
+  .colophon {
+    justify-content: flex-start;
+    gap: 6px 20px;
+  }
+
+  .primaryAction,
+  .secondaryAction {
+    min-height: 50px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* Футер: Footnote 13pt, центрирован, уважает home-индикатор. */
+  .footer {
+    margin-inline: calc(-1 * max(20px, env(safe-area-inset-left)));
+    padding-top: 8px;
+  }
+
+  .footerInner {
+    padding-inline: max(20px, env(safe-area-inset-left));
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    font-size: 13px;
+  }
+
+  .socials {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .socials a {
+    height: 44px;
+    padding: 0 14px;
+    font-size: 15px; /* HIG Subheadline */
   }
 }

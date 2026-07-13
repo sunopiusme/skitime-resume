@@ -256,7 +256,7 @@
 /* ─────────────────────────────────────────
    Светлая mesh-обложка — свой spotlight.
    Белый блик на пастели не читается, поэтому:
-   блик — overlay (заметно высветляет полутона),
+   блик — overlay (заметно высветляет пол��тона),
    кольцо — слейтово-голубое из mesh-палитры,
    а сама карточка на hover получает ambient bloom —
    мягкое azure-свечение на чёрной странице.
@@ -356,7 +356,19 @@
 }
 
 /* ─────────────────────────────────────────
-   Responsive
+   Responsive — размерные классы Apple HIG
+   (та же система, что и на главной, см. home.module.css).
+
+   Regular (iPad, 768–1194px): композиция сохраняется,
+   интерактив добирается до цели касания 44×44pt,
+   карточки — по две в ряд.
+
+   Compact (iPhone, ≤767px; iPhone 17 Pro Max = 440pt):
+   экран пересобирается как список нативного приложения:
+   • навбар — 44pt контент + safe-area сверху, поля 20pt;
+   • Large Title 34/41 на левый флаг, Body 17/24;
+   • карточки — одна колонка на полную ширину;
+   • низ уважает home-индикатор.
    ───────────────────────────────────────── */
 @media (max-width: 900px) {
   .card {
@@ -364,18 +376,128 @@
   }
 }
 
-@media (max-width: 840px) {
-  .topbar {
-    font-size: 0.66rem;
+/* ─── Regular width (iPad) ─── */
+
+@media (min-width: 768px) and (max-width: 1194px) {
+  .navLinks a,
+  .socials a {
+    height: 44px;
   }
 
-  .footerInner {
-    font-size: 0.66rem;
+  .brand {
+    min-height: 44px;
+  }
+
+  .topbar {
+    padding-top: max(clamp(10px, 1vw, 14px), env(safe-area-inset-top));
   }
 }
 
-@media (max-width: 560px) {
+/* ─── Compact width (iPhone) ─── */
+
+@media (max-width: 767px) {
+  .page {
+    padding:
+      calc(env(safe-area-inset-top) + 8px)
+      max(20px, env(safe-area-inset-left))
+      calc(env(safe-area-inset-bottom) + 12px)
+      max(20px, env(safe-area-inset-right));
+  }
+
+  .topbar {
+    padding:
+      calc(env(safe-area-inset-top) + 6px)
+      max(20px, env(safe-area-inset-left))
+      6px
+      max(20px, env(safe-area-inset-right));
+    font-size: 17px; /* HIG Body */
+  }
+
+  /* На компакте фамилия уходит — остаётся только X-марка. */
+  .brandName {
+    display: none;
+  }
+
+  .brand {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .brandLogo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .navLinks {
+    gap: 4px;
+  }
+
+  .navLinks a {
+    height: 44px; /* минимальная цель касания HIG */
+    padding: 0 14px;
+    font-size: 17px;
+  }
+
+  .section {
+    padding: 96px 0 32px;
+    gap: 28px;
+  }
+
+  /* Заголовок/лид — на левый флаг, как Large Title
+     нативного экрана-списка. */
+  .heroHead {
+    justify-items: start;
+    text-align: left;
+    gap: 12px;
+    padding: 0;
+  }
+
+  .title {
+    font-size: 34px; /* HIG Large Title 34/41 */
+    line-height: 41px;
+    letter-spacing: -0.015em;
+  }
+
+  .lede {
+    max-width: none;
+    margin-inline: 0;
+    font-size: 17px; /* HIG Body */
+    line-height: 24px;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+
+  /* Карточки — одна колонка, ритм 16pt. */
+  .grid {
+    --grid-gap: 16px;
+  }
+
   .card {
     flex-basis: 100%;
+  }
+
+  /* Футер: Footnote 13pt, центрирован, уважает home-индикатор. */
+  .footer {
+    margin-inline: calc(-1 * max(20px, env(safe-area-inset-left)));
+    padding-top: 8px;
+  }
+
+  .footerInner {
+    padding-inline: max(20px, env(safe-area-inset-left));
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    font-size: 13px;
+  }
+
+  .socials {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .socials a {
+    height: 44px;
+    padding: 0 14px;
+    font-size: 15px; /* HIG Subheadline */
   }
 }

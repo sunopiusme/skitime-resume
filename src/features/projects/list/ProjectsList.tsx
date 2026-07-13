@@ -14,7 +14,7 @@ export default function ProjectsList() {
     <main id="main" tabIndex={-1} className={styles.page}>
       <header className={styles.topbar} aria-label="Шапка сайта">
         <Link className={styles.brand} href="/" aria-label={`${siteConfig.name}, на главную`}>
-          Фурманов
+          <span className={styles.brandName}>Фурманов</span>
           <img src="/xlogo.svg" alt="" aria-hidden="true" className={styles.brandLogo} />
         </Link>
         <nav className={styles.navLinks} aria-label="Основная навигация">

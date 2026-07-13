@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 
 import { siteConfig } from "@/design-system/site";
@@ -39,6 +39,15 @@ const instrumentSerif = localFont({
   variable: "--font-serif",
   display: "swap",
 });
+
+/* viewport-fit=cover — обязательное условие работы env(safe-area-inset-*)
+   на устройствах с Dynamic Island / home-индикатором (HIG: Layout → Safe areas). */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#000000",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
