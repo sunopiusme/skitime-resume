@@ -83,7 +83,7 @@
   height: 64px;
   min-width: 0;
   max-width: 100%;
-  padding: 0 10px 0 18px;
+  padding: 0 18px;
   border-radius: var(--tile-radius);
   background: rgba(255, 255, 255, 0.06);
 }
@@ -124,54 +124,46 @@
   white-space: nowrap;
 }
 
-/* Крестик аудио-чипа — в ряду, служебный: тихий по
-   умолчанию, чуть ярче на hover. Без фона и рамки. */
-.removeInline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  margin-left: 2px;
-  padding: 0;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--c-ink-subtle);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: color 120ms ease;
-}
-
-.removeInline:hover,
-.removeInline:focus-visible {
-  color: var(--c-ink);
-}
-
-.removeInline svg {
-  width: 11px;
-  height: 11px;
-}
-
-/* Крестик фото: строго внутри тайла, в правом верхнем
-   углу с inset 5px под 64px-превью. Служебная кнопка —
-   тёмная подложка для читаемости на любом фото,
-   без hover-effects. */
+/* Единый крестик для обоих типов: сидит на правом верхнем
+   углу тайла, наполовину выступая наружу — классика
+   composer-чипов. Кружок в тоне карточки (#232323) с
+   hairline: читается как система, а не заплатка поверх
+   фото. Скрыт до hover тайла; на touch виден всегда. */
 .remove {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: -7px;
+  right: -7px;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.55);
-  color: var(--c-ink);
+  background: #2e2e2e;
+  box-shadow: 0 0 0 2px #232323;
+  color: var(--c-ink-muted);
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms ease, color 120ms ease;
+}
+
+.tile:hover .remove,
+.tile:focus-within .remove {
+  opacity: 1;
+}
+
+.remove:hover,
+.remove:focus-visible {
+  color: var(--c-ink);
+}
+
+@media (hover: none) {
+  .remove {
+    opacity: 1;
+  }
 }
 
 .remove svg {

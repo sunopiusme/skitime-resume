@@ -60,23 +60,12 @@ export function AttachmentTile({ attachment, onRemove, onReorder }: Props) {
       }}
     >
       {kind === "image" ? (
-        <>
-          <div className={styles.imageTile}>
-            {previewUrl ? <img src={previewUrl} alt={name} /> : null}
-          </div>
-          <button
-            type="button"
-            className={styles.remove}
-            aria-label={`Убрать ${name}`}
-            onClick={() => onRemove(id)}
-          >
-            <CloseIcon />
-          </button>
-        </>
+        <div className={styles.imageTile}>
+          {previewUrl ? <img src={previewUrl} alt={name} /> : null}
+        </div>
       ) : (
-        /* Аудио — однострочный чип: иконка, имя, размер и крестик
-           на одной базовой линии. Без двухэтажной меты — при
-           однострочной высоте она сбивалась в тесный блок. */
+        /* Аудио — однострочный чип: иконка, имя и размер
+           на одной базовой линии. */
         <div className={styles.audioTile}>
           <span className={styles.audioIcon} aria-hidden="true">
             <AudioIcon />
@@ -85,16 +74,20 @@ export function AttachmentTile({ attachment, onRemove, onReorder }: Props) {
             {name}
           </span>
           <span className={styles.audioSize}>{formatBytes(size)}</span>
-          <button
-            type="button"
-            className={styles.removeInline}
-            aria-label={`Убрать ${name}`}
-            onClick={() => onRemove(id)}
-          >
-            <CloseIcon />
-          </button>
         </div>
       )}
+      {/* Единый крестик для обоих типов: сидит на правом верхнем
+          углу тайла, в тоне карточки с hairline — читается как
+          часть системы, а не заплатка поверх контента. Появляется
+          на hover тайла (на touch-устройствах виден всегда). */}
+      <button
+        type="button"
+        className={styles.remove}
+        aria-label={`Убрать ${name}`}
+        onClick={() => onRemove(id)}
+      >
+        <CloseIcon />
+      </button>
     </div>
   );
 }
