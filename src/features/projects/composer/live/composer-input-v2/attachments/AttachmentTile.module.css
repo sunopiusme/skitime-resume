@@ -15,9 +15,18 @@
 
 .tile {
   position: relative;
-  flex-shrink: 0;
+  /* Чип может ужиматься: с несколькими файлами имя
+     срезается многоточием, и 2–3 чипа встают в одну
+     строку вместо разрастания карточки вниз. */
+  min-width: 0;
+  flex: 0 1 auto;
   cursor: grab;
   transition: opacity 120ms ease, transform 160ms ease;
+}
+
+/* Image-тайл фиксированный — квадрат не ужимается. */
+.tile:has(.imageTile) {
+  flex-shrink: 0;
 }
 
 .tile[data-dragging="true"] {
@@ -55,10 +64,12 @@
    на одной базовой линии. Радиус 999px — геометрия mic/submit
    кнопок; без обводки, отделяется от карточки только тоном. */
 .audioTile {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
   height: 36px;
+  min-width: 0;
+  max-width: 100%;
   padding: 0 6px 0 14px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
@@ -86,6 +97,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Имя — единственный сжимаемый участок чипа:
+     иконка, размер и крестик держат свою ширину. */
+  min-width: 0;
+  flex: 0 1 auto;
   max-width: 180px;
 }
 
