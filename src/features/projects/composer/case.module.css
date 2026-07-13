@@ -208,7 +208,7 @@
   gap: var(--case-space-section-inner);
 }
 
-/* ���────────────────────────────────────────
+/* �����────────────────────────────────────────
    Группировка по близости (двухуровневый ритм).
    Базовый gap у .part — это «связанный» шаг внутри секции.
    Поверх него:
@@ -216,7 +216,7 @@
      абзацу — это одна смысловая связка, не два равных блока;
    • прозо-колонка ПОСЛЕ фигуры — новая мысль, ей даём
      явный разрыв, чтобы читалась как новый подраздел.
-   Так уходит равноудалённость, из-за которой макет
+   Та�� уходит равноудалённость, из-за которой макет
    выглядел кашей.
    ───────────────────────────────────────── */
 .part > .column + .wide,
@@ -313,11 +313,15 @@
   color: var(--composer-ink-subtle);
 }
 
+/* Текст TL;DR наследует параметры prose — единый стандарт
+   основного текста кейса: 15/24, -0.01em, ink 92%. */
 .tldrText {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: var(--composer-ink-muted);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+  color: rgba(255, 255, 255, 0.92);
   text-wrap: pretty;
 }
 
@@ -526,14 +530,16 @@
   color: var(--composer-ink-subtle);
 }
 
+/* Текст тезиса приведён к стандарту prose (15/24, -0.01em, ink 92%):
+   один текстовый голос на весь кейс, акцент держит только рамка слева. */
 .pullQuoteText {
   font-family: var(--font-sans), sans-serif;
   font-style: normal;
-  font-size: clamp(1.04rem, 1.28vw, 1.18rem);
+  font-size: 15px;
   font-weight: 400;
-  letter-spacing: -0.012em;
-  line-height: 1.5;
-  color: var(--composer-ink);
+  letter-spacing: -0.01em;
+  line-height: 24px;
+  color: rgba(255, 255, 255, 0.92);
   text-align: left;
   text-wrap: pretty;
 }
@@ -569,10 +575,8 @@
     gap: 20px;
   }
 
-  .tldrText {
-    font-size: 15px;
-    line-height: 21px;
-  }
+  /* Метрики TL;DR не пересобираются: 15/24 как у prose на всех
+     вьюпортах — единый стандарт текста кейса. */
 
   .sectionTitle {
     font-size: 24px;
