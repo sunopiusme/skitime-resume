@@ -9,8 +9,6 @@
 .sourceRank,
 .axis,
 .signalCell,
-.toolName,
-.frictionHead,
 .diskCore,
 .diskStep {
   font-family: var(--composer-font-mono);
@@ -324,11 +322,14 @@
   stroke-linejoin: round;
 }
 
+/* Подписи радара — обычный текст вместо mono: тот же голос,
+   что у легенды справа. Кегли в единицах viewBox, поэтому
+   значения маленькие; вес 600 держит иерархию. */
 .radarCore,
 .radarCoreSub,
 .radarLabel,
 .radarScore {
-  font-family: var(--composer-font-mono);
+  font-family: var(--font-sans), sans-serif;
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
@@ -337,14 +338,14 @@
 .radarCore {
   fill: rgba(255, 255, 255, 0.88);
   font-size: 8px;
-  font-weight: 650;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .radarCoreSub {
   fill: rgba(255, 255, 255, 0.45);
   font-size: 6.5px;
-  letter-spacing: 0.08em;
+  letter-spacing: -0.005em;
 }
 
 .radarNode {
@@ -371,14 +372,15 @@
 .radarLabel {
   fill: rgba(255, 255, 255, 0.78);
   font-size: 7.6px;
-  font-weight: 650;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .radarScore {
   fill: rgba(255, 255, 255, 0.42);
   font-size: 6.6px;
-  letter-spacing: 0.04em;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Легенда радара, не самостоятельный текстовый раздел:
@@ -412,18 +414,26 @@
     color var(--composer-duration-hover) ease;
 }
 
+/* Строка «сигнал + score» — стандарт подзаголовков кейса
+   (как tldrKicker): обычный текст, метрики prose, вес держит strong. */
 .frictionHead {
   display: flex;
   justify-content: space-between;
   gap: 16px;
   color: var(--composer-ink);
-  font-size: 0.82rem;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  line-height: 24px;
   transition: color var(--composer-duration-hover) ease;
+}
+
+.frictionHead strong {
+  font-weight: 600;
 }
 
 .frictionHead span {
   color: var(--composer-ink-muted);
-  font-family: var(--composer-font-mono);
   font-variant-numeric: tabular-nums;
   transition: color var(--composer-duration-hover) ease;
 }
@@ -431,8 +441,9 @@
 .frictionItem p {
   margin: 0;
   color: var(--composer-ink-muted);
-  font-size: 0.84rem;
-  line-height: 1.45;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  line-height: 24px;
   text-wrap: pretty;
   transition: color var(--composer-duration-hover) ease;
 }
