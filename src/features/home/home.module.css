@@ -361,102 +361,33 @@
 
 /* ---------------- Избранные работы ---------------- */
 
+/* На десктопе — две колонки, как в архиве /projects:
+   обложки сохраняют привычный масштаб и не разрастаются
+   в full-bleed постеры. На компакте схлопывается в одну. */
 .worksList {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: var(--composer-space-section-inner);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: clamp(24px, 3vw, 40px);
 }
 
-/* Обложка + мета-блок: на десктопе рядом, обложка ведёт. */
+/* Карточка = обложка + одна строка описания под ней.
+   Вся навигация — на самой обложке (она целиком кликабельна),
+   поэтому здесь никаких кнопок, тегов и дублей заголовка. */
 .workItem {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(20px, 3vw, 48px);
-  align-items: center;
-}
-
-.workMeta {
-  display: grid;
-  justify-items: start;
   gap: var(--composer-space-4);
-  min-width: 0;
-}
-
-.workTitle {
-  margin: 0;
-  color: var(--composer-ink);
-  font-size: clamp(1.25rem, 1.8vw, 1.6rem);
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  line-height: 1.2;
 }
 
 .workSummary {
   margin: 0;
-  max-width: 44ch;
+  max-width: 56ch;
   color: var(--composer-ink-muted);
   font-size: clamp(0.95rem, 1.1vw, 1.06rem);
   line-height: 1.5;
   text-wrap: pretty;
-}
-
-/* «Роль · Год» — доказательная строка мелким капсом. */
-.workFacts {
-  margin: 0;
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
-}
-
-.workTags {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--composer-space-2);
-}
-
-.workTags li {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 0 12px;
-  border: 1px solid var(--composer-hairline);
-  border-radius: 999px;
-  font-size: 0.78rem;
-  color: var(--composer-ink-muted);
-}
-
-/* «Открыть кейс» — вторичная capsule, как secondaryAction в hero. */
-.workLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  min-height: 44px;
-  padding: 0 1.15rem;
-  border-radius: 999px;
-  border: 1px solid var(--composer-hairline-strong);
-  color: var(--composer-ink);
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  transition:
-    background 180ms ease,
-    border-color 180ms ease;
-}
-
-.workLink:hover {
-  border-color: var(--composer-ink);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.workLink:hover .actionIcon {
-  transform: translate(2px, -2px);
 }
 
 /* Тихая ссылка на полный архив /projects. */
@@ -489,13 +420,11 @@
   gap: clamp(20px, 2.4vw, 32px);
 }
 
+/* Чистый список без обводок — меньше «коробок», больше воздуха. */
 .doItem {
   display: grid;
   align-content: start;
   gap: var(--composer-space-3);
-  padding: var(--composer-space-5);
-  border: 1px solid var(--composer-hairline);
-  border-radius: var(--composer-radius-md);
 }
 
 .itemTitle {
@@ -803,35 +732,19 @@
     text-wrap: pretty;
   }
 
-  /* Обложка над мета-блоком — одна колонка, ритм 16pt. */
+  /* Карточка: обложка + строка описания, ритм 12pt. */
   .workItem {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    align-items: start;
+    gap: 12px;
   }
 
   .worksList {
     gap: 40px;
   }
 
-  .workTitle {
-    font-size: 22px; /* HIG Title 2 */
-    line-height: 28px;
-  }
-
   .workSummary {
     max-width: none;
     font-size: 17px; /* HIG Body */
     line-height: 24px;
-  }
-
-  /* «Открыть кейс» — полноширинная capsule 50pt, как кнопки hero. */
-  .workLink {
-    width: 100%;
-    min-height: 50px;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
   }
 
   .worksArchive {
@@ -842,14 +755,10 @@
     font-size: 17px;
   }
 
-  /* Что делаю / Подход — одна колонка. */
+  /* Что делаю / Подход — одна колонка, без боксов. */
   .doGrid {
     grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .doItem {
-    padding: 20px;
+    gap: 24px;
   }
 
   .itemTitle {

@@ -167,6 +167,9 @@ export default function HomePage() {
           </h2>
         </header>
 
+        {/* Карточка = обложка (полностью кликабельна, ведёт на кейс)
+            + одна строка описания. Заголовок, год и номер уже есть
+            на самой обложке — дублирование убрано. */}
         <ol className={styles.worksList} aria-label="Список избранных работ">
           {entries.map((entry, idx) => {
             const issue = String(idx + 1).padStart(2, "0");
@@ -178,45 +181,7 @@ export default function HomePage() {
                   year={entry.year}
                   index={issue}
                 />
-
-                <div className={styles.workMeta}>
-                  <h3 className={styles.workTitle}>{entry.title}</h3>
-                  <p className={styles.workSummary}>{entry.summary}</p>
-                  <p className={styles.workFacts}>
-                    {entry.role} · {entry.year}
-                  </p>
-
-                  {entry.tags.length > 0 ? (
-                    <ul className={styles.workTags} aria-label="Теги проекта">
-                      {entry.tags.map((tag) => (
-                        <li key={tag}>{tag}</li>
-                      ))}
-                    </ul>
-                  ) : null}
-
-                  <Link
-                    className={styles.workLink}
-                    href={`/projects/${entry.slug}`}
-                  >
-                    Открыть кейс
-                    <svg
-                      className={styles.actionIcon}
-                      width="14"
-                      height="14"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M3 11L11 3M11 3H4.5M11 3V9.5"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </Link>
-                </div>
+                <p className={styles.workSummary}>{entry.summary}</p>
               </li>
             );
           })}
