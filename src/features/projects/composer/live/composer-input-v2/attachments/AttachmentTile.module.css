@@ -51,19 +51,18 @@
   display: block;
 }
 
-/* Аудио — компактный чип-строка, а не блок 80px:
-   тонкая пилюля с hairline, иконка без собственной
-   подложки, крестик в ряду. Отделяется от карточки
-   контуром, а не громоздкостью. */
+/* Аудио — компактная пилюля в геометрии карточки:
+   радиус 999px, как у mic/submit-кнопок рядом. Без
+   обводки — отделяется от карточки только тоном.
+   Иконка без собственной подложки, крестик в ряду. */
 .audioTile {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   height: 44px;
-  padding: 0 8px 0 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  padding: 0 10px 0 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .audioIcon {
