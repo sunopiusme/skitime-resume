@@ -180,9 +180,20 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 560px) {
+/* Compact (iPhone): карточка сужается до одной колонки (~400px),
+   а превью свёрстано под фикс 760px — правка «кадра» смещением
+   даёт случайный обрезок поверх заголовка. Вместо кропа показываем
+   композер целиком: масштабируем весь блок под ширину карточки
+   и поднимаем в верхнюю зону, освобождая низ под мету. */
+@media (max-width: 767px) {
+  .composerPreviewScale {
+    left: 50%;
+    top: 44%;
+    transform: translate(-50%, -50%) scale(0.48);
+  }
+
   .composerMeta {
-    max-width: 42%;
+    max-width: 60%;
   }
 }
 
