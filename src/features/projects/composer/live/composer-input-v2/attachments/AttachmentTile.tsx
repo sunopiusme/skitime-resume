@@ -60,10 +60,23 @@ export function AttachmentTile({ attachment, onRemove, onReorder }: Props) {
       }}
     >
       {kind === "image" ? (
-        <div className={styles.imageTile}>
-          {previewUrl ? <img src={previewUrl} alt={name} /> : null}
-        </div>
+        <>
+          <div className={styles.imageTile}>
+            {previewUrl ? <img src={previewUrl} alt={name} /> : null}
+          </div>
+          <button
+            type="button"
+            className={styles.remove}
+            aria-label={`Убрать ${name}`}
+            onClick={() => onRemove(id)}
+          >
+            <CloseIcon />
+          </button>
+        </>
       ) : (
+        /* Аудио — компактная строка-чип: иконка, имя+размер и
+           крестик в одном ряду. Крестик больше не висит поверх
+           угла — он часть чипа, как в референсных композерах. */
         <div className={styles.audioTile}>
           <span className={styles.audioIcon} aria-hidden="true">
             <AudioIcon />
@@ -76,16 +89,16 @@ export function AttachmentTile({ attachment, onRemove, onReorder }: Props) {
               Audio · {formatBytes(size)}
             </span>
           </div>
+          <button
+            type="button"
+            className={styles.removeInline}
+            aria-label={`Убрать ${name}`}
+            onClick={() => onRemove(id)}
+          >
+            <CloseIcon />
+          </button>
         </div>
       )}
-      <button
-        type="button"
-        className={styles.remove}
-        aria-label={`Убрать ${name}`}
-        onClick={() => onRemove(id)}
-      >
-        <CloseIcon />
-      </button>
     </div>
   );
 }

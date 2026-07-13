@@ -51,46 +51,47 @@
   display: block;
 }
 
+/* Аудио — компактный чип-строка, а не блок 80px:
+   тонкая пилюля с hairline, иконка без собственной
+   подложки, крестик в ряду. Отделяется от карточки
+   контуром, а не громоздкостью. */
 .audioTile {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  /* Подгоняем под высоту image-tile (80px),
-     чтобы вложения разных типов стояли в одном
-     ряду без диссонанса по вертикали. */
-  height: 80px;
-  padding: 12px 16px 12px 12px;
-  border-radius: var(--c-row-radius);
-  background: rgba(255, 255, 255, 0.06);
+  gap: 10px;
+  height: 44px;
+  padding: 0 8px 0 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .audioIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--c-ink);
+  width: 20px;
+  height: 20px;
+  color: var(--c-ink-muted);
   flex-shrink: 0;
 }
 
 .audioIcon svg {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
 }
 
 .audioMeta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
 }
 
 .audioName {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 500;
+  line-height: 1.25;
   color: var(--c-ink);
   white-space: nowrap;
   overflow: hidden;
@@ -99,9 +100,39 @@
 }
 
 .audioSize {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
+  line-height: 1.25;
   color: var(--c-ink-subtle);
   font-variant-numeric: tabular-nums;
+}
+
+/* Крестик аудио-чипа — в ряду, служебный: тихий по
+   умолчанию, чуть ярче на hover. Без фона и рамки. */
+.removeInline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 2px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-ink-subtle);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 120ms ease;
+}
+
+.removeInline:hover,
+.removeInline:focus-visible {
+  color: var(--c-ink);
+}
+
+.removeInline svg {
+  width: 11px;
+  height: 11px;
 }
 
 /* Крестик: внутри тайла, в правом верхнем углу
