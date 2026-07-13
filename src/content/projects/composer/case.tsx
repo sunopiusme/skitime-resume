@@ -130,17 +130,19 @@ export default function ComposerCase() {
           </div>
         </section>
 
-        {/* Тезис — вывод исследования и мост к трём решениям */}
+        {/* Тезис — вывод исследования и мост к трём решениям.
+            Без blockquote и рамки: тот же стандарт, что у таблиц и
+            шкал — полужирный подзаголовок + обычный текст prose. */}
         <section className={caseStyles.part}>
           <div className={caseStyles.column}>
-            <blockquote className={caseStyles.pullQuote}>
-              <span className={caseStyles.pullQuoteKicker}>Тезис</span>
-              <span className={caseStyles.pullQuoteText}>
+            <div className={caseStyles.thesis}>
+              <span className={caseStyles.thesisLabel}>Тезис</span>
+              <p className={caseStyles.thesisText}>
                 ADE заслуживает запуска только тогда, когда интерфейс показывает цель, контекст,
                 доступ, ход работы и доказательства. Всё остальное остаётся чатом с правами на
                 репозиторий.
-              </span>
-            </blockquote>
+              </p>
+            </div>
           </div>
         </section>
 

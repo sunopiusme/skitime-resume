@@ -208,14 +208,14 @@
   gap: var(--case-space-section-inner);
 }
 
-/* �������────────────────────────────────────────
+/* ���������────────────────────────────────────────
    Группировка по близости (двухуровневый ритм).
    Базовый gap у .part — это «связанный» шаг внутри секции.
    Поверх него:
    • фигура / код / композер прижимаются к вводящему их
      абзацу — это одна смысловая связка, не два равных блока;
    • прозо-колонка ПОСЛЕ фигуры — новая мысль, ей даём
-     явный разрыв, чтобы читалась как новый подраздел.
+     явный разрыв, чтобы читалась как новый подразде��.
    Та�� уходит равноудалённость, из-за которой макет
    выглядел кашей.
    ───────────────────────────────────────── */
@@ -417,9 +417,9 @@
 
 /* Сцена live-компонента — фон-подложка под ADE-островком, лежащим по
    центру. Фон — собственный тёмный neutral mesh-gradient (без png,
-   см. background ниже). Прямоугольная форма (высота от контента +
+   см. background ни��е). Прямоугольная форма (высота от контента +
    padding). overflow НЕ скрываем — ��наче выпадающие меню/поповеры
-   композера срезаются краем сцены. Фон при этом остаётся скруглённым:
+   композера срезаются краем с��ены. Фон при этом остаётся скруглённым:
    фоновая картинка клипается по border-radius сама, без overflow:hidden. */
 .composerStage {
   width: 100%;
@@ -509,39 +509,32 @@
 }
 
 /* ─────────────────────────────────────────
-   Pull quote — выделение цитаты в общем
-   ритме страницы. Без серифа и курсива:
-   акцент держится размером, не сменой
-   гарнитуры.
+   Тезис — без blockquote, рамки и mono-капса.
+   Тот же стандарт, что у TL;DR, таблицы и шкал:
+   полужирный подзаголовок + обычный текст prose.
    ───────────────────────────────────────── */
-.pullQuote {
+.thesis {
   display: grid;
-  gap: clamp(8px, 1vw, 12px);
-  margin: clamp(4px, 0.8vw, 12px) 0 0;
-  padding: clamp(16px, 1.8vw, 24px) 0 clamp(16px, 1.8vw, 24px) clamp(20px, 2vw, 28px);
-  border-left: 2px solid var(--composer-hairline-strong);
+  gap: 8px;
 }
 
-.pullQuoteKicker {
-  font-family: var(--composer-font-mono), monospace;
-  font-size: 0.68rem;
-  font-weight: 400;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
-}
-
-/* Текст тезиса приведён к стандарту prose (15/24, -0.01em, ink 92%):
-   один текстовый голос на весь кейс, акцент держит только рамка слева. */
-.pullQuoteText {
+.thesisLabel {
   font-family: var(--font-sans), sans-serif;
-  font-style: normal;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+  color: var(--composer-ink);
+}
+
+.thesisText {
+  margin: 0;
+  font-family: var(--font-sans), sans-serif;
   font-size: 15px;
   font-weight: 400;
   letter-spacing: -0.01em;
   line-height: 24px;
   color: rgba(255, 255, 255, 0.92);
-  text-align: left;
   text-wrap: pretty;
 }
 
