@@ -50,8 +50,8 @@ export default function ComposerCase() {
           </div>
 
           {/* TL;DR — кейс читается за 20 секунд ещё до скролла:
-              проблема, решение и факты. Типографика наследует стандарт
-              кейса: mono-кикеры как у pullQuote, ink/hairline токены. */}
+              проблема, решение и факты. Подзаголовки — обычный текст
+              полужирным, без капса и разделителей. */}
           <dl className={caseStyles.tldr} aria-label="Кейс коротко">
             <div className={caseStyles.tldrItem}>
               <dt className={caseStyles.tldrKicker}>Проблема</dt>
@@ -70,7 +70,7 @@ export default function ComposerCase() {
             <div className={caseStyles.tldrItem}>
               <dt className={caseStyles.tldrKicker}>Факты</dt>
               <dd className={caseStyles.tldrText}>
-                Product, UI, код · Концепт с рабочими прототипами · 2026
+                Product, UI и код. Концепт с рабочими прототипами, 2026
               </dd>
             </div>
           </dl>
@@ -269,7 +269,7 @@ export default function ComposerCase() {
           <div className={caseStyles.column}>
             <div className={caseStyles.prose}>
               <p>
-                Сайдбар здесь не меню чатов. Он показывает работы в разных состояниях: агент ещё
+                Сайдбар ��десь не меню чатов. Он показывает работы в разных состояниях: агент ещё
                 действует, diff ждёт ревью, задача уже закрыта. Сверху расположены навигация и
                 проекты, снизу хвост списка и системный футер, между ними пустое поле страницы.
                 Пауза оставлена специально. В ADE важнее дистанция между задачами, чем ещё один

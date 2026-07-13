@@ -208,7 +208,7 @@
   gap: var(--case-space-section-inner);
 }
 
-/* �����────────────────────────────────────────
+/* �������────────────────────────────────────────
    Группировка по близости (двухуровневый ритм).
    Базовый gap у .part — это «связанный» шаг внутри секции.
    Поверх него:
@@ -282,9 +282,10 @@
 
 /* ─────────────────────────────────────────
    TL;DR — кейс за 20 секунд до скролла.
-   Наследует стандарт кейса: mono-кикеры (как pullQuoteKicker),
-   ink-токены, hairline-разделитель сверху. Три колонки на
-   десктопе, стек на компакте.
+   Без разделителей и капса: подзаголовок — тот же кегль,
+   что у prose, но полужирный; иерархию держит вес и цвет,
+   а не декоративные линии. Три колонки на десктопе,
+   стек на компакте.
    ───────────────────────────────────────── */
 .tldr {
   display: grid;
@@ -293,8 +294,6 @@
   width: 100%;
   max-width: min(100%, 920px);
   margin: 0;
-  padding-top: clamp(20px, 2.4vw, 28px);
-  border-top: 1px solid var(--composer-hairline);
   text-align: left;
 }
 
@@ -304,13 +303,15 @@
   gap: 8px;
 }
 
+/* Подзаголовок — обычный текст полужирным: метрики prose
+   (15/24, -0.01em), вес 600, полный ink. */
 .tldrKicker {
-  font-family: var(--composer-font-mono), monospace;
-  font-size: 0.68rem;
-  font-weight: 400;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+  color: var(--composer-ink);
 }
 
 /* Текст TL;DR наследует параметры prose — единый стандарт
@@ -417,7 +418,7 @@
 /* Сцена live-компонента — фон-подложка под ADE-островком, лежащим по
    центру. Фон — собственный тёмный neutral mesh-gradient (без png,
    см. background ниже). Прямоугольная форма (высота от контента +
-   padding). overflow НЕ скрываем — иначе выпадающие меню/поповеры
+   padding). overflow НЕ скрываем — ��наче выпадающие меню/поповеры
    композера срезаются краем сцены. Фон при этом остаётся скруглённым:
    фоновая картинка клипается по border-radius сама, без overflow:hidden. */
 .composerStage {
