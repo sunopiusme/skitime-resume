@@ -208,7 +208,7 @@
   gap: var(--case-space-section-inner);
 }
 
-/* ���������────────────────────────────────────────
+/* �����������────────────────────────────────────────
    Группировка по близости (двухуровневый ритм).
    Базовый gap у .part — это «связанный» шаг внутри секции.
    Поверх него:
@@ -509,33 +509,20 @@
 }
 
 /* ─────────────────────────────────────────
-   Тезис — без blockquote, рамки и mono-капса.
-   Тот же стандарт, что у TL;DR, таблицы и шкал:
-   полужирный подзаголовок + обычный текст prose.
+   Тезис — одно крупное высказывание без подписи
+   и декора. Масштаб sectionTitle (28px, вес 500),
+   строчный интерлиньяж чуть свободнее заголовка —
+   это высказывание в несколько строк, не рубрика.
    ───────────────────────────────────────── */
 .thesis {
-  display: grid;
-  gap: 8px;
-}
-
-.thesisLabel {
-  font-family: var(--font-sans), sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 24px;
-  color: var(--composer-ink);
-}
-
-.thesisText {
   margin: 0;
   font-family: var(--font-sans), sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 24px;
-  color: rgba(255, 255, 255, 0.92);
-  text-wrap: pretty;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--composer-ink);
+  text-wrap: balance;
 }
 
 /* ─────────────────────────────────────────
@@ -573,6 +560,10 @@
      вьюпортах — единый стандарт текста кейса. */
 
   .sectionTitle {
+  font-size: 24px;
+  }
+
+  .thesis {
     font-size: 24px;
   }
 
