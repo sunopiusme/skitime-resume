@@ -1,53 +1,44 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import styles from "./CodeDrawer.module.css";
 
 /* ─────────────────────────────────────────
-   CodeDrawer — свёрнутый виджет «артефактов»
-   секции вместо развёрнутого полотна кода.
+   CodeDrawer — плавающая кнопка «показать код».
 
-   Паттерн из панелей ресурсов в AI-средах:
-   компактная карточка со списком файлов,
-   каждый файл раскрывается по клику и
-   показывает готовый CodeBlock (children,
-   отрендеренный на сервере). Монохром,
-   hairline — в системе кейса.
+   Вместо разворачивающегося в потоке полотна:
+   компактная пилюля с иконкой кода, по клику
+   из неё выплывает floating-панель с готовым
+   CodeBlock (children, пререндерен на сервере).
+   Панель — overlay поверх контента: короткий
+   fade+slide, закрытие по Escape и клику мимо.
+   Монохром, hairline — в системе кейса.
    ───────────────────────────────────────── */
 
 type Props = {
-  /* Имя файла (последний сегмент пути). */
+  /* Имя файла — подпись в триггере и aria-label панели.
+     Путь и мету показывает сам CodeBlock внутри. */
   file: string;
-  /* Каталог файла — приглушённым после имени. */
-  dir?: string;
-  /* Короткая мета: язык, diff-статистика. */
-  meta?: string;
   /* Пререндеренный CodeBlock. */
   children: ReactNode;
 };
 
-function FileIcon() {
+function CodeIcon() {
   return (
     <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path
-        d="M9.5 1.5H4.5C3.94772 1.5 3.5 1.94772 3.5 2.5V13.5C3.5 14.0523 3.94772 14.5 4.5 14.5H11.5C12.0523 14.5 12.5 14.0523 12.5 13.5V4.5L9.5 1.5Z"
+        d="M5.5 4.5L2 8L5.5 11.5"
         stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M9.5 1.5V4.5H12.5" stroke="currentColor" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
       <path
-        d="M4.5 2.5L8 6L4.5 9.5"
+        d="M10.5 4.5L14 8L10.5 11.5"
         stroke="currentColor"
-        strokeWidth="1.4"
+        strokeWidth="1.3"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -55,36 +46,77 @@ function ChevronIcon() {
   );
 }
 
-export default function CodeDrawer({ file, dir, meta, children }: Props) {
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
+      <path
+        d="M3 3L9 9M9 3L3 9"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export default function CodeDrawer({ file, children }: Props) {
   const [open, setOpen] = useState(false);
-  const regionId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const panelId = useId();
+
+  /* Закрытие по Escape и клику вне виджета. */
+  useEffect(() => {
+    if (!open) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    function onPointerDown(event: PointerEvent) {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [open]);
 
   return (
-    <div className={styles.drawer} data-open={open}>
-      <div className={styles.head}>
-        <span className={styles.headLabel}>Код</span>
-        {meta ? <span className={styles.headMeta}>{meta}</span> : null}
-      </div>
-
+    <div ref={rootRef} className={styles.root} data-open={open}>
       <button
         type="button"
-        className={styles.row}
+        className={styles.trigger}
         aria-expanded={open}
-        aria-controls={regionId}
+        aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
       >
-        <span className={styles.rowIcon}>
-          <FileIcon />
+        <span className={styles.triggerIcon}>
+          <CodeIcon />
         </span>
-        <span className={styles.rowName}>{file}</span>
-        {dir ? <span className={styles.rowDir}>{dir}</span> : null}
-        <span className={styles.rowChevron}>
-          <ChevronIcon />
-        </span>
+        <span className={styles.triggerLabel}>Код</span>
+        <span className={styles.triggerFile}>{file}</span>
       </button>
 
-      <div id={regionId} className={styles.body} hidden={!open}>
-        {children}
+      {/* Панель всегда в DOM — переход opacity/transform
+          работает в обе стороны, visibility прячет от
+          фокуса и скринридеров в закрытом состоянии.
+          Без собственной шапки: CodeBlock внутри уже несёт
+          имя файла, путь и мету — дублировать их нечего.
+          Крестик плавает над правым верхним углом кода. */}
+      <div id={panelId} className={styles.panel} role="dialog" aria-label={`Код ${file}`}>
+        <button
+          type="button"
+          className={styles.panelClose}
+          aria-label="Закрыть код"
+          onClick={() => setOpen(false)}
+        >
+          <CloseIcon />
+        </button>
+        <div className={styles.panelBody}>{children}</div>
       </div>
     </div>
   );

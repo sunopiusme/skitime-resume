@@ -180,10 +180,10 @@ export default function ComposerCase() {
             </div>
           </section>
 
-          {/* Код спрятан в свёрнутый виджет: полотно сниппета не
-              разрывает нарратив, а желающие раскрывают файл кликом. */}
+          {/* Код спрятан за плавающую кнопку: полотно сниппета не
+              разрывает нарратив, панель выплывает по клику. */}
           <div className={caseStyles.wide}>
-            <CodeDrawer file="ComposerInput.tsx" dir="live/composer-input" meta="tsx · diff">
+            <CodeDrawer file="ComposerInput.tsx">
               <CodeBlock
                 code={composerInputSnippet.code}
                 lang={composerInputSnippet.lang}
@@ -231,7 +231,7 @@ export default function ComposerCase() {
           </div>
 
           <div className={caseStyles.wide}>
-            <CodeDrawer file="useThinkingTimeline.ts" dir="live/thinking-model" meta="ts · diff">
+            <CodeDrawer file="useThinkingTimeline.ts">
               <CodeBlock
                 code={thinkingModelSnippet.code}
                 lang={thinkingModelSnippet.lang}
