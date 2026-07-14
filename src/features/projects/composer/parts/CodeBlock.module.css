@@ -19,7 +19,9 @@
      InlineFigure. */
   --code-hairline: rgba(255, 255, 255, 0.08);
   --code-gutter: rgba(255, 255, 255, 0.3);
-  --code-bg: #1a1a1a;
+  /* Фон = композер-карточка (#232323): блок кода и импут —
+     одна семья поверхностей, а не две разных «плиты». */
+  --code-bg: #232323;
   --code-hover: rgba(255, 255, 255, 0.08);
 
   /* Геометрические токены — те же концентричные углы,
@@ -62,10 +64,12 @@
   color: var(--code-ink);
   color-scheme: dark;
   isolation: isolate;
+  /* Тот же рецепт, что у composer card: один hairline по
+     контуру + мягкая тень. Без верхнего inset-блика —
+     карточки в кейсе плоские. */
   box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.42),
-    0 14px 34px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.075);
+    0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 16px 40px -20px rgba(0, 0, 0, 0.7);
 }
 
 /* ──────── Head ──────── */
@@ -286,9 +290,10 @@
      в min-height. Любой padding-top сверху коду —
      лишний. Снизу оставляем 14px для финала. */
   padding: 4px 0 16px;
-  /* Same visual density as ThinkingModel's trace rows, adjusted for mono. */
-  font-size: 0.86rem;
-  line-height: 1.58;
+  /* Плотность в тон текстовым блокам кейса: чуть мельче
+     и воздушнее, чем раньше (0.86/1.58). */
+  font-size: 0.82rem;
+  line-height: 1.65;
   white-space: pre;
   font-feature-settings: "calt" 0, "liga" 0;
   /* Горизонтальный overflow здесь, а не на .body, чтобы
@@ -399,6 +404,16 @@
    ThinkingModel without the GitHub-theme saturation spike. Inset bar
    поднят до 0.7 opacity — на #1a1a1a тонкий 0.58-бар терялся и
    строка читалась как «просто серая», без явного признака diff. */
+/* Codex-стиль: в изменённых строках синтаксис гасится до
+   монохромного белого — состояние несёт заливка и знак в
+   гаттере, цвет текста не спорит с зелёным/красным фоном.
+   Контекстные строки (без diff) сохраняют цветную подсветку.
+   !important нужен: shiki красит токены inline-стилями. */
+.pre :global(.line[data-diff] span) {
+  color: var(--code-ink) !important;
+  font-style: normal !important;
+}
+
 .pre :global(.line[data-diff="add"]) {
   background: var(--code-diff-add-bg);
   box-shadow: inset 3px 0 0 var(--code-diff-add-bar);
