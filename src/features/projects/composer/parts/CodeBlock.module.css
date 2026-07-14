@@ -51,6 +51,12 @@
   margin: 0 auto;
   display: grid;
   grid-template-rows: auto 1fr;
+  /* minmax(0,1fr) вместо дефолтной auto-колонки: auto сайзит
+     трек по max-content самой длинной строки кода, и body
+     выезжал за карточку на узких вьюпортах. С minmax(0,1fr)
+     трек равен ширине карточки, а длинные строки скроллятся
+     внутри .pre. */
+  grid-template-columns: minmax(0, 1fr);
   border: none;
   border-radius: var(--code-card-radius);
   background: var(--code-bg);
@@ -278,6 +284,11 @@
    формы карты, не наезжает на 24px нижний радиус. */
 .body {
   position: relative;
+  /* Grid-item: без min-width:0 body растягивается по ширине
+     самой длинной строки кода (min-width:auto у grid-детей)
+     и вылезает за карточку — горизонтальный скролл в .pre
+     не срабатывает. */
+  min-width: 0;
   overflow: hidden;
   background: var(--code-bg);
   border-radius: 0 0 var(--code-card-radius) var(--code-card-radius);
