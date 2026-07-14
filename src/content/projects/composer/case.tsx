@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import CodeBlock from "@/features/projects/composer/parts/CodeBlock";
+import CodeDrawer from "@/features/projects/composer/parts/CodeDrawer";
 import InlineFigure from "@/features/projects/composer/parts/InlineFigure";
 import {
   LabEvidenceStack,
@@ -179,13 +180,17 @@ export default function ComposerCase() {
             </div>
           </section>
 
+          {/* Код спрятан в свёрнутый виджет: полотно сниппета не
+              разрывает нарратив, а желающие раскрывают файл кликом. */}
           <div className={caseStyles.wide}>
-            <CodeBlock
-              code={composerInputSnippet.code}
-              lang={composerInputSnippet.lang}
-              path={composerInputSnippet.path}
-              diff={composerInputSnippet.diff}
-            />
+            <CodeDrawer file="ComposerInput.tsx" dir="live/composer-input" meta="tsx · diff">
+              <CodeBlock
+                code={composerInputSnippet.code}
+                lang={composerInputSnippet.lang}
+                path={composerInputSnippet.path}
+                diff={composerInputSnippet.diff}
+              />
+            </CodeDrawer>
           </div>
         </section>
 
@@ -226,12 +231,14 @@ export default function ComposerCase() {
           </div>
 
           <div className={caseStyles.wide}>
-            <CodeBlock
-              code={thinkingModelSnippet.code}
-              lang={thinkingModelSnippet.lang}
-              path={thinkingModelSnippet.path}
-              diff={thinkingModelSnippet.diff}
-            />
+            <CodeDrawer file="useThinkingTimeline.ts" dir="live/thinking-model" meta="ts · diff">
+              <CodeBlock
+                code={thinkingModelSnippet.code}
+                lang={thinkingModelSnippet.lang}
+                path={thinkingModelSnippet.path}
+                diff={thinkingModelSnippet.diff}
+              />
+            </CodeDrawer>
           </div>
         </section>
 
@@ -266,7 +273,7 @@ export default function ComposerCase() {
               <p>
                 Сайдбар здесь не меню чатов. Он показывает работы в разных состояниях: агент ещё
                 действует, diff ждёт ревью, задача уже закрыта. Сверху расположены навигация и
-                проекты, снизу хвост списка и системный футер, между ними пустое поле страницы.
+                проекты, снизу хвост списка и системный футер, м��жду ними пустое поле страницы.
                 Пауза оставлена специально. В ADE важнее дистанция между задачами, чем ещё один
                 декоративный разделитель.
               </p>
