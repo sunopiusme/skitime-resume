@@ -68,15 +68,27 @@
   min-width: 0;
 }
 
-/* Мета и шеврон прижаты к правому краю: auto-margin
-   на мете; если меты нет — auto переходит шеврону. */
-.triggerMeta {
+/* Diff-статистика «+N −N»: цвета diff-баров CodeBlock —
+   те же зелёный/красный, что в заливках строк кода.
+   Моноширинный, прижат к правому краю auto-margin'ом. */
+.diffStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-family: var(--composer-font-mono), ui-monospace, monospace;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.35);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  margin-left: auto;
   flex-shrink: 0;
+}
+
+.diffAdd {
+  color: #3fb950;
+}
+
+.diffDel {
+  color: #f47067;
 }
 
 .chevron {
@@ -90,7 +102,7 @@
   flex-shrink: 0;
 }
 
-.triggerMeta + .chevron {
+.diffStat + .chevron {
   margin-left: 0;
 }
 

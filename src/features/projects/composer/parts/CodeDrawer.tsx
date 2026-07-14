@@ -3,6 +3,8 @@
 import { useId, useState } from "react";
 import type { ReactNode } from "react";
 
+import type { DiffMarker } from "@/lib/code/highlight";
+
 import styles from "./CodeDrawer.module.css";
 
 /* ─────────────────────────────────────────
@@ -20,8 +22,9 @@ import styles from "./CodeDrawer.module.css";
 type Props = {
   /* Имя файла — подпись строки. */
   file: string;
-  /* Короткая мета справа: язык, diff-статистика. */
-  meta?: string;
+  /* Diff-маркеры сниппета: из них считается статистика
+     «+N −N» справа — цветная, как в Codex/GitHub. */
+  diff?: DiffMarker[];
   /* Пререндеренный CodeBlock. */
   children: ReactNode;
 };
@@ -61,9 +64,14 @@ function ChevronIcon() {
   );
 }
 
-export default function CodeDrawer({ file, meta, children }: Props) {
+export default function CodeDrawer({ file, diff, children }: Props) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
+
+  /* Статистика из реальных маркеров сниппета —
+     не хардкод-строка, а данные. */
+  const added = diff?.filter((m) => m === "add").length ?? 0;
+  const removed = diff?.filter((m) => m === "del").length ?? 0;
 
   return (
     <div className={styles.root} data-open={open}>
@@ -78,7 +86,19 @@ export default function CodeDrawer({ file, meta, children }: Props) {
           <CodeIcon />
         </span>
         <span className={styles.triggerFile}>{file}</span>
-        {meta ? <span className={styles.triggerMeta}>{meta}</span> : null}
+        {added > 0 || removed > 0 ? (
+          <span
+            className={styles.diffStat}
+            aria-label={`Добавлено строк: ${added}, удалено: ${removed}`}
+          >
+            {added > 0 ? (
+              <span className={styles.diffAdd}>+{added}</span>
+            ) : null}
+            {removed > 0 ? (
+              <span className={styles.diffDel}>−{removed}</span>
+            ) : null}
+          </span>
+        ) : null}
         <span className={styles.chevron} aria-hidden="true">
           <ChevronIcon />
         </span>

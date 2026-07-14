@@ -183,7 +183,7 @@ export default function ComposerCase() {
           {/* Код спрятан за строку-виджет: клик мгновенно
               показывает сниппет под ней, ещё клик — скрывает. */}
           <div className={caseStyles.wide}>
-            <CodeDrawer file="ComposerInput.tsx" meta="tsx · diff">
+            <CodeDrawer file="ComposerInput.tsx" diff={composerInputSnippet.diff}>
               <CodeBlock
                 code={composerInputSnippet.code}
                 lang={composerInputSnippet.lang}
@@ -231,7 +231,7 @@ export default function ComposerCase() {
           </div>
 
           <div className={caseStyles.wide}>
-            <CodeDrawer file="useThinkingTimeline.ts" meta="ts · diff">
+            <CodeDrawer file="useThinkingTimeline.ts" diff={thinkingModelSnippet.diff}>
               <CodeBlock
                 code={thinkingModelSnippet.code}
                 lang={thinkingModelSnippet.lang}
@@ -261,7 +261,7 @@ export default function ComposerCase() {
 
           <div className={caseStyles.wide}>
             <InlineFigure
-              caption="Проверяемость растёт только тогда, когда путь разделён на стадии: намерение, спека, контекст, доступ, выполнение, проверка, ревью."
+              caption="Проверяемость растёт только тогда, когда путь разделён на стадии: намерение, спек��, контекст, доступ, выполнение, проверка, ревью."
               frame="plain"
             >
               <LabWorkflowDisk />
