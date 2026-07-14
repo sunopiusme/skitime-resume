@@ -1,26 +1,27 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import type { ReactNode } from "react";
 
 import styles from "./CodeDrawer.module.css";
 
 /* ─────────────────────────────────────────
-   CodeDrawer — плавающая кнопка «показать код».
+   CodeDrawer — свёрнутый код за строкой-виджетом.
 
-   Вместо разворачивающегося в потоке полотна:
-   компактная пилюля с иконкой кода, по клику
-   из неё выплывает floating-панель с готовым
-   CodeBlock (children, пререндерен на сервере).
-   Панель — overlay поверх контента: короткий
-   fade+slide, закрытие по Escape и клику мимо.
-   Монохром, hairline — в системе кейса.
+   Тихая строка в потоке страницы: иконка кода,
+   имя файла, мета и шеврон справа — как ряд из
+   панелей ресурсов (Outputs/Sources). Клик —
+   CodeBlock мгновенно появляется под строкой,
+   ещё клик — скрывается. Без анимаций и
+   плавающих слоёв: ничего не ездит и не
+   выплывает. Монохром, hairline — в системе.
    ───────────────────────────────────────── */
 
 type Props = {
-  /* Имя файла — подпись в триггере и aria-label панели.
-     Путь и мету показывает сам CodeBlock внутри. */
+  /* Имя файла — подпись строки. */
   file: string;
+  /* Короткая мета справа: язык, diff-статистика. */
+  meta?: string;
   /* Пререндеренный CodeBlock. */
   children: ReactNode;
 };
@@ -46,47 +47,26 @@ function CodeIcon() {
   );
 }
 
-function CloseIcon() {
+function ChevronIcon() {
   return (
     <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
       <path
-        d="M3 3L9 9M9 3L3 9"
+        d="M3 4.5L6 7.5L9 4.5"
         stroke="currentColor"
         strokeWidth="1.3"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
 }
 
-export default function CodeDrawer({ file, children }: Props) {
+export default function CodeDrawer({ file, meta, children }: Props) {
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
-  /* Закрытие по Escape и клику вне виджета. */
-  useEffect(() => {
-    if (!open) return;
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-    function onPointerDown(event: PointerEvent) {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    }
-
-    document.addEventListener("keydown", onKeyDown);
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.removeEventListener("pointerdown", onPointerDown);
-    };
-  }, [open]);
-
   return (
-    <div ref={rootRef} className={styles.root} data-open={open}>
+    <div className={styles.root} data-open={open}>
       <button
         type="button"
         className={styles.trigger}
@@ -97,26 +77,18 @@ export default function CodeDrawer({ file, children }: Props) {
         <span className={styles.triggerIcon}>
           <CodeIcon />
         </span>
-        <span className={styles.triggerLabel}>Код</span>
         <span className={styles.triggerFile}>{file}</span>
+        {meta ? <span className={styles.triggerMeta}>{meta}</span> : null}
+        <span className={styles.chevron} aria-hidden="true">
+          <ChevronIcon />
+        </span>
       </button>
 
-      {/* Панель всегда в DOM — переход opacity/transform
-          работает в обе стороны, visibility прячет от
-          фокуса и скринридеров в закрытом состоянии.
-          Без собственной шапки: CodeBlock внутри уже несёт
-          имя файла, путь и мету — дублировать их нечего.
-          Крестик плавает над правым верхним углом кода. */}
-      <div id={panelId} className={styles.panel} role="dialog" aria-label={`Код ${file}`}>
-        <button
-          type="button"
-          className={styles.panelClose}
-          aria-label="Закрыть код"
-          onClick={() => setOpen(false)}
-        >
-          <CloseIcon />
-        </button>
-        <div className={styles.panelBody}>{children}</div>
+      {/* Код монтируется в DOM всегда (children пререндерены
+          на сервере), скрывается display:none — мгновенно,
+          без переходов, состояние не теряется. */}
+      <div id={panelId} className={styles.panel} hidden={!open}>
+        {children}
       </div>
     </div>
   );
