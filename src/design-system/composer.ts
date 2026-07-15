@@ -68,13 +68,13 @@ export const composerCssVariables = `
   --composer-surface-sunken: #1a1a1a;
   --composer-surface-raised: #242424;
   --composer-ink: #f5f5f5;
-  --composer-ink-muted: rgba(255, 255, 255, 0.72);
-  --composer-ink-subtle: rgba(255, 255, 255, 0.5);
-  --composer-hairline: rgba(255, 255, 255, 0.14);
-  --composer-hairline-strong: rgba(255, 255, 255, 0.3);
+  --composer-ink-muted: #c2c2c2;
+  --composer-ink-subtle: #868686;
+  --composer-hairline: #2c2c2c;
+  --composer-hairline-strong: #4a4a4a;
   --composer-accent: #f5f5f5;
   --composer-accent-ink: #ffffff;
-  --composer-tension: rgba(255, 255, 255, 0.55);
+  --composer-tension: #8f8f8f;
   --composer-focus: #ffffff;
   --composer-radius-xs: 6px;
   --composer-radius-sm: 10px;
