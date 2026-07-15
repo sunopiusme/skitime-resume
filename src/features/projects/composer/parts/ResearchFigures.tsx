@@ -153,115 +153,31 @@ export function LabFrictionRadar() {
 export function LabWorkflowDisk() {
   const activeIndex = 4;
 
-  /* ── Геометрия ──────────────────────────
-     Узлы стоят в центрах семи колонок legend-рейла
-     (вьюпорт 960 / 7 колонок, рейл с gap 0): график и
-     подписи делят одну координатную систему — узел 05
-     стоит ровно над колонкой «выполнение». Ось X не
-     нужна, её роль играет сам рейл. */
-  const BASE_Y = 304;
-  const nodes = [
-    { x: 69, y: 272 },
-    { x: 206, y: 244 },
-    { x: 343, y: 210 },
-    { x: 480, y: 172 },
-    { x: 617, y: 122 },
-    { x: 754, y: 92 },
-    { x: 891, y: 72 },
-  ] as const;
-
-  /* Монотонная кривая с горизонтальными касательными в каждом
-     узле (control points смещены только по X): подъём читается
-     как спокойные ступени — без волнистости свободных безье. */
-  const graphPath = nodes
-    .map((point, index) => {
-      if (index === 0) return `M ${point.x} ${point.y}`;
-      const prev = nodes[index - 1]!;
-      const c = Math.round((point.x - prev.x) * 0.45);
-      return `C ${prev.x + c} ${prev.y}, ${point.x - c} ${point.y}, ${point.x} ${point.y}`;
-    })
-    .join(" ");
-  const first = nodes[0]!;
-  const last = nodes[nodes.length - 1]!;
-  const graphArea = `${graphPath} L ${last.x} ${BASE_Y} L ${first.x} ${BASE_Y} Z`;
-  const active = nodes[activeIndex]!;
+  /* Вместо оси и кривой — накопление следов. Каждая стадия —
+     стопка тонких hairline-рисок над своей колонкой рейла:
+     чем дальше по workflow, тем больше артефактов можно
+     проверить. Рост читается силуэтом стопок, поэтому фигуре
+     не нужны ни подписи осей, ни сетка. Количество рисок
+     растёт нелинейно — доказательства накапливаются лавинно
+     после получения доступа (04). */
+  const tallies = [3, 5, 8, 12, 17, 22, 26] as const;
 
   return (
     <div className={styles.figure} aria-label="Проверяемость workflow">
       <div className={styles.workflowBoard}>
-        <svg
-          className={styles.workflowChart}
-          viewBox="0 0 960 340"
-          role="img"
-          aria-label="Проверяемость растет от намерения к ревью"
-        >
-          <defs>
-            <linearGradient id="workflowAreaGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="currentColor" stopOpacity="0.14" />
-              <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-
-          <text x="20" y="34" className={styles.workflowChartAxisLabel}>
-            Проверяемость
-          </text>
-          <text
-            x="940"
-            y="336"
-            textAnchor="end"
-            data-role="baseline"
-            className={styles.workflowChartAxisLabel}
-          >
-            решение человека
-          </text>
-
-          {/* Единственная опорная линия фигуры — базовая ось.
-              Сетка, вертикали и пунктирные сбросы убраны: рост
-              кривой виден и без них, а стадии подписаны прямо
-              под узлами. */}
-          <path d={`M 20 ${BASE_Y} H 940`} className={styles.workflowChartAxis} />
-
-          <path d={graphArea} className={styles.workflowGraphArea} />
-          <path d={graphPath} className={styles.workflowGraphLine} />
-
-          {/* Связка с легендой: тонкая вертикаль от активного
-              узла до оси — взгляд сам спускается к колонке 05. */}
-          <line
-            x1={active.x}
-            y1={active.y + 16}
-            x2={active.x}
-            y2={BASE_Y}
-            className={styles.workflowActiveDrop}
-          />
-
-          {nodes.map((point, index) => {
-            const step = workflowSteps[index]!;
-            const isActive = index === activeIndex;
-
-            return (
-              <g
-                key={step.label}
-                className={styles.workflowGraphPoint}
-                data-active={isActive}
-              >
-                {isActive ? (
-                  <circle
-                    cx={point.x}
-                    cy={point.y}
-                    r="11"
-                    className={styles.workflowGraphRing}
-                  />
-                ) : null}
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r={isActive ? 5 : 4}
-                  className={styles.workflowGraphNode}
-                />
-              </g>
-            );
-          })}
-        </svg>
+        <div className={styles.workflowTallyField} aria-hidden="true">
+          {tallies.map((count, index) => (
+            <div
+              key={workflowSteps[index]!.label}
+              className={styles.workflowTallyColumn}
+              data-active={index === activeIndex}
+            >
+              {Array.from({ length: count }, (_, tick) => (
+                <span key={tick} className={styles.workflowTallyTick} />
+              ))}
+            </div>
+          ))}
+        </div>
 
         <div className={styles.workflowStageRail}>
           {workflowSteps.map((step, index) => (
