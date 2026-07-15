@@ -181,8 +181,9 @@ export default function ComposerCase() {
           </section>
 
           {/* Код спрятан за строку-виджет: клик мгновенно
-              показывает сниппет под ней, ещё клик — скрывает. */}
-          <div className={caseStyles.wide}>
+              показывает сниппет под ней, ещё клик — скрывает.
+              Виджет прижат к сцене — это её «исходник», не новый блок. */}
+          <div className={`${caseStyles.wide} ${caseStyles.attach}`}>
             <CodeDrawer file="ComposerInput.tsx" diff={composerInputSnippet.diff}>
               <CodeBlock
                 code={composerInputSnippet.code}
@@ -208,6 +209,12 @@ export default function ComposerCase() {
                 запущены, где агент изменил файл и чем подтверждён результат. По такому следу
                 причинность восстанавливается без открытия десяти вкладок.
               </p>
+              <p>
+                Сценарий журнала вынесен из UI, чтобы трейс не зависел от анимации: хук{"\u00A0"}
+                <code>useThinkingTimeline</code> управляет фазой, раскрытыми шагами и печатью,
+                а компонент только рендерит состояние. Поэтому один и тот же трейс работает в
+                hero, в статье и в статичном режиме <code>prefers-reduced-motion</code>.
+              </p>
             </div>
           </div>
 
@@ -219,18 +226,7 @@ export default function ComposerCase() {
             </div>
           </div>
 
-          <div className={caseStyles.column}>
-            <div className={caseStyles.prose}>
-              <p>
-                Сценарий вынесен из UI, чтобы журнал не зависел от анимации.{" "}
-                <code>useThinkingTimeline</code> управляет фазой, раскрытыми шагами и печатью.
-                Компонент только рендерит состояние. Поэтому один трейс работает в hero, в статье и
-                в статичном режиме для <code>prefers-reduced-motion</code>.
-              </p>
-            </div>
-          </div>
-
-          <div className={caseStyles.wide}>
+          <div className={`${caseStyles.wide} ${caseStyles.attach}`}>
             <CodeDrawer file="useThinkingTimeline.ts" diff={thinkingModelSnippet.diff}>
               <CodeBlock
                 code={thinkingModelSnippet.code}
@@ -277,6 +273,18 @@ export default function ComposerCase() {
                 Пауза оставлена специально. В ADE важнее дистанция между задачами, чем ещё один
                 декоративный разделитель.
               </p>
+              <p>
+                Сайдбар обязан отвечать на один вопрос: что требует моего решения сейчас.{" "}
+                <code>running</code>
+                {"\u00A0"}означает, что агент ещё действует. <code>review</code>
+                {"\u00A0"}сообщает, что diff готов и нужен человек. <code>done</code>
+                {"\u00A0"}закрывает задачу.
+              </p>
+              <p>
+                История сообщений вторична. Важны задача, ветка, статус и доказательства. Без них
+                боковая панель превращается в архив разговоров, где невозможно отличить прогресс
+                от шума.
+              </p>
             </div>
           </div>
 
@@ -293,28 +301,15 @@ export default function ComposerCase() {
             </InlineFigure>
           </div>
 
-          <div className={caseStyles.wide}>
-            <CodeBlock
-              code={projectSidebarSnippet.code}
-              lang={projectSidebarSnippet.lang}
-              path={projectSidebarSnippet.path}
-              diff={projectSidebarSnippet.diff}
-            />
-          </div>
-
-          <div className={caseStyles.column}>
-            <div className={caseStyles.prose}>
-              <p>
-                Сайдбар обязан отвечать на один вопрос: что требует моего решения сейчас.{" "}
-                <code>running</code> означает, что агент ещё действует. <code>review</code>{" "}
-                сообщает, что diff готов и нужен человек. <code>done</code> закрывает задачу.
-              </p>
-              <p>
-                История сообщений вторична. Важны задача, ветка, статус и доказательства. Без них
-                боковая панель превращается в архив разговоров, где невозможно отличить прогресс от
-                шума.
-              </p>
-            </div>
+          <div className={`${caseStyles.wide} ${caseStyles.attach}`}>
+            <CodeDrawer file="ProjectSidebar.tsx" diff={projectSidebarSnippet.diff}>
+              <CodeBlock
+                code={projectSidebarSnippet.code}
+                lang={projectSidebarSnippet.lang}
+                path={projectSidebarSnippet.path}
+                diff={projectSidebarSnippet.diff}
+              />
+            </CodeDrawer>
           </div>
 
           <div className={caseStyles.wide}>
