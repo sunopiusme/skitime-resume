@@ -12,11 +12,13 @@
   gap: clamp(24px, 2.4vw, 32px);
 }
 
+/* Лейбл фигуры повторяет стандарт кикеров кейса
+   (tldrKicker / pullQuoteKicker): mono, 0.68rem, 0.24em. */
 .label {
-  font-family: var(--font-sans), sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  font-family: var(--composer-font-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--composer-ink-subtle);
 }
@@ -39,14 +41,15 @@
   border: none;
 }
 
-/* Подпись фигуры — единый тихий токен сноски для всех
-   исследовательских графиков: один кегль (0.86rem), один
-   контраст (ink-subtle), одна мера строки (1.5) и одна
-   ширина (~62ch). Спокойная сноска под данными. */
+/* Подпись фигуры — те же метрики, что у prose кейса (15/24,
+   -0.01em), но приглушённый контраст: подпись остаётся тихой
+   сноской, при этом текстовый голос на странице один. */
 .caption {
-  font-size: 0.86rem;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   color: var(--composer-ink-subtle);
-  line-height: 1.5;
+  line-height: 24px;
   max-width: 62ch;
   margin-inline: auto;
   text-align: center;

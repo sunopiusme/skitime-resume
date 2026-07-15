@@ -1,23 +1,31 @@
 /* ─────────────────────────────────────────
    Превью-tile вложения.
 
-   Геометрия по правилу concentric corners:
-   inset тайла от края карточки = --c-corner-inset (6px),
-   радиус тайла = card-radius − inset = 12px.
-   Это должно совпадать с --c-row-radius из
-   ComposerInput (то же 12px).
+   Оба типа (фото и аудио) — одна геометрия:
+   высота 64px и общий радиус --tile-radius (18px),
+   крупный мягко скруглённый прямоугольник — ближе
+   к радиусу карточки (24px), но не пилюля. Так
+   виджеты разных типов читаются одной системой.
 
-   Image — квадрат 64×64, обложка через cover.
-   Audio — горизонтальная пилюля.
-   Кнопка ✕ — внутри тайла справа сверху,
+   Кнопка ✕ — у фото внутри угла, у аудио в ряду,
    без hover-scale, без hover-фона.
    ───────────────────────────────────────── */
 
 .tile {
+  --tile-radius: 18px;
   position: relative;
-  flex-shrink: 0;
+  /* Чип может ужиматься: с несколькими файлами имя
+     срезается многоточием, и 2–3 чипа встают в одну
+     строку вместо разрастания карточки вниз. */
+  min-width: 0;
+  flex: 0 1 auto;
   cursor: grab;
   transition: opacity 120ms ease, transform 160ms ease;
+}
+
+/* Image-тайл фиксированный — квадрат не ужимается. */
+.tile:has(.imageTile) {
+  flex-shrink: 0;
 }
 
 .tile[data-dragging="true"] {
@@ -31,17 +39,30 @@
   content: "";
   position: absolute;
   inset: -3px;
-  border-radius: calc(var(--c-row-radius) + 3px);
+  border-radius: calc(var(--tile-radius) + 3px);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
   pointer-events: none;
 }
 
+/* Фото — превью-квадрат той же высоты и радиуса, что аудио-чип. */
 .imageTile {
-  width: 80px;
-  height: 80px;
-  border-radius: var(--c-row-radius);
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--tile-radius);
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
+}
+
+/* Hairline рисуется поверх картинки — inset box-shadow
+   самого тайла прятался бы под <img>. */
+.imageTile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  pointer-events: none;
 }
 
 .imageTile img {
@@ -51,16 +72,19 @@
   display: block;
 }
 
+/* Аудио — та же высота (64px) и радиус, что у фото-превью:
+   виджеты разных типов стоят в ряду одной системой.
+   Внутри по-прежнему одна строка: иконка, имя, размер,
+   крестик — контент центрирован по вертикали. */
 .audioTile {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 12px;
-  /* Подгоняем под высоту image-tile (80px),
-     чтобы вложения разных типов стояли в одном
-     ряду без диссонанса по вертикали. */
-  height: 80px;
-  padding: 12px 16px 12px 12px;
-  border-radius: var(--c-row-radius);
+  gap: 8px;
+  height: 64px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 18px;
+  border-radius: var(--tile-radius);
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -68,63 +92,81 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--c-ink);
+  width: 16px;
+  height: 16px;
+  color: var(--c-ink-muted);
   flex-shrink: 0;
 }
 
 .audioIcon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.audioMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  width: 15px;
+  height: 15px;
 }
 
 .audioName {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--c-ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Имя — единственный сжимаемый участок чипа:
+     иконка, размер и крестик держат свою ширину. */
+  min-width: 0;
+  flex: 0 1 auto;
   max-width: 180px;
 }
 
 .audioSize {
-  font-size: 0.74rem;
+  font-size: 0.8rem;
   color: var(--c-ink-subtle);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-/* Крестик: внутри тайла, в правом верхнем углу
-   с inset 6px. Без hover-effects — служебная
-   кнопка, не должна привлекать внимание. */
+/* Единый крестик для обоих типов: внутри правого верхнего
+   угла тайла, без выступа наружу — так ряд вложений
+   прижимается к краю карточки ровно, без лишнего зазора
+   сверху. Кружок с кольцом в тоне карточки читается как
+   система. Скрыт до hover тайла; на touch виден всегда. */
 .remove {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.55);
-  color: var(--c-ink);
+  background: #2e2e2e;
+  box-shadow: 0 0 0 2px #232323;
+  color: var(--c-ink-muted);
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms ease, color 120ms ease;
+}
+
+.tile:hover .remove,
+.tile:focus-within .remove {
+  opacity: 1;
+}
+
+.remove:hover,
+.remove:focus-visible {
+  color: var(--c-ink);
+}
+
+@media (hover: none) {
+  .remove {
+    opacity: 1;
+  }
 }
 
 .remove svg {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }

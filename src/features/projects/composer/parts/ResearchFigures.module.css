@@ -9,8 +9,6 @@
 .sourceRank,
 .axis,
 .signalCell,
-.toolName,
-.frictionHead,
 .diskCore,
 .diskStep {
   font-family: var(--composer-font-mono);
@@ -48,12 +46,16 @@
   border-bottom: 1px solid var(--composer-hairline);
 }
 
+/* Заголовки колонок — стандарт подзаголовков кейса
+   (как tldrKicker): обычный текст полужирным, метрики prose,
+   без капса и mono. */
 .sourceTableHead span {
-  font-family: var(--composer-font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+  color: var(--composer-ink);
 }
 
 .sourceList {
@@ -79,15 +81,19 @@
   border-bottom: none;
 }
 
+/* Название источника переносится на вторую строку вместо
+   ellipsis: «GitHub Copilot coding ag…» больше не обрезается.
+   Метрики prose (15/24), вес обычный — иерархию колонок
+   держит полужирная шапка. */
 .sourceName {
   min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  text-wrap: pretty;
   font-family: var(--font-sans), sans-serif;
-  font-size: 0.95rem;
-  font-weight: 500;
-  letter-spacing: -0.005em;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 24px;
   color: var(--composer-ink);
   transition: color var(--composer-duration-hover) ease;
 }
@@ -95,8 +101,9 @@
 .sourceType {
   min-width: 0;
   font-family: var(--font-sans), sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: -0.005em;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  line-height: 24px;
   color: var(--composer-ink-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -116,8 +123,8 @@
   min-width: 0;
   font-family: var(--font-sans), sans-serif;
   color: var(--composer-ink-muted);
-  font-size: 0.85rem;
-  letter-spacing: -0.005em;
+  font-size: 15px;
+  letter-spacing: -0.01em;
   /* Раньше nowrap → длинный «Product Hunt /
      Reddit / форумы» вылезал и наезжал на
      соседнюю sourceSignal-колонку. Сейчас
@@ -125,16 +132,16 @@
      ячейки. */
   white-space: normal;
   text-wrap: pretty;
-  line-height: 1.4;
+  line-height: 24px;
 }
 
 .sourceSignal {
   min-width: 0;
   color: var(--composer-ink-muted);
   font-family: var(--font-sans), sans-serif;
-  font-size: 0.92rem;
-  line-height: 1.5;
-  letter-spacing: -0.005em;
+  font-size: 15px;
+  line-height: 24px;
+  letter-spacing: -0.01em;
   text-wrap: pretty;
 }
 
@@ -271,190 +278,82 @@
    «заголовок → данные» даёт margin-bottom шапки, поэтому здесь нет
    собственного padding-top — иначе у этих двух фигур он был бы вдвое
    больше, чем у таблицы и матрицы. */
-.radarLayout {
+/* ─────────────────────────────────────────
+   Сигналы трения — горизонтальные шкалы.
+   Радар-паутина заменена спокойным списком в две колонки:
+   название + оценка, тонкая полоса-шкала с заполнением по
+   score, описание. Тот же текстовый стандарт (15/24),
+   никакой интерактивности.
+   ───────────────────────────────────────── */
+.frictionScaleList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
-  grid-template-columns: minmax(420px, 5fr) minmax(340px, 4fr);
-  gap: clamp(44px, 4.5vw, 56px);
-  align-items: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 3.2vw, 40px) clamp(32px, 4vw, 56px);
   width: 100%;
-  padding-bottom: clamp(8px, 1.2vw, 16px);
+  max-width: 920px;
+  margin-inline: auto;
 }
 
-.radarPanel {
-  display: grid;
-  justify-items: center;
-  padding: clamp(12px, 1.6vw, 20px);
-}
-
-.radar {
-  /* Радар живёт в той же двухколоночной сетке, что workflow, но остаётся
-     немного спокойнее по потолку: квадратная фигура с наружными подписями
-     визуально тяжелее вытянутой схемы при одинаковой ширине. */
-  width: min(100%, 520px);
-  aspect-ratio: 1;
-  justify-self: center;
-  overflow: visible;
-}
-
-.radar circle,
-.radar line {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.18);
-  stroke-width: 0.6;
-}
-
-.radarThreshold {
-  stroke: rgba(255, 255, 255, 0.3);
-  stroke-dasharray: 1.6 3;
-}
-
-.radarShape {
-  fill: rgba(255, 255, 255, 0.1);
-  stroke: rgba(255, 255, 255, 0.85);
-  stroke-width: 1.2;
-  stroke-linejoin: round;
-}
-
-.radarCore,
-.radarCoreSub,
-.radarLabel,
-.radarScore {
-  font-family: var(--composer-font-mono);
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.radarCore {
-  fill: rgba(255, 255, 255, 0.88);
-  font-size: 8px;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-}
-
-.radarCoreSub {
-  fill: rgba(255, 255, 255, 0.45);
-  font-size: 6.5px;
-  letter-spacing: 0.08em;
-}
-
-.radarNode {
-  cursor: default;
-  outline: none;
-}
-
-.radarPoint {
-  fill: rgba(255, 255, 255, 0.85);
-  stroke: #050505;
-  stroke-width: 1.4;
-  transition:
-    r var(--composer-duration-lift) ease,
-    fill var(--composer-duration-lift) ease,
-    stroke var(--composer-duration-lift) ease;
-}
-
-.radarNode[data-active="true"] .radarPoint {
-  r: 5px;
-  fill: #ffffff;
-  stroke: #050505;
-}
-
-.radarLabel {
-  fill: rgba(255, 255, 255, 0.78);
-  font-size: 7.6px;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-}
-
-.radarScore {
-  fill: rgba(255, 255, 255, 0.42);
-  font-size: 6.6px;
-  letter-spacing: 0.04em;
-}
-
-/* Легенда радара, не самостоятельный текстовый раздел:
-   сигнал + score в строке head, evidence — короткая
-   тихая расшифровка. Ширина (440px) единая с .workflowList,
-   чтобы правые колонки обеих фигур совпадали. */
-.frictionList {
-  display: grid;
-  gap: 2px;
-  width: 100%;
-  max-width: var(--composer-stage-legend, 440px);
-  justify-self: end;
-}
-
-.frictionItem {
-  appearance: none;
-  position: relative;
+.frictionScaleItem {
   display: grid;
   gap: 8px;
-  width: 100%;
-  padding: 8px 12px;
-  border: 0;
-  border-radius: 18px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font: inherit;
-  text-align: left;
-  transition:
-    background-color var(--composer-duration-hover) ease,
-    color var(--composer-duration-hover) ease;
+  min-width: 0;
 }
 
+/* Строка «сигнал + score» — стандарт подзаголовков кейса
+   (как tldrKicker): обычный текст, метрики prose, вес держит strong. */
 .frictionHead {
   display: flex;
   justify-content: space-between;
   gap: 16px;
   color: var(--composer-ink);
-  font-size: 0.82rem;
-  transition: color var(--composer-duration-hover) ease;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+}
+
+.frictionHead strong {
+  font-weight: 600;
 }
 
 .frictionHead span {
   color: var(--composer-ink-muted);
-  font-family: var(--composer-font-mono);
   font-variant-numeric: tabular-nums;
-  transition: color var(--composer-duration-hover) ease;
 }
 
-.frictionItem p {
+/* Шкала в духе научного графика: плотная полоса с острыми
+   углами. Заполнение монохромное — светлый ink, как остальная
+   графика кейса; цвету здесь взяться неоткуда. */
+.frictionTrack {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.frictionFill {
+  display: block;
+  height: 100%;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.frictionScaleItem p {
   margin: 0;
   color: var(--composer-ink-muted);
-  font-size: 0.84rem;
-  line-height: 1.45;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  line-height: 24px;
   text-wrap: pretty;
-  transition: color var(--composer-duration-hover) ease;
 }
 
-.frictionItem:hover,
-.frictionItem:focus-visible,
-.frictionItem[data-active="true"] {
-  background: rgba(255, 255, 255, 0.095);
-}
-
-.frictionItem:focus-visible {
-  outline: 1px solid #6f6f6f;
-  outline-offset: 2px;
-}
-
-.frictionItem:hover .frictionHead,
-.frictionItem:focus-visible .frictionHead,
-.frictionItem[data-active="true"] .frictionHead,
-.frictionItem:hover .frictionHead span,
-.frictionItem:focus-visible .frictionHead span,
-.frictionItem[data-active="true"] .frictionHead span {
-  color: var(--composer-ink);
-}
-
-.frictionItem:hover p,
-.frictionItem:focus-visible p,
-.frictionItem[data-active="true"] p {
-  color: var(--composer-ink-muted);
-}
-
-/* Тот же шаблон, что и .radarLayout: одинаковые колонки, gap и отсутствие
+/* Двухколоночный шаблон фигур: одинаковые колонки, gap и отсутствие
    собственного padding-top (отступ задаёт margin-bottom шапки). */
 .workflowLayout {
   display: grid;
@@ -555,7 +454,7 @@
 }
 
 /* Рейл стадий — ось X графика. Gap 0 и центрирование колонок:
-   центр каждой колонки совпадает с X-координатой узла в SVG
+   центр каждой колон��и совпадает с X-координатой узла в SVG
    (узлы стоят в центрах семи долей вьюпорта 960/7), поэтому
    номер и название стадии читаются как подпись под точкой. */
 .workflowStageRail {
@@ -650,7 +549,7 @@
   fill: url(#wfGridMajor);
 }
 
-/* Чертёжная сетка: тонкая клетка 40px + усиленная линия каждые 200px. */
+/* Чертёжная сетка: тонкая кл��тка 40px + усиленная линия каждые 200px. */
 .wfGridMinor {
   stroke: rgba(255, 255, 255, 0.05);
   stroke-width: 1;
@@ -1179,18 +1078,10 @@
 }
 
 @media (max-width: 820px) {
-  .radarLayout {
+  /* Шкалы трения — одна колонка. */
+  .frictionScaleList {
     grid-template-columns: 1fr;
-    gap: clamp(28px, 8vw, 40px);
-  }
-
-  .radar {
-    width: min(100%, 420px);
-  }
-
-  .frictionList {
-    justify-self: start;
-    max-width: 100%;
+    gap: 28px;
   }
 
   .workflowLayout {

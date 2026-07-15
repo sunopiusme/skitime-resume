@@ -189,18 +189,23 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
         }}
       />
       <div className={styles.stack}>
-        <div className={styles.lcdRow} role="status">
-          <LcdMarquee
-            status={lcdState.status}
-            mood={lcdState.mood}
-            tone={lcdState.tone}
-            accessLevel={lcd.transient?.accessLevel}
-            colorMode={lcdState.colorMode}
-            typingPulse={pulseRef}
-            voice={voiceWaveform}
-            scene={preview ? "push" : "status"}
-          />
-        </div>
+        {/* LCD-экран остаётся только в превью-обложке (push-сцена).
+            В кейсе композер живёт без верхней плашки — чистая карточка
+            в духе референса: поле сверху, контролы снизу. */}
+        {preview ? (
+          <div className={styles.lcdRow} role="status">
+            <LcdMarquee
+              status={lcdState.status}
+              mood={lcdState.mood}
+              tone={lcdState.tone}
+              accessLevel={lcd.transient?.accessLevel}
+              colorMode={lcdState.colorMode}
+              typingPulse={pulseRef}
+              voice={voiceWaveform}
+              scene="push"
+            />
+          </div>
+        ) : null}
         <div
           className={styles.card}
           data-drag={fileDrop.dragOver}
@@ -240,6 +245,23 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
             </div>
           ) : null}
 
+          {/* Строка ввода — отдельный этаж карточки: поле (или
+              waveform при записи) занимает всю ширину, как в референсе. */}
+          <div className={styles.promptRow}>
+            {voiceStage !== "idle" ? (
+              <VoiceRecorder stage={voiceStage} waveform={voiceWaveform} />
+            ) : (
+              <PromptInput
+                value={prompt}
+                disabled={sending}
+                canSubmit={canSubmit}
+                onValueChange={handlePromptChange}
+                onFocusChange={setInputFocused}
+                onSubmit={handleSubmit}
+              />
+            )}
+          </div>
+
           <div className={styles.toolbar} data-recording={voiceStage !== "idle"}>
             <div className={styles.toolbarLeft}>
               <PlusDropdown
@@ -247,18 +269,11 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
                 onPlanModeChange={handlePlanModeChange}
                 onAttach={openFilePicker}
               />
-              {voiceStage !== "idle" ? (
-                <VoiceRecorder stage={voiceStage} waveform={voiceWaveform} />
-              ) : (
+              {voiceStage !== "idle" ? null : (
                 <>
-                  <PromptInput
-                    value={prompt}
-                    disabled={sending}
-                    canSubmit={canSubmit}
-                    onValueChange={handlePromptChange}
-                    onFocusChange={setInputFocused}
-                    onSubmit={handleSubmit}
-                  />
+                  <Tooltip label="Уровень доступа">
+                    <PermissionPicker level={permission} onChange={handlePermissionChange} />
+                  </Tooltip>
                   {planMode ? (
                     <span className={styles.modeChip}>
                       <span className={styles.modeChipIcon} aria-hidden="true">
@@ -281,14 +296,9 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
 
             <div className={styles.toolbarRight}>
               {voiceStage !== "idle" ? null : (
-                <>
-                  <Tooltip label="Уровень доступа">
-                    <PermissionPicker level={permission} onChange={handlePermissionChange} />
-                  </Tooltip>
-                  <Tooltip label="Выбрать модель">
-                    <ModelPicker selection={selection} onChange={handleSelectionChange} />
-                  </Tooltip>
-                </>
+                <Tooltip label="Выбрать модель">
+                  <ModelPicker selection={selection} onChange={handleSelectionChange} />
+                </Tooltip>
               )}
               <Tooltip
                 label={micLabel}

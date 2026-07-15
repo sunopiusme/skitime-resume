@@ -77,22 +77,21 @@
   animation: phaseShimmer 5.6s linear infinite;
 }
 
-/* Inline-режим живёт на светлой молочно-голубой stage (см. stageMesh
-   в case.module.css), поэтому шапка — тёмная: текст и шеврон лежат
-   прямо на пастельном фоне, вне тёмной карточки журнала. Слейт с
-   холодным подтоном (28, 38, 58) — в тон голубой сцене, не чёрный. */
+/* Inline-режим живёт на тёмной stage (см. stageMesh в
+   case.module.css), поэтому шапка светлая: текст и шеврон
+   лежат прямо на тёмном фоне, вне карточки журнала. */
 .inline .phaseLabel {
-  color: rgba(28, 38, 58, 0.78);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .inline .phaseLabelShimmer {
   background: linear-gradient(
     90deg,
-    rgba(28, 38, 58, 0.5) 0%,
-    rgba(28, 38, 58, 0.5) 42%,
-    rgba(28, 38, 58, 0.96) 50%,
-    rgba(28, 38, 58, 0.5) 58%,
-    rgba(28, 38, 58, 0.5) 100%
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.5) 42%,
+    rgba(255, 255, 255, 0.96) 50%,
+    rgba(255, 255, 255, 0.5) 58%,
+    rgba(255, 255, 255, 0.5) 100%
   );
   background-size: 360% 100%;
   background-clip: text;
@@ -102,17 +101,17 @@
 }
 
 .inline .chevron {
-  color: rgba(28, 38, 58, 0.45);
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .inline .toggle:hover .chevron,
 .inline .toggle:focus-visible .chevron {
-  color: rgba(28, 38, 58, 0.85);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .inline .retry {
-  border-color: rgba(28, 38, 58, 0.26);
-  color: rgba(28, 38, 58, 0.72);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .retry {
@@ -167,19 +166,18 @@
   height: 16px;
 }
 
-/* На светлой stage белая кнопка пропадает — inline-режим
-   инвертирует её в тёмный слейт, в тон карточке журнала. */
+/* На тёмной stage кнопка светлая — как дефолтная ink-кнопка. */
 .inline .playButton {
-  background: #26282d;
-  color: #f4f8fd;
+  background: var(--composer-ink);
+  color: #101010;
 }
 
 .inline .playButton:hover {
-  background: #32353c;
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .inline .playButton:focus-visible {
-  outline-color: #26282d;
+  outline-color: var(--composer-ink);
 }
 
 /* Карточка журнала — тёмный приподнятый остров на светлой пастельной

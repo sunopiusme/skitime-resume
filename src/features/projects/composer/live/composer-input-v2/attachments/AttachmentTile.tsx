@@ -64,20 +64,22 @@ export function AttachmentTile({ attachment, onRemove, onReorder }: Props) {
           {previewUrl ? <img src={previewUrl} alt={name} /> : null}
         </div>
       ) : (
+        /* Аудио — однострочный чип: иконка, имя и размер
+           на одной базовой линии. */
         <div className={styles.audioTile}>
           <span className={styles.audioIcon} aria-hidden="true">
             <AudioIcon />
           </span>
-          <div className={styles.audioMeta}>
-            <span className={styles.audioName} title={name}>
-              {name}
-            </span>
-            <span className={styles.audioSize}>
-              Audio · {formatBytes(size)}
-            </span>
-          </div>
+          <span className={styles.audioName} title={name}>
+            {name}
+          </span>
+          <span className={styles.audioSize}>{formatBytes(size)}</span>
         </div>
       )}
+      {/* Единый крестик для обоих типов: сидит на правом верхнем
+          углу тайла, в тоне карточки с hairline — читается как
+          часть системы, а не заплатка поверх контента. Появляется
+          на hover тайла (на touch-устройствах виден всегда). */}
       <button
         type="button"
         className={styles.remove}

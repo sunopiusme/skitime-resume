@@ -208,15 +208,15 @@
   gap: var(--case-space-section-inner);
 }
 
-/* ─────────────────────────────────────────
+/* �����������������────────────────────────────────────────
    Группировка по близости (двухуровневый ритм).
    Базовый gap у .part — это «связанный» шаг внутри секции.
    Поверх него:
    • фигура / код / композер прижимаются к вводящему их
      абзацу — это одна смысловая связка, не два равных блока;
    • прозо-колонка ПОСЛЕ фигуры — новая мысль, ей даём
-     явный разрыв, чтобы читалась как новый подраздел.
-   Так уходит равноудалённость, из-за которой макет
+     явный разрыв, чтобы читалась как новый подразде��.
+   Та�� уходит равноудалённость, из-за которой макет
    выглядел кашей.
    ───────────────────────────────────────── */
 .part > .column + .wide,
@@ -278,6 +278,52 @@
 
 .heroTitle span {
   display: block;
+}
+
+/* ─────────────────────────────────────────
+   TL;DR — кейс за 20 секунд до скролла.
+   Без разделителей и капса: подзаголовок — тот же кегль,
+   что у prose, но полужирный; иерархию держит вес и цвет,
+   а не декоративные линии. Три колонки на десктопе,
+   стек на компакте.
+   ───────────────────────────────────────── */
+.tldr {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2.4vw, 32px);
+  width: 100%;
+  max-width: min(100%, 920px);
+  margin: 0;
+  text-align: left;
+}
+
+.tldrItem {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+/* Подзаголовок — обычный текст полужирным: метрики prose
+   (15/24, -0.01em), вес 600, полный ink. */
+.tldrKicker {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+  color: var(--composer-ink);
+}
+
+/* Текст TL;DR наследует параметры prose — единый стандарт
+   основного текста кейса: 15/24, -0.01em, ink 92%. */
+.tldrText {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+  color: rgba(255, 255, 255, 0.92);
+  text-wrap: pretty;
 }
 
 /* Сжатие стыка hero → первая секция.
@@ -371,9 +417,9 @@
 
 /* Сцена live-компонента — фон-подложка под ADE-островком, лежащим по
    центру. Фон — собственный тёмный neutral mesh-gradient (без png,
-   см. background ниже). Прямоугольная форма (высота от контента +
-   padding). overflow НЕ скрываем — иначе выпадающие меню/поповеры
-   композера срезаются краем сцены. Фон при этом остаётся скруглённым:
+   см. background ни��е). Прямоугольная форма (высота от контента +
+   padding). overflow НЕ скрываем — ��наче выпадающие меню/поповеры
+   композера срезают��я краем с��ены. Фон при этом остаётся скруглённым:
    фоновая картинка клипается по border-radius сама, без overflow:hidden. */
 .composerStage {
   width: 100%;
@@ -384,68 +430,19 @@
   border-radius: 32px;
 }
 
-/* Apple/OpenAI-style presentation mesh: молочно-голубая светлая
-   сцена на единой mesh-палитре (см. globals.css, --mesh-*).
-   Свет собирается сверху и растворяется к низу — продукт стоит
-   в ambient-сцене. */
+/* Тёмная сцена в палитре кейса: чуть светлее холста, hairline
+   по контуру и мягкий верхний свет. Никакого цветного mesh —
+   монохром, как остальная графика страницы. */
 .stageMesh {
   position: relative;
   isolation: isolate;
-  background-color: var(--mesh-surface);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -54px 96px -82px rgb(var(--mesh-shade-rgb) / 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.07),
-    0 3px 8px rgba(0, 0, 0, 0.28),
-    0 24px 48px -24px rgba(0, 0, 0, 0.5),
-    0 86px 180px -104px rgba(0, 0, 0, 0.55);
+  background-color: #101010;
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E"),
-    /* молочное ядро над продуктом — мягкий «свет витрины» */
-    radial-gradient(72% 58% at 50% 30%, var(--mesh-core), transparent 66%),
-    /* верх-лево: пудровый periwinkle */
-    radial-gradient(64% 72% at -6% -10%, var(--mesh-periwinkle), transparent 68%),
-    /* верх-право: холодный sky */
-    radial-gradient(56% 68% at 110% -4%, var(--mesh-sky), transparent 70%),
-    /* низ-лево: молочная лаванда */
-    radial-gradient(60% 72% at -8% 110%, var(--mesh-lavender), transparent 70%),
-    /* низ-право: голубой глубже — заземляет сцену */
-    radial-gradient(62% 78% at 110% 112%, var(--mesh-azure), transparent 72%),
-    /* тёплое дыхание у нижней кромки */
-    radial-gradient(54% 38% at 50% 104%, var(--mesh-warm), transparent 62%),
-    linear-gradient(165deg, rgba(255, 255, 255, 0.55) 0%, transparent 38%, rgb(var(--mesh-shade-rgb) / 0.16) 80%, transparent 100%),
-    linear-gradient(135deg, var(--mesh-surface-hi) 0%, var(--mesh-surface) 52%, var(--mesh-surface-lo) 100%);
-  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat,
-    no-repeat, no-repeat, no-repeat, no-repeat;
-  background-size: 220px 220px, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
-    100% 100%, 100% 100%, 100% 100%, 100% 100%;
-}
-
-.stageMesh::before,
-.stageMesh::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.stageMesh::before {
-  background:
-    radial-gradient(78% 58% at 16% -14%, rgba(255, 255, 255, 0.55), transparent 64%),
-    radial-gradient(68% 64% at 116% 20%, rgba(255, 255, 255, 0.3), transparent 72%),
-    radial-gradient(82% 82% at 88% 122%, rgb(var(--mesh-shade-rgb) / 0.2), transparent 68%),
-    linear-gradient(125deg, rgba(255, 255, 255, 0.5), transparent 36%, rgba(255, 255, 255, 0.2) 70%, transparent 100%);
-  mix-blend-mode: soft-light;
-}
-
-.stageMesh::after {
+    radial-gradient(120% 90% at 50% -20%, rgba(255, 255, 255, 0.05), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 45%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
-    inset 0 -1px 0 rgb(var(--mesh-shade-rgb) / 0.34),
-    inset 0 -56px 82px -86px rgb(var(--mesh-shade-rgb) / 0.42);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(255, 255, 255, 0.07);
 }
 
 .composerPinFrame {
@@ -463,38 +460,20 @@
 }
 
 /* ─────────────────────────────────────────
-   Pull quote — выделение цитаты в общем
-   ритме страницы. Без серифа и курсива:
-   акцент держится размером, не сменой
-   гарнитуры.
+   Тезис — одно крупное высказывание без подписи
+   и декора. Масштаб sectionTitle (28px, вес 500),
+   строчный интерлиньяж чуть свободнее заголовка —
+   это высказывание в несколько строк, не рубрика.
    ───────────────────────────────────────── */
-.pullQuote {
-  display: grid;
-  gap: clamp(8px, 1vw, 12px);
-  margin: clamp(4px, 0.8vw, 12px) 0 0;
-  padding: clamp(16px, 1.8vw, 24px) 0 clamp(16px, 1.8vw, 24px) clamp(20px, 2vw, 28px);
-  border-left: 2px solid var(--composer-hairline-strong);
-}
-
-.pullQuoteKicker {
-  font-family: var(--composer-font-mono), monospace;
-  font-size: 0.68rem;
-  font-weight: 400;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
-}
-
-.pullQuoteText {
+.thesis {
+  margin: 0;
   font-family: var(--font-sans), sans-serif;
-  font-style: normal;
-  font-size: clamp(1.04rem, 1.28vw, 1.18rem);
-  font-weight: 400;
-  letter-spacing: -0.012em;
-  line-height: 1.5;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
   color: var(--composer-ink);
-  text-align: left;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 /* ─────────────────────────────────────────
@@ -518,11 +497,24 @@
   }
 
   .heroTitle {
-    font-size: clamp(32px, 7.2vw, 56px);
-    line-height: 1.05;
+  font-size: clamp(32px, 7.2vw, 56px);
+  line-height: 1.05;
   }
 
+  /* TL;DR — вертикальный стек, HIG Body для текста. */
+  .tldr {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* Метрики TL;DR не пересобираются: 15/24 как у prose на всех
+     вьюпортах — единый стандарт текста кейса. */
+
   .sectionTitle {
+  font-size: 24px;
+  }
+
+  .thesis {
     font-size: 24px;
   }
 
