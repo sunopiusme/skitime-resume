@@ -1,26 +1,27 @@
 :root {
   color-scheme: dark;
 
-  --background: #000000;
+  --background: #101010;
   --foreground: #ffffff;
 
-  /* Композиторские токены — единая тёмная монохромная палитра.
-     Раньше тут жил светлый набор; теперь сайт всегда чёрно-белый. */
+  /* Композиторские токены — единая тёмная монохромная палитра,
+     выровненная с палитрой чат-инпута (composer-input-v2):
+     сплошные нейтральные тона вместо alpha-серых. */
   /* Иерархия слоёв в тёмной теме инвертирована относительно светлой:
-     чем «ближе» к глазу, тем светлее. Страница — самый тёмный фон;
-     drawers — на ступень выше; карточка — самая светлая поверхность. */
-  --composer-surface: #000000;
+     чем «ближе» к глазу, тем светлее. Страница — #101010;
+     drawers — #1a1a1a; карточка — #232323. */
+  --composer-surface: #101010;
   --composer-surface-sunken: #1a1a1a;
-  --composer-surface-raised: #242424;
+  --composer-surface-raised: #232323;
   --composer-ink: #ffffff;
-  --composer-ink-muted: rgba(255, 255, 255, 0.72);
-  --composer-ink-subtle: rgba(255, 255, 255, 0.5);
-  --composer-hairline: rgba(255, 255, 255, 0.14);
-  --composer-hairline-strong: rgba(255, 255, 255, 0.3);
+  --composer-ink-muted: #c2c2c2;
+  --composer-ink-subtle: #868686;
+  --composer-hairline: #2c2c2c;
+  --composer-hairline-strong: #4a4a4a;
   /* Акцентов нет — всё ахроматическое. */
   --composer-accent: #f5f5f5;
   --composer-accent-ink: #ffffff;
-  --composer-tension: rgba(255, 255, 255, 0.55);
+  --composer-tension: #8f8f8f;
   --composer-focus: #ffffff;
   --composer-radius-xs: 6px;
   --composer-radius-sm: 10px;
