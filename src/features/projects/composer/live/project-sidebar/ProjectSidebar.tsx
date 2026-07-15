@@ -273,7 +273,7 @@ function SessionState({ status }: { status: SessionStatus }) {
    многоэтапных @keyframes (где opacity и width
    норовят перекрыться).
 
-   Сценарий:
+   Сцена��ий:
      hidden → enter → idle → exitIdle → shrink →
      loading → exitLoading → grow → done →
      exitDone → hidden → ...
@@ -378,8 +378,9 @@ function UpdatePill() {
               cx="8"
               cy="8"
               r="6"
-              stroke="#6f8df0"
+              stroke="currentColor"
               strokeWidth="1.6"
+              opacity="0.25"
             />
             <path
               d="M14 8a6 6 0 0 0-6-6"
