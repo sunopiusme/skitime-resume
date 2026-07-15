@@ -147,7 +147,7 @@
   border-radius: var(--sb-pane-radius);
   overflow: hidden;
   /* Mastering: панель — литой материал под светом сверху.
-     Поверх плоской заливк�� --sb-bg лежит длинный вертикальный
+     Поверх плоской заливк���� --sb-bg лежит длинный вертикальный
      sheen: ~3% света у верхней кромки, гаснет к 180px. Это
      снимает «плоскую заливку» и даёт панели вертикальный
      объём, согласованный с inset-бликом и тенью.
@@ -253,10 +253,11 @@
   background: transparent;
 }
 
-/* ── Хром: traffic lights слева + системные кнопки справа.
-   Весь sidebar имеет padding-x = 16px, поэтому chrome
-   тоже стартует с 16px от края — светофор и иконки nav
-   стоят на одной вертикали.
+/* ── Хром: только системные кнопки, без macOS-светофора —
+   как ChatInput и ThinkingModel, это чистый компонент без
+   оконной декорации. Весь sidebar имеет padding-x = 16px,
+   поэтому chrome стартует с 16px от края — первая кнопка
+   и иконки nav стоят на одной вертикали.
    По вертикали chrome выезжает к углу через
    отрицательный margin-top: кнопки попадают в угол
    с зазором corner-inset. ── */
@@ -267,35 +268,6 @@
   margin: calc(var(--sb-corner-inset) - var(--sb-pad-y)) calc(0px - var(--sb-pad-x)) 0 calc(0px - var(--sb-pad-x));
   padding: 0 var(--sb-corner-inset) 0 var(--sb-pad-x);
   color: var(--sb-ink-faint);
-}
-
-.chromeDots {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  /* системные кнопки сразу за светофором —
-     gap к chromeSysGroup даёт air ритма 8px */
-  margin-right: 8px;
-}
-
-.dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-/* Traffic lights — «неактивное окно» macOS: три ровные
-   серые точки. Цветной светофор был единственным цветным
-   пятном кейса и спорил с монохромным hairline-языком
-   остальных фигур. Тон = hairline-strong, чтобы точки
-   читались как часть хрома, а не как акцент. */
-.dotRed,
-.dotYellow,
-.dotGreen {
-  background: var(--sb-hairline-strong);
 }
 
 .chromeSysGroup {
@@ -331,7 +303,7 @@
 }
 
 /* ── Верхняя навигация: вертикальная колонка
-   на одной X-линии с красной системной точкой.
+   на одной X-линии с первой системной кнопкой chrome.
    ── */
 .nav {
   margin: 0;

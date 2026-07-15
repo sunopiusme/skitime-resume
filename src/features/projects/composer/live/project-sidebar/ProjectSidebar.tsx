@@ -273,7 +273,7 @@ function SessionState({ status }: { status: SessionStatus }) {
    многоэтапных @keyframes (где opacity и width
    норовят перекрыться).
 
-   Сцена��ий:
+   Сцена����ий:
      hidden → enter → idle → exitIdle → shrink →
      loading → exitLoading → grow → done →
      exitDone → hidden → ...
@@ -406,11 +406,10 @@ function SidebarBody() {
   return (
     <>
       <div className={styles.chrome}>
-        <div className={styles.chromeDots} aria-hidden="true">
-          <span className={`${styles.dot} ${styles.dotRed}`} />
-          <span className={`${styles.dot} ${styles.dotYellow}`} />
-          <span className={`${styles.dot} ${styles.dotGreen}`} />
-        </div>
+        {/* Без macOS-светофора: ChatInput и ThinkingModel —
+            чистые компоненты без оконной декорации, сайдбар
+            следует тому же правилу. Chrome начинается сразу
+            с системных кнопок. */}
         <div className={styles.chromeSysGroup} aria-hidden="true">
           <span className={styles.chromeSysBtn}>
             <svg viewBox="0 0 16 16" width="18" height="18" fill="none" aria-hidden="true">
