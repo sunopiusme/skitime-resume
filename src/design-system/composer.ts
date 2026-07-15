@@ -64,9 +64,9 @@ export const composerTokens = {
  * Базовая единица: 8px. Каждый уровень в 1.5 раза больше предыдущего.
  */
 export const composerCssVariables = `
-  --composer-surface: #101010;
+  --composer-surface: #0a0a0a;
   --composer-surface-sunken: #1a1a1a;
-  --composer-surface-raised: #232323;
+  --composer-surface-raised: #242424;
   --composer-ink: #f5f5f5;
   --composer-ink-muted: #c2c2c2;
   --composer-ink-subtle: #868686;

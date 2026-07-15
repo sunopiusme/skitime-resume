@@ -81,7 +81,7 @@
    case.module.css), поэтому шапка светлая: текст и шеврон
    лежат прямо на тёмном фоне, вне карточки журнала. */
 .inline .phaseLabel {
-  color: rgba(255, 255, 255, 0.78);
+  color: #c2c2c2;
 }
 
 .inline .phaseLabelShimmer {
@@ -101,17 +101,17 @@
 }
 
 .inline .chevron {
-  color: rgba(255, 255, 255, 0.45);
+  color: #868686;
 }
 
 .inline .toggle:hover .chevron,
 .inline .toggle:focus-visible .chevron {
-  color: rgba(255, 255, 255, 0.85);
+  color: #f5f5f5;
 }
 
 .inline .retry {
-  border-color: rgba(255, 255, 255, 0.26);
-  color: rgba(255, 255, 255, 0.72);
+  border-color: #4a4a4a;
+  color: #c2c2c2;
 }
 
 .retry {
@@ -180,23 +180,19 @@
   outline-color: var(--composer-ink);
 }
 
-/* Карточка журнала — тёмный приподнятый остров на светлой пастельной
-   stage. Материал 1:1 с карточкой композера V2 (#26282d + холодный
-   подтон), чтобы оба продукта на сцене читались как одна система.
-   Тени пересчитаны под светлый фон: на пастели тень видна гораздо
-   лучше, поэтому она мягче и холоднее (синеватая, не чёрная). */
+/* Карточка журнала — материал 1:1 с карточкой композера V2:
+   чистый нейтральный серый #232323 (R=G=B, без синеватого подтона)
+   и то же кольцо + тень, чтобы оба продукта на сцене читались
+   как одна система. */
 .traceBody {
   display: grid;
   gap: 16px;
   padding: 16px;
   border-radius: 24px;
-  background: #26282d;
+  background: #232323;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 1px 1px rgba(22, 34, 56, 0.32),
-    0 14px 34px rgba(28, 42, 66, 0.28),
-    0 38px 82px -48px rgba(28, 42, 66, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 16px 40px -20px rgba(0, 0, 0, 0.7);
 }
 
 .traceList {
@@ -283,7 +279,7 @@
   justify-content: flex-start;
   gap: 12px;
   padding: 12px 12px 2px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #353535;
   color: var(--composer-ink-muted);
   font-size: clamp(0.92rem, 1.05vw, 1.02rem);
   font-weight: 500;
@@ -331,9 +327,9 @@
   height: 28px;
   padding: 0;
   border-radius: 999px;
-  /* Кольцо вокруг фавиконки — цвет поверхности карточки (#26282d),
+  /* Кольцо вокруг фавиконки — цвет поверхности карточки (#232323),
      чтобы стопка иконок выглядела врезанной в материал. */
-  border: 2px solid #26282d;
+  border: 2px solid #232323;
   background: rgba(255, 255, 255, 0.92);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.22),
