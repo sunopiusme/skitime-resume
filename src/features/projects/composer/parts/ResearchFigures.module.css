@@ -399,13 +399,21 @@
   vector-effect: non-scaling-stroke;
 }
 
+/* Подписи осей — стандарт подзаголовков кейса (как шапка
+   source table): sans 15/600, без капса, трекинга и mono.
+   Уровень тона различает роли: заголовок фигуры — ink,
+   подпись оси решения — muted. */
 .workflowChartAxisLabel {
-  fill: var(--composer-ink-subtle);
-  font-family: var(--composer-font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  fill: var(--composer-ink);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.workflowChartAxisLabel[data-role="baseline"] {
+  fill: var(--composer-ink-muted);
+  font-weight: 400;
 }
 
 .workflowGraphArea {
@@ -497,27 +505,32 @@
   justify-items: center;
 }
 
+/* Легенда стадий — тот же текстовый стандарт, что у шкал
+   трения: номер mono с tabular-nums (как индексы в остальных
+   легендах кейса), название sans 15/600, описание muted.
+   Кегли меньше prose только из-за узких колонок рейла. */
 .workflowStageHead span {
   color: var(--composer-ink-subtle);
   font-family: var(--composer-font-mono);
-  font-size: 0.64rem;
+  font-size: 0.74rem;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
 }
 
 .workflowStageHead strong {
   color: var(--composer-ink-muted);
-  font-size: 0.8rem;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: -0.005em;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 
 .workflowStage p {
   margin: 0;
   color: var(--composer-ink-subtle);
-  font-size: 0.72rem;
-  line-height: 1.35;
+  font-size: 13px;
+  letter-spacing: -0.005em;
+  line-height: 1.45;
   text-wrap: pretty;
 }
 

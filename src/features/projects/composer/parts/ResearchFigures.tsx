@@ -203,12 +203,13 @@ export function LabWorkflowDisk() {
           </defs>
 
           <text x="20" y="34" className={styles.workflowChartAxisLabel}>
-            проверяемость
+            Проверяемость
           </text>
           <text
             x="940"
             y="336"
             textAnchor="end"
+            data-role="baseline"
             className={styles.workflowChartAxisLabel}
           >
             решение человека
