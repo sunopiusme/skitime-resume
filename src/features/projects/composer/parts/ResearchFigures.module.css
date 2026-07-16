@@ -375,82 +375,44 @@
   width: 100%;
 }
 
-.workflowChart {
-  width: 100%;
-  /* = viewBox 960×340. */
-  aspect-ratio: 48 / 17;
-  justify-self: stretch;
-  color: var(--composer-ink);
-  overflow: visible;
+/* Поле стопок: те же семь колонок, что у рейла легенды
+   (gap 0, центрирование), — стопка стоит ровно над своей
+   подписью, ось X не нужна. Выравнивание по низу: силуэт
+   «лестницы» рас��ёт слева направо. */
+.workflowTallyField {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
+  align-items: end;
+  min-height: clamp(180px, 24vw, 240px);
+  padding-top: clamp(8px, 1vw, 12px);
   user-select: none;
   -webkit-user-select: none;
 }
 
-.workflowChart text {
-  user-select: none;
-  -webkit-user-select: none;
-  pointer-events: none;
+.workflowTallyColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
-.workflowChartAxis {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.16);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
+/* Риска — та же hairline-линия, что в friction-шкалах и
+   доказательном веере: одна риска = один проверяемый след. */
+.workflowTallyTick {
+  width: clamp(28px, 3.4vw, 44px);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.3);
 }
 
-.workflowChartAxisLabel {
-  fill: var(--composer-ink-subtle);
-  font-family: var(--composer-font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+/* Активная стадия ярче, её верхняя риска — «фронт» накопления. */
+.workflowTallyColumn[data-active="true"] .workflowTallyTick {
+  background: rgba(255, 255, 255, 0.62);
 }
 
-.workflowGraphArea {
-  fill: url(#workflowAreaGradient);
-}
-
-/* Одна линия, один вес. Прежний дублирующий «muted»-штрих
-   толщиной 14px рисовал грязный ореол вдоль всей кривой. */
-.workflowGraphLine {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.88);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-/* Вертикаль от активного узла к оси — единственная
-   вспомогательная линия фигуры. */
-.workflowActiveDrop {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.22);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-/* Узлы — точки, а не пилюли с цифрами: номер стадии живёт
-   в рейле прямо под узлом. Тёмная обводка в цвет фона
-   страницы «вырезает» точку из линии (punch-out). */
-.workflowGraphNode {
-  fill: rgba(255, 255, 255, 0.85);
-  stroke: #050505;
-  stroke-width: 3;
-}
-
-.workflowGraphPoint[data-active="true"] .workflowGraphNode {
-  fill: #ffffff;
-}
-
-/* Halo активного узла: тонкое кольцо вместо glow-фильтра. */
-.workflowGraphRing {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.3);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
+.workflowTallyColumn[data-active="true"] .workflowTallyTick:first-child {
+  height: 2px;
+  background: #ffffff;
 }
 
 /* Рейл стадий — ось X графика. Gap 0 и центрирование колонок:
@@ -497,27 +459,32 @@
   justify-items: center;
 }
 
+/* Легенда стадий — тот же текстовый стандарт, что у шкал
+   трения: номер mono с tabular-nums (как индексы в остальных
+   легендах кейса), название sans 15/600, описание muted.
+   Кегли меньше prose только из-за узких колонок рейла. */
 .workflowStageHead span {
   color: var(--composer-ink-subtle);
   font-family: var(--composer-font-mono);
-  font-size: 0.64rem;
+  font-size: 0.74rem;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
 }
 
 .workflowStageHead strong {
   color: var(--composer-ink-muted);
-  font-size: 0.8rem;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: -0.005em;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 
 .workflowStage p {
   margin: 0;
   color: var(--composer-ink-subtle);
-  font-size: 0.72rem;
-  line-height: 1.35;
+  font-size: 13px;
+  letter-spacing: -0.005em;
+  line-height: 1.45;
   text-wrap: pretty;
 }
 
