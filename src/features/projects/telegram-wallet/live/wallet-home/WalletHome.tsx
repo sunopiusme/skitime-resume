@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import styles from "./WalletHome.module.css";
@@ -47,6 +47,15 @@ import {
    правую колонку между Main Wallet и TON Space
    (два состояния из брифа — кастодиальный баланс
    и блокчейн-профиль в TON).
+
+   Сценарий: Send и Deposit — живые, как того
+   требует бриф («то, ради чего человек открывает
+   кошелёк»). Deposit наполняет баланс и историю,
+   Send списывает — или мягко качает головой, пока
+   отправлять нечего. Exchange и Buy/Sell ведут в
+   Explore к своему сервису. Так мокап показывает
+   ОБА спроектированных состояния экрана: пустое
+   для новичка и наполненное после первых шагов.
    ───────────────────────────────────────── */
 
 type WalletMode = "main" | "ton";
@@ -121,13 +130,95 @@ const SERVICES: readonly Service[] = [
   { name: "Giveaways", hint: "Raffles & Premium gifts", icon: <GiftIcon />, tint: "#eb5545" },
 ];
 
+/* ── Сценарий Send/Deposit ──
+   Шаги фиксированные, как в банковском демо: пополнение $100,
+   отправка $25. Достаточно, чтобы показать пустое → наполненное
+   состояние и обратную дорогу, не превращая мокап в калькулятор. */
+const DEPOSIT_STEP = 100;
+const SEND_STEP = 25;
+
+type Txn = {
+  id: number;
+  title: string;
+  sub: string;
+  delta: string;
+  positive: boolean;
+  icon: ReactNode;
+  tint: string;
+};
+
+/* Формат денег единый: 1 234.56 → "1,234.56". tabular-nums в CSS
+   держит цифры на месте во время count-up. */
+function fmtMoney(value: number): string {
+  return value.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function timeLabel(): string {
+  return new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
+
 export default function WalletHome({ onModeChange }: WalletHomeProps) {
   const [mode, setMode] = useState<WalletMode>("main");
   const [tab, setTab] = useState<Tab>("Assets");
   const [pendingMode, setPendingMode] = useState<WalletMode | null>(null);
   const [modeError, setModeError] = useState<string | null>(null);
+
+  /* Сценарий: баланс в USDT (1:1 к доллару), журнал операций,
+     промо и мелкая сигнальная механика. */
+  const [balance, setBalance] = useState(0);
+  const [txns, setTxns] = useState<readonly Txn[]>([]);
+  const [promoState, setPromoState] = useState<"open" | "closing" | "closed">("open");
+  const [historyUnseen, setHistoryUnseen] = useState(false);
+  const [flashService, setFlashService] = useState<string | null>(null);
+  const [shakeKey, setShakeKey] = useState(0);
+  const [sendHint, setSendHint] = useState<string | null>(null);
+
+  const balanceNumberRef = useRef<HTMLSpanElement>(null);
+  const prevBalanceRef = useRef(0);
+  const txnIdRef = useRef(0);
+
   const isTon = mode === "ton";
-  const assets = isTon ? TON_ASSETS : MAIN_ASSETS;
+
+  /* Строка Dollars живёт от баланса; TON и BTC остаются нулевыми —
+     сценарий пополнения в демо один, долларовый. */
+  const assets: readonly Asset[] = isTon
+    ? TON_ASSETS
+    : MAIN_ASSETS.map((asset) =>
+        asset.symbol === "USDT"
+          ? { ...asset, amount: `${balance} USDT`, fiat: `$${fmtMoney(balance)}` }
+          : asset,
+      );
+
+  /* Count-up баланса — без setState на каждый кадр: rAF пишет
+     промежуточные значения прямо в текст узла и заканчивает ровно
+     тем, что отрендерил React. prefers-reduced-motion — мгновенно. */
+  useEffect(() => {
+    const node = balanceNumberRef.current;
+    const from = prevBalanceRef.current;
+    const to = balance;
+    prevBalanceRef.current = to;
+    if (!node || from === to) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      node.textContent = fmtMoney(to);
+      return;
+    }
+
+    const started = performance.now();
+    const duration = 520;
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - started) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      node.textContent = fmtMoney(from + (to - from) * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [balance]);
 
   async function handleModeChange(nextMode: WalletMode) {
     if (nextMode === mode || pendingMode) return;
@@ -143,6 +234,72 @@ export default function WalletHome({ onModeChange }: WalletHomeProps) {
     } finally {
       setPendingMode(null);
     }
+  }
+
+  function pushTxn(txn: Omit<Txn, "id">) {
+    txnIdRef.current += 1;
+    const withId: Txn = { ...txn, id: txnIdRef.current };
+    setTxns((current) => [withId, ...current]);
+    if (tab !== "History") setHistoryUnseen(true);
+  }
+
+  function handleDeposit() {
+    setBalance((current) => current + DEPOSIT_STEP);
+    setSendHint(null);
+    pushTxn({
+      title: "Deposit",
+      sub: `Bank card · ${timeLabel()}`,
+      delta: `+$${fmtMoney(DEPOSIT_STEP)}`,
+      positive: true,
+      icon: <PlusIcon />,
+      tint: "#2ac281",
+    });
+  }
+
+  function handleSend() {
+    if (balance < SEND_STEP) {
+      /* Отправлять нечего: баланс мягко качает головой. Ремоунт по
+         ключу перезапускает keyframes на каждый повторный тап. */
+      setShakeKey((key) => key + 1);
+      setSendHint("Nothing to send yet — make a deposit first.");
+      return;
+    }
+    setBalance((current) => current - SEND_STEP);
+    pushTxn({
+      title: "Sent",
+      sub: `To @maria · ${timeLabel()}`,
+      delta: `−$${fmtMoney(SEND_STEP)}`,
+      positive: false,
+      icon: <SendIcon />,
+      tint: "#007afa",
+    });
+  }
+
+  /* Exchange и Buy/Sell — двери в Explore: переключаем вкладку и
+     подсвечиваем сервис, к которому вело действие. */
+  function openExplore(serviceName: string) {
+    setTab("Explore");
+    setFlashService(serviceName);
+  }
+
+  function quickActionHandler(label: string): (() => void) | undefined {
+    switch (label) {
+      case "Send":
+        return handleSend;
+      case "Deposit":
+        return handleDeposit;
+      case "Exchange":
+        return () => openExplore("Exchange");
+      case "Buy/Sell":
+        return () => openExplore("P2P Market");
+      default:
+        return undefined;
+    }
+  }
+
+  function selectTab(next: Tab) {
+    setTab(next);
+    if (next === "History") setHistoryUnseen(false);
   }
 
   return (
@@ -220,32 +377,66 @@ export default function WalletHome({ onModeChange }: WalletHomeProps) {
                   <p className={styles.tonAddress}>UQCK…nv6U</p>
                 </div>
               ) : (
-                <div className={styles.balance}>
+                <div
+                  key={shakeKey}
+                  className={shakeKey > 0 ? `${styles.balance} ${styles.balanceShake}` : styles.balance}
+                >
                   <p className={styles.balanceLabel}>Total balance</p>
                   <p className={styles.balanceValue}>
                     <span className={styles.balanceSign}>$</span>
-                    <span className={styles.balanceNumber}>0.00</span>
+                    <span ref={balanceNumberRef} className={styles.balanceNumber}>
+                      {fmtMoney(balance)}
+                    </span>
                   </p>
                 </div>
               )}
             </div>
 
+            {/* Быстрые действия. В Main Wallet — настоящие кнопки:
+               Send/Deposit двигают сценарий, Exchange и Buy/Sell
+               открывают свой сервис в Explore. В TON Space действия
+               остаются витриной «приглашения» — по кейсу. */}
             <nav className={styles.actions} data-mode={mode} aria-label="Быстрые действия">
-              {(isTon ? TON_ACTIONS : QUICK_ACTIONS).map((action) => (
-                <span key={action.label} className={styles.action}>
-                  <span className={styles.actionIcon}>{action.icon}</span>
-                  <span className={styles.actionLabel}>{action.label}</span>
-                </span>
-              ))}
+              {isTon
+                ? TON_ACTIONS.map((action) => (
+                    <span key={action.label} className={styles.action}>
+                      <span className={styles.actionIcon}>{action.icon}</span>
+                      <span className={styles.actionLabel}>{action.label}</span>
+                    </span>
+                  ))
+                : QUICK_ACTIONS.map((action) => (
+                    <button
+                      key={action.label}
+                      type="button"
+                      className={`${styles.action} ${styles.actionButton}`}
+                      onClick={quickActionHandler(action.label)}
+                    >
+                      <span className={styles.actionIcon}>{action.icon}</span>
+                      <span className={styles.actionLabel}>{action.label}</span>
+                    </button>
+                  ))}
             </nav>
+
+            {/* Подсказка Send при пустом балансе — для читалок и
+               как честный сигнал сценария. */}
+            <span className={styles.srStatus} role="status">
+              {sendHint}
+            </span>
 
             {/* Промо только в Main Wallet: живой баннер Wallet Earn.
                В TON Space промо нет — там чистый фон секции, без
                блока-обрубка. Высоту карточки держит правая секция
                (.pane min-height), поэтому при переключении фон не
-               «прыгает» и без промо-заглушки слева. */}
-            {!isTon && (
-              <section className={styles.promo}>
+               «прыгает» и без промо-заглушки слева. Крестик работает:
+               баннер тает и уступает место воздуху — как в проде. */}
+            {!isTon && promoState !== "closed" && (
+              <section
+                className={styles.promo}
+                data-state={promoState}
+                onAnimationEnd={() => {
+                  if (promoState === "closing") setPromoState("closed");
+                }}
+              >
                 <span className={styles.promoArt} aria-hidden="true">
                   <EarnIcon />
                 </span>
@@ -256,7 +447,12 @@ export default function WalletHome({ onModeChange }: WalletHomeProps) {
                     <ChevronRightIcon className={styles.promoCtaArrow} />
                   </span>
                 </div>
-                <button type="button" className={styles.promoClose} aria-label="Закрыть">
+                <button
+                  type="button"
+                  className={styles.promoClose}
+                  aria-label="Закрыть"
+                  onClick={() => setPromoState("closing")}
+                >
                   <CloseIcon />
                 </button>
               </section>
@@ -265,7 +461,8 @@ export default function WalletHome({ onModeChange }: WalletHomeProps) {
 
           {/* ── Секция активов ── */}
           <section className={styles.pane} data-mode={mode} aria-label="Разделы кошелька">
-            {/* Вкладки — настоящие: переключают контент справа. */}
+            {/* Вкладки — настоящие: переключают контент справа.
+               Точка на History — сигнал о свежей операции сценария. */}
             <div className={styles.tabs} role="tablist" aria-label="Разделы">
               {TABS.map((t) => (
                 <button
@@ -274,9 +471,12 @@ export default function WalletHome({ onModeChange }: WalletHomeProps) {
                   role="tab"
                   aria-selected={tab === t}
                   className={tab === t ? `${styles.tab} ${styles.tabActive}` : styles.tab}
-                  onClick={() => setTab(t)}
+                  onClick={() => selectTab(t)}
                 >
                   {t}
+                  {t === "History" && historyUnseen && (
+                    <span className={styles.tabDot} aria-label="Новые операции" />
+                  )}
                 </button>
               ))}
             </div>
@@ -317,11 +517,19 @@ export default function WalletHome({ onModeChange }: WalletHomeProps) {
               </ul>
             )}
 
-            {/* Explore — витрина сервисов кошелька из брифа. */}
+            {/* Explore — витрина сервисов кошелька из брифа. Сервис,
+               к которому привело быстрое действие, коротко вспыхивает. */}
             {tab === "Explore" && (
               <ul className={styles.assets}>
                 {SERVICES.map((service) => (
-                  <li key={service.name} className={`${styles.assetRow} ${styles.assetRowLink}`}>
+                  <li
+                    key={service.name}
+                    className={`${styles.assetRow} ${styles.assetRowLink}`}
+                    data-flash={flashService === service.name || undefined}
+                    onAnimationEnd={() => {
+                      if (flashService === service.name) setFlashService(null);
+                    }}
+                  >
                     <span className={styles.assetIcon} style={{ background: service.tint }} aria-hidden="true">
                       {service.icon}
                     </span>
@@ -335,18 +543,46 @@ export default function WalletHome({ onModeChange }: WalletHomeProps) {
               </ul>
             )}
 
-            {/* History — пустое состояние: баланс $0, транзакций ещё нет. */}
-            {tab === "History" && (
-              <div className={styles.empty}>
-                <span className={styles.emptyIcon} aria-hidden="true">
-                  <ClockIcon />
-                </span>
-                <p className={styles.emptyTitle}>No transactions yet</p>
-                <p className={styles.emptyText}>
-                  Your Send, Deposit and Exchange activity will appear here.
-                </p>
-              </div>
-            )}
+            {/* History — операции сценария; пока их нет, честное
+               пустое состояние. В TON Space история своя (пустая):
+               кастодиальные операции Main Wallet туда не протекают. */}
+            {tab === "History" &&
+              (isTon || txns.length === 0 ? (
+                <div className={styles.empty}>
+                  <span className={styles.emptyIcon} aria-hidden="true">
+                    <ClockIcon />
+                  </span>
+                  <p className={styles.emptyTitle}>No transactions yet</p>
+                  <p className={styles.emptyText}>
+                    Your Send, Deposit and Exchange activity will appear here.
+                  </p>
+                </div>
+              ) : (
+                <ul className={styles.assets}>
+                  {txns.map((txn) => (
+                    <li key={txn.id} className={styles.assetRow}>
+                      <span
+                        className={styles.assetIcon}
+                        style={{ background: txn.tint }}
+                        aria-hidden="true"
+                      >
+                        {txn.icon}
+                      </span>
+                      <span className={styles.assetBody}>
+                        <span className={styles.assetName}>{txn.title}</span>
+                        <span className={styles.assetAmount}>{txn.sub}</span>
+                      </span>
+                      <span
+                        className={
+                          txn.positive ? `${styles.assetFiat} ${styles.txnPlus}` : styles.assetFiat
+                        }
+                      >
+                        {txn.delta}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ))}
             </div>
           </section>
         </div>
