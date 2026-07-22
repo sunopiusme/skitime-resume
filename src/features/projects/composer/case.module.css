@@ -553,3 +553,26 @@
     height: 36px;
   }
 }
+
+/* ── Сцена, растворяющаяся на телефоне ──
+   Для демо, которые на узком экране должны читаться как ЧАСТЬ
+   интерфейса страницы, а не окно в окне: matte исчезает, контент
+   выходит на всю ширину вьюпорта (минус-поля гасят --case-pad-x).
+   Десктопная сцена остаётся прежней. */
+@media (max-width: 560px) {
+  .stageBare {
+    /* width: auto — иначе width: 100% сцены не даёт минус-полям
+       растянуть блок до краёв вьюпорта. */
+    width: auto;
+    padding: 0;
+    margin-inline: calc(-1 * var(--case-pad-x));
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .stageBare::before,
+  .stageBare::after {
+    display: none;
+  }
+}

@@ -171,7 +171,10 @@ export default function TelegramWalletCase() {
           </div>
 
           <div className={caseStyles.wide}>
-            <div className={`${caseStyles.composerStage} ${caseStyles.stageMesh}`}>
+            {/* stageBare: на телефоне сцена растворяется, и кошелёк
+               становится частью страницы — во всю ширину, без
+               matte-окна вокруг. */}
+            <div className={`${caseStyles.composerStage} ${caseStyles.stageMesh} ${caseStyles.stageBare}`}>
               <WalletHome />
             </div>
           </div>
