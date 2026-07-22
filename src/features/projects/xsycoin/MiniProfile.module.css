@@ -289,10 +289,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.6cqw;
+  gap: 2.6cqw;
 }
 
 .dot {
+  position: relative;
   width: 2cqw;
   height: 2cqw;
   padding: 0;
@@ -303,6 +304,19 @@
   transition:
     width 0.32s cubic-bezier(0.22, 1, 0.36, 1),
     background 0.3s ease;
+}
+
+/* Невидимая зона касания: визуально точка остаётся iOS-размера,
+   но палец получает таргет не меньше 24×44 (WCAG 2.2 AA / HIG).
+   Чуть увеличенный gap разводит зоны соседних точек. */
+.dot::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(24px, 100%);
+  height: max(44px, 100%);
+  transform: translate(-50%, -50%);
 }
 
 .dot:hover {

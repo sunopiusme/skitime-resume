@@ -459,6 +459,10 @@
 .composerPinFrame {
   width: 100%;
   max-width: min(100%, var(--case-surface));
+  /* min-width: 0 — иначе как grid/flex-элемент рамка держит
+     min-content самой длинной nowrap-строки демо (журнала)
+     и на телефоне выезжает за сцену вправо. */
+  min-width: 0;
   position: relative;
   z-index: 1;
 }

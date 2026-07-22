@@ -764,6 +764,14 @@
     color 120ms ease;
 }
 
+/* Невидимое расширение зоны касания до 44×44:
+   визуальный размер крестика — часть мокапа, не трогаем. */
+.promoClose::after {
+  content: "";
+  position: absolute;
+  inset: -9px;
+}
+
 .promoClose:hover {
   background: rgba(0, 0, 0, 0.1);
   color: var(--w-ink);
