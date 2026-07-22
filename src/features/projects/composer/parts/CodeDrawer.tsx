@@ -23,8 +23,10 @@ type Props = {
   /* Имя файла — подпись строки. */
   file: string;
   /* Diff-маркеры сниппета: из них считается статистика
-     «+N −N» справа — цветная, как в Codex/GitHub. */
-  diff?: DiffMarker[];
+     «+N −N» справа — цветная, как в Codex/GitHub.
+     `| undefined` — для exactOptionalPropertyTypes: сниппет
+     может не иметь маркеров, и это легально на call-site. */
+  diff?: DiffMarker[] | undefined;
   /* Пререндеренный CodeBlock. */
   children: ReactNode;
 };
@@ -71,7 +73,7 @@ export default function CodeDrawer({ file, diff, children }: Props) {
   /* Статистика из реальных маркеров сниппета —
      не хардкод-строка, а данные. */
   const added = diff?.filter((m) => m === "add").length ?? 0;
-  const removed = diff?.filter((m) => m === "del").length ?? 0;
+  const removed = diff?.filter((m) => m === "remove").length ?? 0;
 
   return (
     <div className={styles.root} data-open={open}>

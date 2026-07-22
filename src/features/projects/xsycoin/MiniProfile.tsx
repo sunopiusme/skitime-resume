@@ -56,9 +56,11 @@ export default function MiniProfile() {
   const [pulse, setPulse] = useState(0);
   const n = CREATURES.length;
 
-  const center = CREATURES[sel];
-  const left = CREATURES[wrap(sel - 1, n)];
-  const right = CREATURES[wrap(sel + 1, n)];
+  /* `!` — noUncheckedIndexedAccess: массив непуст и статичен,
+     wrap() гарантирует индекс в диапазоне 0..n-1. */
+  const center = CREATURES[wrap(sel, n)]!;
+  const left = CREATURES[wrap(sel - 1, n)]!;
+  const right = CREATURES[wrap(sel + 1, n)]!;
 
   // Spotlight за курсором — как у карточек в списке проектов: пишем
   // координаты прямо в CSS-переменные на узле, минуя React-рендер.
@@ -123,7 +125,7 @@ export default function MiniProfile() {
     d.pointerId = e.pointerId;
 
     sheet.setPointerCapture(e.pointerId);
-    sheet.classList.add(styles.dragging);
+    sheet.classList.add(styles.dragging!);
     // Точка клика (локальные координаты плашки) — центр расходящейся волны.
     sheet.style.setProperty("--gx", `${e.clientX - sr.left}px`);
     sheet.style.setProperty("--gy", `${e.clientY - sr.top}px`);
@@ -173,7 +175,7 @@ export default function MiniProfile() {
     } catch {
       /* pointer уже отпущен */
     }
-    sheet.classList.remove(styles.dragging); // вернуть пружинный transition
+    sheet.classList.remove(styles.dragging!); // вернуть пружинный transition
     sheet.style.transform = ""; // → spring back к нейтральному
     // d.moved сбросится на следующем pointerdown — клик после драга подавлен.
   };

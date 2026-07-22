@@ -196,6 +196,11 @@
     0 16px 40px -20px rgba(0, 0, 0, 0.32);
 }
 
+/* Дети грида журнала не расширяют его своим min-content. */
+.traceBody > * {
+  min-width: 0;
+}
+
 .traceList {
   margin: 0;
   padding: 0;
@@ -206,6 +211,9 @@
 
 .traceItem {
   display: block;
+  /* Строка — grid-элемент .traceList: без min-width: 0 она
+     не сжимается под ширину журнала на телефоне. */
+  min-width: 0;
   min-height: 36px;
   padding: 4px 12px;
   border-radius: 18px;
@@ -257,11 +265,20 @@
 }
 
 .traceLine {
-  display: inline-flex;
+  /* flex (не inline-flex): контейнер ограничен шириной строки —
+     иначе на узких экранах он растёт по контенту, и статус
+     обрезается краем карточки без ellipsis. */
+  display: flex;
+  max-width: 100%;
   align-items: baseline;
   gap: 8px;
   min-width: 0;
   color: inherit;
+}
+
+/* Глагол действия не сжимается — усечение забирают target и result. */
+.traceLine > span:first-child {
+  flex: 0 0 auto;
 }
 
 .traceTarget {
@@ -499,6 +516,7 @@
 .collapse {
   display: grid;
   grid-template-rows: 0fr;
+  min-width: 0;
   opacity: 0;
   transition:
     grid-template-rows 320ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -512,6 +530,9 @@
 
 .collapseInner {
   min-height: 0;
+  /* min-width: 0 — без него grid-элемент держит min-content
+     ширину контента и на телефоне распирает журнал за сцену. */
+  min-width: 0;
   overflow: hidden;
 }
 
