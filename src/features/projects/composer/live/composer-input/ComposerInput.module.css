@@ -1,6 +1,6 @@
 /* ─────────────────────────────────────────
    Composer input — повторяет композицию
-   референса (Codex). Тёмная монохромная
+   референса (Codex). Светлая монохромная
    палитра, без цветовых акцентов.
 
    Геометрия унифицирована с правилами sidebar
@@ -15,20 +15,20 @@
    ───────────────────────────────────────── */
 .root {
   --c-line: var(--composer-hairline);
-  --c-line-soft: rgba(255, 255, 255, 0.06);
+  --c-line-soft: rgba(0, 0, 0, 0.06);
   --c-ink: var(--composer-ink);
-  --c-ink-muted: rgba(255, 255, 255, 0.78);
+  --c-ink-muted: var(--composer-ink-muted);
   /* Subtle поднят с 0.52: placeholder и второстепенные глифы
-     проседали ниже комфортного контраста на #242424 (читались
-     как disabled). 0.58 ≈ 4.6:1 — выше WCAG AA для текста. */
-  --c-ink-subtle: rgba(255, 255, 255, 0.58);
-  --c-surface: #242424;
-  --c-surface-soft: #202020;
+     проседали ниже комфортного контраста на #ffffff (читались
+     как disabled). --composer-ink-subtle ≈ выше WCAG AA для текста. */
+  --c-ink-subtle: var(--composer-ink-subtle);
+  --c-surface: var(--composer-surface);
+  --c-surface-soft: #dfdfdf;
   /* Фон плашек warning/context: на тон темнее карточки
-     (#242424), но светлее sunken (#1a1a1a) — утопленный
+     (#ffffff), но светлее sunken (#e5e5e5) — утопленный
      «ящик из-под» приподнятой карточки, контраст без
      резкого провала на стыке (рамки у карточки больше нет). */
-  --c-drawer: #1b1b1b;
+  --c-drawer: #e4e4e4;
   /* Сплошной фон для popover'ов: раньше тут жил полупрозрачный
      glass (rgba(36, 36, 36, 0.72)) с backdrop-filter. На странице
      с несколькими меню рядом — модели, проекты, plus, плагины —
@@ -46,7 +46,8 @@
   --c-gap-icon: 8px;
 
   width: 100%;
-  max-width: 760px;
+  /* Ширину задаёт shell кейса (--case-surface / pin frame). */
+  max-width: 100%;
   margin: 0 auto;
   display: grid;
   gap: 12px;
@@ -140,8 +141,8 @@
      без них тёмный безель растворялся в фоне страницы и LCD «висел»
      в пустоте. Низ кольца прячется под карточкой. */
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(0, 0, 0, 0.05);
   /* Свой stacking-контекст (ниже card z-index:1): запирает z-index
      стеклянной крышки (.glass z-index:2) ВНУТРИ плашки, иначе она
      перебивает карточку и вылезает на передний план над её низом. */
@@ -168,7 +169,7 @@
   background: var(--c-drawer);
   /* Тусклое кольцо по периметру — нижняя и боковые кромки drawer'а
      не растворяются в фоне страницы (верх кольца уходит под card). */
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 /* ── LCD dot-matrix статусная панель ─────
@@ -558,22 +559,22 @@
   padding: 20px var(--c-pad-x) 16px;
   border-radius: var(--c-card-radius);
   /* Без обводки: карточка отделяется от фона страницы не рамкой,
-     а материалом — приподнятый surface (--c-surface = #242424, тот
-     же, что у панелей сайдбара) светлее фона #0a0a0a. Верхняя кромка
+     а материалом — приподнятый surface (--c-surface = #ffffff, тот
+     же, что у панелей сайдбара) на фоне страницы. Верхняя кромка
      ловит свет через inset-highlight, давая физически приподнятый
      край вместо нарисованного контура. */
   background: var(--c-surface);
   /* Хейрлайн-кольцо по периметру (0 0 0 1px) даёт карточке
-     читаемый край на тёмном фоне: одной верхней кромки-блика
+     читаемый край на светлом фоне: одной верхней кромки-блика
      мало — низ и бока растворялись в странице. Кольцо тусклое
      в покое и заметно ярчает на фокусе: состояние «поле активно»
      считывается с расстояния, без цветного glow (палитра
      монохромная). */
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.055),
-    0 1px 1px rgba(0, 0, 0, 0.42),
-    0 14px 34px rgba(0, 0, 0, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.085);
+    0 0 0 1px rgba(0, 0, 0, 0.055),
+    0 1px 1px rgba(0, 0, 0, 0.2),
+    0 14px 34px rgba(0, 0, 0, 0.17),
+    inset 0 1px 0 rgba(0, 0, 0, 0.085);
   position: relative;
   z-index: 1;
   transition:
@@ -585,34 +586,34 @@
    приглашение к взаимодействию, не спорит с фокусом. */
 .card:hover:not([data-focus="true"]) {
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.085),
-    0 1px 1px rgba(0, 0, 0, 0.42),
-    0 14px 34px rgba(0, 0, 0, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.085);
+    0 0 0 1px rgba(0, 0, 0, 0.085),
+    0 1px 1px rgba(0, 0, 0, 0.2),
+    0 14px 34px rgba(0, 0, 0, 0.17),
+    inset 0 1px 0 rgba(0, 0, 0, 0.085);
 }
 
 .card[data-drag="true"] {
   background: var(--c-surface-soft);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.18),
-    0 1px 1px rgba(0, 0, 0, 0.42),
-    0 14px 34px rgba(0, 0, 0, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.085);
+    0 0 0 1px rgba(0, 0, 0, 0.18),
+    0 1px 1px rgba(0, 0, 0, 0.2),
+    0 14px 34px rgba(0, 0, 0, 0.17),
+    inset 0 1px 0 rgba(0, 0, 0, 0.085);
 }
 
 .card[data-focus="true"] {
-  background: #272727;
+  background: #f7f7f7;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.14),
-    0 1px 1px rgba(0, 0, 0, 0.42),
-    0 18px 40px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    0 0 0 1px rgba(0, 0, 0, 0.14),
+    0 1px 1px rgba(0, 0, 0, 0.2),
+    0 18px 40px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(0, 0, 0, 0.12);
 }
 
 /* Только когда фокус уже снят, но текст остался:
-   при активном фокусе побеждает data-focus (#272727). */
+   при активном фокусе побеждает data-focus (#f7f7f7). */
 .card[data-typing="true"]:not([data-focus="true"]) {
-  background: #262626;
+  background: #f5f5f5;
 }
 
 .card[data-sending="true"] {
@@ -808,7 +809,7 @@
   max-height: 120px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
   transition: color var(--composer-duration-hover) ease,
               opacity var(--composer-duration-hover) ease;
 }
@@ -879,7 +880,7 @@
 }
 
 .modeChipClose:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.12);
   opacity: 1;
 }
 
@@ -897,7 +898,7 @@
 }
 
 .input::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.16);
   border-radius: 3px;
 }
 
@@ -962,12 +963,12 @@ button.iconBtn {
 }
 
 button.iconBtn:hover {
-  background: rgba(255, 255, 255, 0.075);
+  background: rgba(0, 0, 0, 0.075);
   color: var(--c-ink);
 }
 
 button.iconBtn[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.105);
+  background: rgba(0, 0, 0, 0.105);
   color: var(--c-ink);
 }
 
@@ -978,12 +979,12 @@ button.iconBtn[aria-expanded="true"] {
    обычная iconBtn с чуть более плотным фоном,
    send остаётся единственным primary в toolbar'е. */
 button.iconBtn[data-active="true"] {
-  background: rgba(255, 255, 255, 0.095);
+  background: rgba(0, 0, 0, 0.095);
   color: var(--c-ink);
 }
 
 button.iconBtn[data-active="true"]:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.12);
   color: var(--c-ink);
 }
 
@@ -1108,7 +1109,7 @@ button.iconBtn[data-loading="true"] svg {
 
 .sendBtn:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
 }
 
 /* Keyboard-focus: видимое кольцо только для focus-visible
@@ -1120,7 +1121,7 @@ button.iconBtn:focus-visible,
   outline: none;
   box-shadow:
     0 0 0 2px var(--c-surface),
-    0 0 0 3.5px rgba(255, 255, 255, 0.55);
+    0 0 0 3.5px rgba(0, 0, 0, 0.55);
 }
 
 .sendBtn:disabled,
@@ -1131,14 +1132,14 @@ button.iconBtn:focus-visible,
      как вдавленная в поверхность negative space.
      Контраст поднят (0.06→0.09 фон, 0.34→0.42 глиф):
      на скриншотах кнопка пропадала в карточке. */
-  background: rgba(255, 255, 255, 0.09);
-  color: rgba(255, 255, 255, 0.42);
+  background: rgba(0, 0, 0, 0.09);
+  color: rgba(0, 0, 0, 0.42);
   cursor: not-allowed;
 }
 
 .sendBtn[data-sending="true"] {
   cursor: progress;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(0, 0, 0, 0.78);
   color: var(--composer-surface);
 }
 
@@ -1306,7 +1307,7 @@ button.iconBtn:focus-visible,
   /* composer-токены напрямую (см. .tooltip). */
   border: 1px solid var(--composer-hairline);
   border-radius: 5px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.04);
   color: var(--composer-ink-muted);
   flex-shrink: 0;
   font-family: inherit;
@@ -1361,9 +1362,9 @@ button.iconBtn:focus-visible,
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 12px 32px rgba(0, 0, 0, 0.32),
-    0 -24px 48px rgba(0, 0, 0, 0.55);
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.16),
+    0 -24px 48px rgba(0, 0, 0, 0.26);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -1426,7 +1427,7 @@ button.iconBtn:focus-visible,
 }
 
 .dropdownItem:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .dropdownIcon {
@@ -1485,9 +1486,9 @@ button.iconBtn:focus-visible,
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 12px 32px rgba(0, 0, 0, 0.32),
-    0 -24px 48px rgba(0, 0, 0, 0.55);
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.16),
+    0 -24px 48px rgba(0, 0, 0, 0.26);
   display: none;
   flex-direction: column;
   gap: 1px;
@@ -1533,7 +1534,7 @@ button.iconBtn:focus-visible,
 }
 
 .pluginItem:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .pluginItemMain {
@@ -1567,7 +1568,7 @@ button.iconBtn:focus-visible,
   width: 28px;
   height: 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
   transition: background-color var(--composer-duration-hover) ease;
 }
@@ -1580,7 +1581,7 @@ button.iconBtn:focus-visible,
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--composer-ink);
   transition: transform var(--composer-duration-hover) ease;
 }
 

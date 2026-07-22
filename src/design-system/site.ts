@@ -26,9 +26,7 @@ export const siteConfig = {
    * Соц-ссылки в футере. Пустой массив — футер остаётся чистым копирайтом.
    * Порядок сохраняется. Подписи короткие, в один-два слова.
    */
-  socials: [
-    { label: "GitHub", url: "https://github.com/sunopiusme" },
-  ] as ReadonlyArray<SocialLink>,
+  socials: [] as ReadonlyArray<SocialLink>,
 } as const;
 
 export function getTelegramUrl(): string | null {

@@ -10,19 +10,19 @@
    • padding-x = 16 как в composer card.
    ───────────────────────────────────────── */
 .block {
-  --code-ink: rgba(255, 255, 255, 0.94);
-  --code-ink-muted: rgba(255, 255, 255, 0.66);
-  --code-ink-subtle: rgba(255, 255, 255, 0.48);
+  --code-ink: rgba(0, 0, 0, 0.94);
+  --code-ink-muted: rgba(0, 0, 0, 0.66);
+  --code-ink-subtle: rgba(0, 0, 0, 0.48);
   /* Inner hairlines (head-bottom, hunk-gap) — лёгкие
      внутренние разделители. Outer frame использует
      --composer-hairline (0.14) для синхронности с
      InlineFigure. */
-  --code-hairline: rgba(255, 255, 255, 0.08);
-  --code-gutter: rgba(255, 255, 255, 0.3);
-  /* Фон = композер-карточка (#232323): блок кода и импут —
+  --code-hairline: rgba(0, 0, 0, 0.08);
+  --code-gutter: rgba(0, 0, 0, 0.3);
+  /* Фон = композер-карточка (surface): блок кода и импут —
      одна семья поверхностей, а не две разных «плиты». */
-  --code-bg: #232323;
-  --code-hover: rgba(255, 255, 255, 0.08);
+  --code-bg: var(--composer-surface);
+  --code-hover: rgba(0, 0, 0, 0.08);
 
   /* Геометрические токены — те же концентричные углы,
      что в ComposerInput: pane 24, inset 6, row 18. */
@@ -68,14 +68,14 @@
      overflow:hidden не ставим — copy-tooltip уходит вверх. */
   font-family: var(--composer-font-mono);
   color: var(--code-ink);
-  color-scheme: dark;
+  color-scheme: light;
   isolation: isolate;
   /* Тот же рецепт, что у composer card: один hairline по
      контуру + мягкая тень. Без верхнего inset-блика —
      карточки в кейсе плоские. */
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.07),
-    0 16px 40px -20px rgba(0, 0, 0, 0.7);
+    0 0 0 1px rgba(0, 0, 0, 0.07),
+    0 16px 40px -20px rgba(0, 0, 0, 0.35);
 }
 
 /* ──────── Head ──────── */
@@ -154,7 +154,7 @@
   width: 2px;
   height: 2px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.28);
 }
 
 .lines {
@@ -245,7 +245,7 @@
 
 .copy[data-state="copied"] {
   color: var(--composer-ink);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .copy[data-state="copied"] .copyIconCopy {
@@ -320,7 +320,7 @@
      визуально нейтральный «второстепенный» элемент.
      Hover слегка осветляет до #555 — feedback при работе. */
   scrollbar-width: thin;
-  scrollbar-color: #3a3a3a transparent;
+  scrollbar-color: #c5c5c5 transparent;
 }
 
 .pre::-webkit-scrollbar {
@@ -328,12 +328,12 @@
 }
 
 .pre::-webkit-scrollbar-thumb {
-  background: #3a3a3a;
+  background: #c5c5c5;
   border-radius: 3px;
 }
 
 .pre::-webkit-scrollbar-thumb:hover {
-  background: #555555;
+  background: #aaaaaa;
 }
 
 .pre::-webkit-scrollbar-track {
@@ -403,7 +403,7 @@
   font-size: 0.78rem;
   line-height: 1.5;
   color: var(--code-ink-subtle);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.04);
   border-top: 1px solid var(--code-hairline);
   border-bottom: 1px solid var(--code-hairline);
   user-select: none;

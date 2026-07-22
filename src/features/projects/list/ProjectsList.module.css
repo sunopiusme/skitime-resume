@@ -44,7 +44,7 @@
   font-weight: 400;
   letter-spacing: 0em;
   text-transform: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--composer-ink-muted);
 }
 
 .brand {
@@ -52,7 +52,7 @@
   align-items: center;
   gap: 0.46em;
   min-height: 40px;
-  color: #ffffff;
+  color: var(--composer-ink);
   font-size: 16px;
   font-weight: 520;
   line-height: 1;
@@ -93,7 +93,7 @@
 
 .navLinks a:hover,
 .navLinks a:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.06);
   color: var(--composer-ink);
 }
 
@@ -210,7 +210,9 @@
   position: absolute;
   inset: 0;
   z-index: 10;
-  border-radius: inherit;
+  /* Слой лежит в padding-box (радиус 14−1=13px). inherit дал бы 14px,
+     и overflow:hidden срезал бы угол — держим внутренний радиус. */
+  border-radius: calc(var(--composer-radius-md) - 1px);
   background: radial-gradient(
     340px circle at var(--mx) var(--my),
     rgba(255, 255, 255, 0.07),
@@ -227,7 +229,11 @@
   position: absolute;
   inset: 0;
   z-index: 11;
-  border-radius: inherit;
+  /* Кант лежит в padding-box рамки (радиус 14−1=13px). С inherit (14px)
+     внешняя дуга кольца была круглее клипа overflow:hidden, и угол
+     срезался/тончал. 13px совмещает внешнюю дугу кольца с клипом —
+     кант ровно 1px по всему периметру, включая углы. */
+  border-radius: calc(var(--composer-radius-md) - 1px);
   padding: 1px;
   background: radial-gradient(
     240px circle at var(--mx) var(--my),

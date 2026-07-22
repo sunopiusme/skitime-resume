@@ -40,7 +40,7 @@
   position: absolute;
   inset: -3px;
   border-radius: calc(var(--tile-radius) + 3px);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
   pointer-events: none;
 }
 
@@ -51,7 +51,7 @@
   height: 64px;
   border-radius: var(--tile-radius);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 /* Hairline рисуется поверх картинки — inset box-shadow
@@ -61,7 +61,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
   pointer-events: none;
 }
 
@@ -85,7 +85,7 @@
   max-width: 100%;
   padding: 0 18px;
   border-radius: var(--tile-radius);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .audioIcon {
@@ -142,8 +142,8 @@
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: #2e2e2e;
-  box-shadow: 0 0 0 2px #232323;
+  background: #d1d1d1;
+  box-shadow: 0 0 0 2px var(--composer-surface);
   color: var(--c-ink-muted);
   cursor: pointer;
   opacity: 0;

@@ -33,7 +33,7 @@
 
 .trigger:hover,
 .trigger[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.075);
+  background: rgba(0, 0, 0, 0.075);
   color: var(--c-ink);
 }
 
@@ -81,11 +81,11 @@
   border-radius: var(--c-card-radius);
   /* Сплошная приподнятая поверхность + чёткая кромка и чистая тень,
      как у ModelPicker. Без стекла и верхней -24px тени. */
-  background: #1c1c1f;
+  background: var(--composer-surface);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 18px 44px rgba(0, 0, 0, 0.24),
+    0 6px 16px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -111,7 +111,7 @@
 
 .option:hover,
 .option[data-active="true"] {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .optionIcon {

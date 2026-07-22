@@ -1,0 +1,989 @@
+/* ─────────────────────────────────────────
+   Wallet Home — светлая iOS-сцена.
+   Перенос контента из Figma-фрейма
+   «Main Wallet (Home/Defaut/Assets/More assets)».
+
+   Палитра локальная (--w-*), замкнута на .screen:
+   сайт остаётся тёмным, а телефон внутри — светлый.
+   Значения взяты из Figma 1:1:
+   • фон экрана      #ffffff
+   • поверхность ряд #f4f4f6 (из #efeff4 / f9f9f9)
+   • акцент          #007afa
+   • чернила         #000 / #8e8e92 (subtle)
+   Метрики: рамка 393px (ширина фрейма), паддинг
+   16px → рабочая ширина 361px.
+   ───────────────────────────────────────── */
+.root {
+  --w-bg: #ffffff;
+  --w-surface: #f4f4f6;
+  --w-surface-strong: #e5e2e9;
+  --w-ink: #000000;
+  --w-ink-subtle: #8e8e92;
+  --w-accent: #007afa;
+  --w-accent-ink: #ffffff;
+  --w-radius-row: 20px;
+  --w-radius-action: 22px;
+  --w-radius-screen: 44px;
+
+  /* Смена Main Wallet ⇄ TON Space намеренно мгновенная. */
+  --w-tween: 0ms;
+
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Ландшафтная рамка — телефон, повёрнутый набок.
+   Пропорция ~4:3 вместо портретных 9:19. Шапка сверху
+   на всю ширину, ниже — две колонки. */
+.screen {
+  width: 100%;
+  max-width: 720px;
+  box-sizing: border-box;
+  padding: 24px 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  background: var(--w-bg);
+  color: var(--w-ink);
+  border-radius: var(--w-radius-screen);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 30px 60px -30px rgba(0, 0, 0, 0.45);
+  /* Обрезаем белый лист (.pane::before) по скруглённым углам карточки —
+     в обоих режимах, т.к. лист виден всегда. Иначе его прямые углы
+     торчат за скругление карточки на фон сайта. */
+  overflow: hidden;
+  font-family: var(--font-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color var(--w-tween),
+    color var(--w-tween),
+    border-color var(--w-tween),
+    box-shadow var(--w-tween);
+}
+
+/* Тело: две секции бок о бок на общем белом фоне карточки.
+   Никаких вложенных «панелей» — секции делит воздух и тонкая
+   вертикальная линия (hairline), как в реальном Wallet.
+   Левая — секция кошелька, правая — секция активов.
+
+   height — ФИКСИРОВАННЫЙ потолок карточки, а не min-height: контент
+   разных вкладок (Explore длиннее Assets, History короче) не должен
+   менять габарит. Обе колонки растягиваются на всю высоту
+   (align-items: stretch); лишнее/недостающее место поглощает
+   область контента правой секции (.paneBody со скроллом). Поэтому
+   при переключении и вкладок, и Main ⇄ TON Space высота постоянна. */
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: stretch;
+  height: 404px;
+}
+
+/* ── Секция кошелька ──
+   Без собственного фона: управление сверху, баланс и действия
+   ниже, промо в подвале (садится к низу через margin-top:auto). */
+.wallet {
+  position: relative;
+  display: grid;
+  grid-template-rows: 40px 110px 96px 116px;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* ── TON Space: тёмная сцена ──
+   В TON Space тёмным становится фон ВСЕЙ карточки (как на референсе) —
+   это чистая смена палитры, а не отдельная плашка поверх белого фона.
+   Именно вложенный тёмный бокс раньше читался «лишним фоном» и сдвигал
+   профиль с действиями. Здесь мы просто переопределяем локальные --w-*
+   токены на уровне .screen: фон, чернила, поверхности и акцент уезжают
+   в чёрно-белую тему, а геометрия левой секции остаётся 1:1 с Main
+   Wallet — переключатель, круглые кнопки, аватар, адрес и быстрые
+   действия стоят на своих местах.
+   --w-accent → почти чёрный: значки действий становятся чёрными
+   кружками (палитра чёрно-белая, без синего). */
+.screen[data-mode="ton"] {
+  --w-bg: #17181c;
+  --w-ink: #ffffff;
+  --w-ink-subtle: #9a9ea6;
+  --w-surface: #24262c;
+  --w-surface-strong: #2c2f37;
+  --w-accent: #101216;
+  --w-accent-ink: #ffffff;
+
+  /* Тёмная сцена: обводку сливаем с фоном, а из тени убираем светлый
+     inset-хайлайт (он на тёмном давал странную яркую кромку сверху).
+     Остаётся только мягкая drop-тень под карточкой. overflow наследуется
+     от базового .screen. */
+  border-color: transparent;
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.55);
+}
+
+/* Белый лист-плашка со списком — виден в ОБОИХ режимах: и в Main Wallet,
+   и в TON Space правая колонка всегда читается белым листом. Меняется
+   только окружающая сцена (светлая карта в Main, тёмная в TON). Палитра
+   вкладок/рядов внутри листа всегда светлая (тёмным по белому), поэтому
+   светлые --w-* токены задаём на базовом .pane, а не только в TON.
+   Раскладка Assets/Explore/History идентична — контент-бокс .pane не
+   двигается, лист рисует ::before. */
+.pane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  margin-right: -24px;
+
+  --w-bg: #ffffff;
+  --w-ink: #000000;
+  --w-ink-subtle: #8e8e92;
+  --w-surface: #f4f4f6;
+  --w-surface-strong: #e5e2e9;
+
+  background: transparent;
+  transition: color var(--w-tween);
+}
+
+/* Полноэкранная белая подложка листа. Видна всегда (в обоих режимах):
+   в Main лежит на белой карте (совпадает с фоном), в TON — белый лист на
+   тёмной сцене. Инсеты тянут лист до краёв карточки, не трогая раскладку.
+   Левые углы скруглены по радиусу окна (44px); правый край заподлицо с
+   окном (обрежет overflow карточки). Лежит ПОД контентом (z-index 0). */
+.pane::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: -24px;
+  right: -24px;
+  bottom: -26px;
+  left: 0;
+  background: #ffffff;
+  border-radius: 44px 0 0 44px;
+  pointer-events: none;
+}
+
+/* Разделяющая линия вкладок — тёмный hairline по белому листу
+   (одинаково в обоих режимах: лист белый всегда). */
+.pane .tabs {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Верхняя строка секции кошелька: переключатель у левого края,
+   справа — QR и настройки. Заменяет прежнюю общую шапку. */
+.walletTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* QR прижат к правому краю строки (настройки — слева,
+   переключатель — по центру через flex:1). */
+.walletTopEnd {
+  margin-left: auto;
+}
+
+/* Правая секция — таб-панель. Заголовок с вкладками закреплён,
+   ниже — область контента фиксированной высоты со скроллом.
+   Секция не задаёт высоту сама — её диктует .body; внутренний
+   скролл в .paneBody поглощает разницу между вкладками, поэтому
+   карточка не «прыгает». Отделена от левой секции воздухом.
+   (Базовые правила .pane и .pane::before заданы выше — лист виден
+   в обоих режимах.) */
+
+/* Контент секции — поверх белого листа. */
+.pane > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* На узком экране разворот не помещается — складываем
+   колонки обратно в вертикальный стек (портрет). */
+@media (max-width: 560px) {
+  .screen {
+    max-width: 393px;
+    padding: 16px;
+    border-radius: 32px;
+  }
+
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    height: auto;
+  }
+
+  .wallet {
+    grid-template-rows: 36px 104px 88px 104px;
+    gap: 12px;
+  }
+
+  .walletTop {
+    gap: 4px;
+  }
+
+  .circleBtn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .circleBtn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .switch {
+    padding: 2px;
+  }
+
+  .switchThumb {
+    top: 2px;
+    left: 2px;
+    width: calc(50% - 2px);
+    height: calc(100% - 4px);
+  }
+
+  .switchOption {
+    padding: 7px 3px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .actions {
+    gap: 6px;
+  }
+
+  .action {
+    gap: 6px;
+    padding: 6px 0;
+  }
+
+  .actionIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 18px;
+  }
+
+  .actionIcon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .actionLabel {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .actions[data-mode="ton"] .action {
+    padding: 6px;
+  }
+
+  .promo {
+    min-height: 88px;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .promoArt {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+
+  .promoTitle {
+    padding-right: 12px;
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  .promoCta {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .pane {
+    height: 360px;
+    margin-right: 0;
+    overflow: hidden;
+    border-radius: 28px;
+    background: #ffffff;
+  }
+
+  .pane::before {
+    display: none;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    padding: 14px 12px 12px;
+  }
+
+  .tab {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .paneBody {
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  .assets {
+    gap: 8px;
+  }
+
+  .assetRow {
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 16px;
+  }
+
+  .assetIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .assetIcon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .assetName,
+  .assetFiat {
+    font-size: 15px;
+    line-height: 20px;
+  }
+
+  .assetName,
+  .assetAmount {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .assetAmount {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .emptyText {
+    max-width: 24ch;
+  }
+}
+
+.circleBtn {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 999px;
+  background: var(--w-surface-strong);
+  color: var(--w-ink);
+  cursor: pointer;
+  transition:
+    background-color var(--w-tween),
+    color var(--w-tween);
+}
+
+.circleBtn:hover {
+  background: #dcd8e1;
+}
+
+/* На тёмной сцене hover круглых кнопок — светлее фона, а не светло-
+   серый (тот выбивался ярким пятном). */
+.screen[data-mode="ton"] .circleBtn:hover {
+  background: #3a3d46;
+}
+
+.circleBtn svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ── Pill-переключатель Main Wallet / TON Space ──
+   Сегмент-контрол в духе iOS: капсула-трек, внутри
+   скользящий белый thumb под активной опцией. Две
+   равные половины (grid), thumb двигается transform'ом. */
+.switch {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--w-surface-strong);
+  isolation: isolate;
+  transition: background-color var(--w-tween);
+}
+
+/* Скользящая «пилюля» под активной опцией. */
+.switchThumb {
+  position: absolute;
+  z-index: 0;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
+  border-radius: 999px;
+  background: var(--w-bg);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  transition: none;
+}
+
+.switch[data-mode="ton"] .switchThumb {
+  transform: translateX(100%);
+}
+
+/* Тёмная секция: чтобы контрол не «проваливался», трек-капсула
+   светлее сцены (elevated surface), а thumb — ещё светлее. Раньше трек
+   был темнее фона и читался чёрной дырой. Активная опция — белый текст,
+   неактивная — приглушённый. */
+.screen[data-mode="ton"] .switch {
+  background: #2c2f37;
+}
+
+.screen[data-mode="ton"] .switchThumb {
+  background: #4a4e58;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    0 0 0 0.5px rgba(255, 255, 255, 0.08);
+}
+
+.switchOption {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  padding: 8px 6px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--w-ink-subtle);
+  font: 600 14px/18px var(--font-sans), sans-serif;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: none;
+}
+
+.switchOption[aria-selected="true"] {
+  color: var(--w-ink);
+}
+
+.switchOption:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.modeError {
+  position: absolute;
+  z-index: 2;
+  top: 48px;
+  left: 48px;
+  right: 48px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #fff1f0;
+  color: #b42318;
+  font: 600 13px/18px var(--font-sans), sans-serif;
+  text-align: center;
+}
+
+/* Баланс и TON-профиль занимают один фиксированный слот. */
+.walletFocus {
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.balance {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.balanceLabel {
+  margin: 0;
+  font: 600 18px/20px var(--font-sans), sans-serif;
+  letter-spacing: -0.3px;
+  color: var(--w-ink);
+}
+
+.balanceValue {
+  margin: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 60px;
+}
+
+.balanceSign {
+  font-size: 40px;
+  color: var(--w-ink-subtle);
+}
+
+.balanceNumber {
+  font-size: 45px;
+  color: var(--w-ink);
+}
+
+/* ── TON Space профиль ──
+   В TON Space фокус слева — не кастодиальный $-баланс, а блокчейн-
+   идентичность: круглый аватар, подпись и усечённый on-chain адрес.
+   Тот же центрированный ритм, что и у .balance, поэтому переключатель
+   Main ⇄ TON Space не «прыгает». */
+.tonProfile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+/* Аватар — «наша версия»: не фото-профиль из оригинала, а чистый белый
+   диск с тёмным TON-ромбом по центру. Белый круг перекликается с белой
+   плашкой списка справа и держит чёрно-белую палитру TON Space. */
+.tonAvatar {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #101216;
+  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.55);
+}
+
+.tonAvatar svg {
+  width: 28px;
+  height: 28px;
+}
+
+.tonAddressLabel {
+  margin: 0;
+  font: 500 14px/18px var(--font-sans), sans-serif;
+  letter-spacing: -0.1px;
+  color: var(--w-ink-subtle);
+}
+
+.tonAddress {
+  margin: 0;
+  font: 700 27px/32px var(--font-sans), sans-serif;
+  letter-spacing: -0.4px;
+  color: var(--w-ink);
+}
+
+/* ── Быстрые действия ── */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-radius: 14px;
+  background: transparent;
+  transition:
+    gap var(--w-tween),
+    padding var(--w-tween),
+    background-color var(--w-tween);
+}
+
+.actionIcon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--w-radius-action);
+  background: var(--w-accent);
+  color: var(--w-accent-ink);
+  transition:
+    width var(--w-tween),
+    height var(--w-tween),
+    background-color var(--w-tween),
+    color var(--w-tween);
+}
+
+.actionIcon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.actionLabel {
+  font: 500 14px/20px var(--font-sans), sans-serif;
+  letter-spacing: 0.1px;
+  color: var(--w-ink);
+  transition: color var(--w-tween);
+}
+
+/* ── TON Space: действия как прямоугольные блоки ──
+   На тёмной сцене иконки-«парящие» кружки читались слабо. Как на
+   референсе — три светлых прямоугольных блока (Send / Deposit / Swap):
+   светлый фон-плашка, внутри тёмный круглый значок и подпись. Контраст
+   с тёмным фоном чёткий, блоки самодостаточны. */
+.actions[data-mode="ton"] {
+  grid-template-columns: repeat(3, 1fr);
+  /* Плашки обнимают контент и стоят по центру слота, а не тянутся на
+     всю высоту строки грида (.wallet ...96px...). Иначе прямоугольные
+     блоки со светлым фоном становятся заметно выше нужного. */
+  align-items: center;
+}
+
+.actions[data-mode="ton"] .action {
+  gap: 6px;
+  padding: 8px 8px;
+  border-radius: 14px;
+  background: #f4f4f6;
+}
+
+/* Значок — тёмный круг с белым глифом поверх светлого блока.
+   Кружок крупнее (48px), глиф компактный, но жирный: stroke-width
+   поднимаем через CSS, чтобы линии читались уверенно на маленьком
+   размере, не раздувая сам глиф. */
+.actions[data-mode="ton"] .actionIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #101216;
+  color: #ffffff;
+}
+
+.actions[data-mode="ton"] .actionIcon svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.6;
+}
+
+/* Подпись внутри светлого блока — тёмная, вопреки белым --w-ink сцены. */
+.actions[data-mode="ton"] .actionLabel {
+  font-size: 13px;
+  line-height: 16px;
+  color: #101216;
+}
+
+/* ── Промо-слот (Wallet Earn, только Main Wallet) ──
+   Лёгкий баннер под белую карточку: одна мягкая тонированная
+   заливка. Иконка на акцентном бейдже, тёмный текст, CTA —
+   акцентная ссылка. Тихо и чисто, без декора. */
+.promo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 96px;
+  padding: 16px 18px;
+  border-radius: var(--w-radius-row);
+  /* Одна ровная мягкая заливка — чисто, без градиента, кольца и
+     тени. Промо держит вес за счёт акцентной иконки и цвета
+     заливки, а не за счёт декора. */
+  background: rgba(0, 122, 250, 0.1);
+}
+
+.promoText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.promoTitle {
+  margin: 0;
+  font: 600 16px/20px var(--font-sans), sans-serif;
+  letter-spacing: -0.3px;
+  color: var(--w-ink);
+}
+
+/* CTA — акцентная ссылка со стрелкой, без плашки. */
+.promoCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  align-self: flex-start;
+  color: var(--w-accent);
+  font: 600 14px/18px var(--font-sans), sans-serif;
+  letter-spacing: -0.1px;
+}
+
+.promoCtaArrow {
+  width: 14px;
+  height: 14px;
+}
+
+/* Иконка на акцентном бейдже — единственное цветное пятно. */
+.promoArt {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--w-accent);
+  color: #ffffff;
+}
+
+.promoArt svg {
+  width: 24px;
+  height: 24px;
+}
+
+.promoClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--w-ink-subtle);
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.promoClose:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--w-ink);
+}
+
+.promoClose svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Вкладки ──
+   Закреплённый заголовок таб-панели: строка вкладок с
+   hairline-подложкой во всю ширину секции. Активная вкладка
+   помечена подчёркиванием-индикатором, лежащим на самой линии. */
+.tabs {
+  flex: none;
+  display: flex;
+  gap: 28px;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Вкладки — настоящие кнопки: сброс нативного вида, курсор,
+   плавная смена цвета. Индикатор — псевдоэлемент под текстом,
+   садится на hairline заголовка. */
+.tab {
+  position: relative;
+  padding: 0 0 12px;
+  margin-bottom: -13px;
+  border: none;
+  background: transparent;
+  font: 600 15px/20px var(--font-sans), sans-serif;
+  letter-spacing: -0.2px;
+  color: var(--w-ink-subtle);
+  cursor: pointer;
+  transition: color 140ms ease;
+}
+
+.tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--w-accent);
+  transform: scaleX(0);
+  transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.tab:hover {
+  color: var(--w-ink);
+}
+
+.tabActive,
+.tabActive:hover {
+  color: var(--w-ink);
+}
+
+.tabActive::after {
+  transform: scaleX(1);
+}
+
+/* Область контента вкладки — фиксированная высота (потолок от
+   .body), собственный скролл поглощает разницу между вкладками,
+   поэтому карточка не «прыгает». Слим-скролл, без горизонтали. */
+.paneBody {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px 16px;
+  scrollbar-width: none;
+}
+
+.paneBody::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Пустое состояние (History) ──
+   Баланс $0, транзакций ещё нет: спокойный экран-заглушка
+   по центру секции, а не пустота за мёртвой вкладкой. */
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 0;
+}
+
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--w-surface);
+  color: var(--w-ink-subtle);
+}
+
+.emptyIcon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.emptyTitle {
+  margin: 4px 0 0;
+  font: 600 17px/22px var(--font-sans), sans-serif;
+  letter-spacing: -0.2px;
+  color: var(--w-ink);
+}
+
+.emptyText {
+  margin: 0;
+  max-width: 30ch;
+  font: 500 14px/19px var(--font-sans), sans-serif;
+  color: var(--w-ink-subtle);
+}
+
+/* ── Список активов ──
+   Просторнее: ряды выше (padding 14/16), крупнее
+   иконки (44) и межстрочный воздух (gap 10). */
+.assets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Ряд на белом фоне: секция активов — серая панель, ряды
+   должны читаться поверх неё, поэтому белые с тонкой тенью. */
+.assetRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--w-radius-row);
+  background: var(--w-surface);
+}
+
+/* Ряд-ссылка («More assets», «Collectibles») —
+   кликабельный, лёгкий hover-отклик. */
+.assetRowLink {
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.assetRowLink:hover {
+  background: #ececf0;
+}
+
+.assetIcon {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #ffffff;
+  font: 600 20px/1 var(--font-sans), sans-serif;
+}
+
+.assetIcon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.assetBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.assetName {
+  font: 600 17px/22px var(--font-sans), sans-serif;
+  letter-spacing: -0.2px;
+  color: var(--w-ink);
+}
+
+.assetAmount {
+  font: 500 14px/18px var(--font-sans), sans-serif;
+  color: var(--w-ink-subtle);
+}
+
+.assetFiat {
+  flex: none;
+  font: 600 17px/22px var(--font-sans), sans-serif;
+  letter-spacing: -0.2px;
+  color: var(--w-ink);
+}
+
+/* Шеврон-стрелка в ряду-ссылке. */
+.rowChevron {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: #c2c2c8;
+}
+
+/* ── Доступность: снижение движения ──
+   Для пользователей с prefers-reduced-motion (вестибулярные
+   расстройства, светочувствительность) выключаем ВСЁ движение и
+   тайминги в компоненте: смена режима происходит мгновенно, без
+   анимаций, кросс-фейдов и сдвигов. Цвета всё равно валидны в обоих
+   состояниях — просто без промежуточной анимации. */
+@media (prefers-reduced-motion: reduce) {
+  .screen,
+  .screen * {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    animation-delay: 0ms !important;
+  }
+}

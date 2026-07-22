@@ -11,8 +11,7 @@ type Props = {
 
 /**
  * Обложка-постер проекта для карточки списка. Заливает свою ячейку.
- * Композиция держит декоративный индекс сверху, а название и год —
- * внутри самой карточки, без отдельной подписи и тегов.
+ * Композиция: индекс сверху, название и год — внутри карточки.
  */
 export default function ProjectCover({ title, year, index, slug }: Props) {
   if (slug === "composer") {
@@ -26,9 +25,11 @@ export default function ProjectCover({ title, year, index, slug }: Props) {
           {index}
         </span>
 
-        <div className={styles.composerPreview} aria-hidden="true" inert>
-          <div className={styles.composerPreviewScale}>
-            <ComposerInputV2 preview />
+        {/* Product-shot: композер целиком в кадре, без fixed-760 кропа.
+            inert — превью, не интерактив. Без LCD-плашки: чистая карточка. */}
+        <div className={styles.composerStage} aria-hidden="true" inert>
+          <div className={styles.composerFrame}>
+            <ComposerInputV2 />
           </div>
         </div>
 

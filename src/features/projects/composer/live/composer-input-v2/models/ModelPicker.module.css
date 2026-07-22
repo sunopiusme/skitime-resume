@@ -31,7 +31,7 @@
 
 .trigger:hover,
 .trigger[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.13);
+  background: rgba(0, 0, 0, 0.13);
 }
 
 .triggerLabel {
@@ -67,14 +67,14 @@
   min-width: 200px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  /* Сплошная приподнятая поверхность (светлее чёрной карточки),
+  /* Сплошная приподнятая поверхность (светлее фоновой карточки),
      чёткая волосяная кромка + чистая тень вниз. Без полупрозрачного
      стекла и без верхней -24px тени, которые мутнили меню. */
-  background: #1c1c1f;
+  background: var(--composer-surface);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 18px 44px rgba(0, 0, 0, 0.24),
+    0 6px 16px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -123,7 +123,7 @@
 
 .providerRow:hover,
 .providerRow[data-active="true"] {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .providerLabel {
@@ -150,11 +150,11 @@
   min-width: 200px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  background: #1c1c1f;
+  background: var(--composer-surface);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 18px 44px rgba(0, 0, 0, 0.24),
+    0 6px 16px rgba(0, 0, 0, 0.18);
   display: none;
   flex-direction: column;
   gap: 1px;
@@ -194,11 +194,11 @@
 }
 
 .modelRow:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .modelRow[data-active="true"] {
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.07);
 }
 
 .levelRow {

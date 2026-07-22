@@ -1,25 +1,33 @@
 /* ─────────────────────────────────────────
    Composer case page
-   Геометрия выровнена с главной:
-   • один внешний паддинг страницы,
-   • тот же chrome (topbar/footer),
-   • та же дисплей-шкала и тот же ритм отступов.
-   Композиция держится на центральной оси:
-   hero, текстовая колонка, фигуры и live-сцены
-   центрируются внутри общего полотна.
 
-   Spacing система основана на модульной шкале (коэффициент 1.5):
-   • prose gap: 20-24px (комфортное чтение)
-   • section inner: 32-48px (между элементами секции)
-   • section outer: 64-96px (между секциями)
+   ХРОМ — всегда к краям вьюпорта (рамка сайта).
+   Не сжимаем brand/nav в контентную колонку.
 
-   Шкала ширин — два уровня, одна лента:
-   • проза: 640px (~85 знаков при 15px — комфортная мера чтения)
-   • всё остальное: 960px — единая широкая лента для фигур,
-     кода, live-сцен И шапки сайта. Live-компоненты внутри
-     сцен держат свои 760px, но их контейнер стоит на той же
-     ленте. Один внешний контур на весь кейс — ничего не
-     «прыгает» между тремя-четырьмя ширинами.
+   ТРИ МЕРЫ (8pt-сетка, психологически разные задачи):
+
+     prose   640  — чтение (~85 знаков / 15px). Узкая
+                    колонка: глаз не теряет строку.
+     surface 760  — live ADE UI (чат, сайдбар, трейс).
+                    Знакомая «продуктовая» ширина; шире —
+                    поле ввода становится «вагоном».
+     shell  1120  — таблицы, графики, код, сцена-театр.
+                    Данныем нужен воздух колонок; потолок
+                    graphic-measure, не 100vw.
+
+   Все три: min(100%, N) — на узком окне / iPhone / iPad
+   схлопываются в полотно. На fullscreen / ultrawide
+   держат потолок: контент — собранный «лист» по центру,
+   хедер — широкая рамка. Воздух по бокам листа на
+   большом экране — намеренный matte, не резонанс;
+   резонанс был, когда меры прыгали (100% vs 760 vs 640)
+   и когда UI тянулся на всю ширину монитора.
+
+   Отношения: 640 : 760 : 1120 ≈ 16 : 19 : 28.
+   surface − prose = 120; shell − surface = 360 (3×).
+
+   --case-pad-x один у topbar и page.
+   Spacing: prose / section inner / outer (модуль 1.5).
    ───────────────────────────────────────── */
 
 .page {
@@ -27,20 +35,17 @@
   min-height: 100svh;
   display: grid;
   grid-template-rows: 1fr auto;
-  /* Два уровня ширины (см. шкалу в шапке файла):
-     prose < wide. surface — мера live-компонента внутри сцены. */
   --case-prose: 640px;
-  --case-surface: var(--composer-measure-hero);
-  --case-wide: var(--composer-measure-wide);
+  --case-surface: var(--composer-measure-hero); /* 760 */
+  --case-wide: var(--composer-measure-graphic); /* 1120 */
+  --case-figure: var(--case-wide);
 
-  /* Система отступов на основе модульной шкалы */
   --case-space-prose: var(--composer-space-prose);
   --case-space-section-inner: var(--composer-space-section-inner);
   --case-space-section-outer: var(--composer-space-section-outer);
 
-  /* Горизонтальный паддинг страницы — один токен, от которого
-     зависят и контентная лента, и full-bleed футера. */
-  --case-pad-x: clamp(48px, 6vw, 120px);
+  /* Рамка хрома = рамка полотна. На iPhone чуть плотнее. */
+  --case-pad-x: clamp(16px, 2.4vw, 40px);
 
   padding:
     clamp(16px, 1.6vw, 24px)
@@ -51,12 +56,9 @@
 }
 
 /* ─────────────────────────────────────────
-   Top bar — full-bleed.
-   Фон тянется на всю ширину вьюпорта (fixed,
-   left/right: 0), контент прижат к краям экрана
-   с небольшим воздухом — на большом мониторе
-   шапка читается широкой рамкой страницы, на
-   узком окне паддинг сжимается через clamp.
+   Top bar — full-bleed, к краям браузера.
+   Фон на всю ширину; brand и nav у боковых кромок
+   с --case-pad-x (как контент). Не сжимаем в shell.
    ───────────────────────────────────────── */
 .topbar {
   position: fixed;
@@ -71,36 +73,31 @@
   gap: 16px;
   padding:
     clamp(10px, 1vw, 14px)
-    clamp(20px, 2.4vw, 40px);
+    var(--case-pad-x);
   background: var(--composer-surface);
   font-size: 16px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0em;
   text-transform: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--composer-ink-muted);
 }
 
+/* Бренд — только лого, без фамилии. Hit-area 40px как у nav. */
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.46em;
+  justify-content: center;
+  min-width: 40px;
   min-height: 40px;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 520;
-  line-height: 1;
-  letter-spacing: -0.01em;
-  text-transform: none;
+  color: var(--composer-ink);
+  line-height: 0;
 }
 
-/* X-марка стоит ПОСЛЕ фамилии. Глиф svg несёт собственные
-   внутренние поля, из-за которых при 1.06em он читался мельче
-   заглавной «Ф» — поднимаем до 1.3em: оптически марка равна
-   капсу, по боксу чуть больше. */
 .brandLogo {
-  width: 1.3em;
-  height: 1.3em;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
+  display: block;
   opacity: 0.96;
 }
 
@@ -128,7 +125,7 @@
 
 .navLinks a:hover,
 .navLinks a:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.06);
   color: var(--composer-ink);
 }
 
@@ -148,7 +145,7 @@
   margin-inline: calc(-1 * var(--case-pad-x));
   padding:
     clamp(40px, 5vw, 72px)
-    clamp(20px, 2.4vw, 40px)
+    var(--case-pad-x)
     clamp(28px, 3vw, 40px);
   background: var(--composer-surface);
   font-size: 16px;
@@ -173,6 +170,7 @@
    ───────────────────────────────────────── */
 .article {
   display: grid;
+  /* Shell-потолок; на узком окне = 100% полотна. */
   width: min(100%, var(--case-wide));
   min-width: 0;
   margin: 0 auto;
@@ -181,12 +179,7 @@
   padding-bottom: clamp(40px, 4vw, 56px);
 }
 
-/* Центральная ось. Узкая колонка чтения и широкие фигуры держат свои
-   меры, но садятся по центру общего полотна, чтобы кейс выглядел как
-   собранная презентационная работа, а не как левый editorial-rail.
-   Проза уже рабочих поверхностей (640 vs 760): текст читается
-   комфортной мерой, а компоненты и код выступают за её край —
-   иерархия уровней контента считывается шириной колонки. */
+/* prose — чтение. wide — shell данных. Оба центрируются. */
 .column {
   max-width: var(--case-prose);
   min-width: 0;
@@ -261,6 +254,9 @@
   display: grid;
   justify-items: center;
   gap: clamp(16px, 1.8vw, 24px);
+  /* Display-мера: шире prose, уже shell. Крупный кегль
+     (56) не должен тянуться на 1120 — строки рвутся
+     некрасиво; 920 ≈ surface + 160, комфортный постер. */
   max-width: min(100%, 920px);
   width: 100%;
 }
@@ -273,10 +269,10 @@
   max-width: 100%;
   font-family: var(--font-sans), sans-serif;
   font-size: 56px;
-  font-weight: 500;
+  font-weight: 640;
   letter-spacing: -0.03em;
   line-height: 56px;
-  color: #ffffff;
+  color: var(--composer-ink);
   text-wrap: pretty;
   font-kerning: normal;
   font-feature-settings: "ss01", "cv11";
@@ -288,20 +284,17 @@
 }
 
 /* ─────────────────────────────────────────
-   TL;DR — кейс за 20 секунд до скролла.
-   Без разделителей и капса: подзаголовок — тот же кегль,
-   что у prose, но полужирный; иерархию держит вес и цвет,
-   а не декоративные линии. Три колонки на десктопе,
-   стек на компакте.
+   TL;DR — первая секция кейса по анатомии home:
+   вертикальный стек «заголовок над текстом» —
+   как doGrid на главной, но в одну колонку прозы.
+   Никакой горизонтальной полосы под заголовком:
+   hero остаётся чистым постером, а блок читается
+   как первая глава. Без eyebrow — сразу суть.
    ───────────────────────────────────────── */
 .tldr {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(20px, 2.4vw, 32px);
-  width: 100%;
-  max-width: min(100%, 920px);
+  gap: var(--case-space-prose);
   margin: 0;
-  text-align: left;
 }
 
 .tldrItem {
@@ -310,27 +303,31 @@
   gap: 8px;
 }
 
-/* Подзаголовок — обычный текст полужирным: метрики prose
-   (15/24, -0.01em), вес 600, полный ink. */
+/* Подзаголовок TL;DR — ступень выше prose, но ниже sectionTitle:
+   17/650, чтобы «Проблема / Решение / Факты» не терялись рядом
+   с секционными h2 и не читались как жирный body. Цвет тот же ink. */
 .tldrKicker {
   font-family: var(--font-sans), sans-serif;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 650;
   letter-spacing: -0.01em;
   line-height: 24px;
   color: var(--composer-ink);
 }
 
-/* Текст TL;DR наследует параметры prose — единый стандарт
-   основного текста кейса: 15/24, -0.01em, ink 92%. */
+/* Текст TL;DR — тот же body-стандарт, что и prose (16/500):
+   спокойный medium. Иерархию с кикером держат кегль (17→16)
+   и вес (650→500), без смены цвета. */
 .tldrText {
   margin: 0;
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 24px;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.011em;
+  line-height: 27px;
+  color: var(--composer-ink);
   text-wrap: pretty;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
 }
 
 /* Сжатие стыка hero → первая секция.
@@ -345,33 +342,40 @@
 
 /* ─────────────────────────────────────────
    Section heads — типографический ритм.
-   Один уровень подзаголовка на весь кейс: h2 28/1.2 и
-   единый зазор до прозы (--composer-head-gap). Никаких
-   обёрток-вариантов — каждая секция начинается одинаково.
+   Один уровень подзаголовка на весь кейс: h2 24/550
+   (раньше 28/500 — слишком тяжёлый рядом с TL;DR-кикерами
+   17/650) и единый зазор до прозы (--composer-head-gap).
+   Кегль и вес сближены с кикерами, чтобы ни один уровень
+   не перетягивал внимание; цвет не трогаем.
    ───────────────────────────────────────── */
 .sectionTitle {
   margin: 0 0 var(--composer-head-gap);
-  font-size: 28px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  font-size: 26px;
+  font-weight: 720;
+  letter-spacing: -0.024em;
+  line-height: 1.22;
   text-align: left;
   text-wrap: balance;
 }
 
 /* ─────────────────────────────────────────
-   Prose body — 15/24 на мере 640px,
+   Prose body — 16/27 на мере 640px,
    межабзацный шаг prose (20-24px).
+   Вес medium (500) — чуть плотнее обычного, но не
+   жирный: спокойный голос для длинного чтения.
+   kerning + optimizeLegibility дают чёткие штрихи.
    ───────────────────────────────────────── */
 .prose {
   display: grid;
   gap: var(--case-space-prose);
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 24px;
+  color: var(--composer-ink);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.011em;
+  line-height: 27px;
   text-align: left;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
 }
 
 .prose p {
@@ -380,9 +384,12 @@
   text-wrap: pretty;
 }
 
+/* em/strong держат акцент ступенью веса НАД телом прозы
+   (500): оба уходят в 600, иначе акцент растворился бы
+   в основном тексте. */
 .prose em {
   font-style: normal;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--composer-ink);
 }
 
@@ -396,7 +403,7 @@
   font-size: 0.86em;
   padding: 0.18em 0.5em;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.07);
   color: var(--composer-ink);
   white-space: nowrap;
   font-feature-settings: "calt" 0, "liga" 0;
@@ -422,18 +429,14 @@
   justify-content: center;
 }
 
-/* Сцена live-компонента — фон-подложка под ADE-островком, лежащим по
-   центру. Фон — собственный тёмный neutral mesh-gradient (без png,
-   см. background ни��е). Прямоугольная форма (высота от контента +
-   padding). overflow НЕ скрываем — ��наче выпадающие меню/поповеры
-   композера срезают��я краем с��ены. Фон при этом остаётся скруглённым:
-   фоновая картинка клипается по border-radius сама, без overflow:hidden. */
+/* Сцена — shell (как таблицы): театр вокруг продукта.
+   Остров внутри — surface 760, не на всю сцену. */
 .composerStage {
   width: 100%;
   max-width: var(--case-wide);
   display: grid;
   place-items: center;
-  padding: clamp(40px, 7vw, 96px) clamp(20px, 4vw, 64px);
+  padding: clamp(28px, 4.5vw, 64px) clamp(16px, 3vw, 48px);
   border-radius: 32px;
 }
 
@@ -443,18 +446,19 @@
 .stageMesh {
   position: relative;
   isolation: isolate;
-  background-color: #101010;
+  background-color: var(--composer-surface-sunken);
   background-image:
-    radial-gradient(120% 90% at 50% -20%, rgba(255, 255, 255, 0.05), transparent 60%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 45%);
+    radial-gradient(120% 90% at 50% -20%, rgba(0, 0, 0, 0.04), transparent 60%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, transparent 45%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 0 0 1px rgba(255, 255, 255, 0.07);
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
+/* Live ADE UI — surface (760). Родитель режет «вагон». */
 .composerPinFrame {
   width: 100%;
-  max-width: var(--case-surface);
+  max-width: min(100%, var(--case-surface));
   position: relative;
   z-index: 1;
 }
@@ -464,39 +468,42 @@
     position: static;
     bottom: auto;
   }
+
+  .composerStage {
+    /* На планшете сцена почти flush — меньше пустого matte. */
+    padding: clamp(20px, 3vw, 36px) clamp(12px, 2vw, 20px);
+  }
 }
 
 /* ─────────────────────────────────────────
-   Тезис — одно крупное высказывание без подписи
-   и декора. Масштаб sectionTitle (28px, вес 500),
-   строчный интерлиньяж чуть свободнее заголовка —
-   это высказывание в несколько строк, не рубрика.
+   Тезис — вывод исследования и мост к решениям.
+   Отделён от заголовков по ОСИ ВЕСА, а не кегля:
+   крупнее секций (28 против 26), но заметно легче
+   (560 против 720) и с более свободным интерлиньяжем.
+   Так он читается как высказывание, а не как ещё одна
+   рубрика того же ранга — контраст держит типографика.
    ───────────────────────────────────────── */
 .thesis {
   margin: 0;
   font-family: var(--font-sans), sans-serif;
   font-size: 28px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.35;
+  font-weight: 560;
+  letter-spacing: -0.022em;
+  line-height: 1.4;
   color: var(--composer-ink);
   text-wrap: balance;
 }
 
 /* ─────────────────────────────────────────
-   Responsive — на узких экранах шкала сжимается
-   пропорционально: меньше боковой паддинг (контент
-   важнее рамки), дисплей-кегль через vw, секционные
-   заголовки на ступень ниже. Сетка ширин схлопывается
-   сама: все три меры упираются в 100%.
+   Responsive — меры схлопываются через min(100%, N).
+   Ломаем только то, что не лечится процентами:
+   pad, кегль дисплея, радиус сцены.
    ───────────────────────────────────────── */
+
+/* iPad portrait / небольшое окно (~768–840) */
 @media (max-width: 840px) {
   .page {
-    --case-pad-x: clamp(20px, 4.5vw, 40px);
-  }
-
-  .topbar {
-    font-size: 0.66rem;
+    --case-pad-x: clamp(16px, 3.5vw, 28px);
   }
 
   .hero {
@@ -504,28 +511,41 @@
   }
 
   .heroTitle {
-  font-size: clamp(32px, 7.2vw, 56px);
-  line-height: 1.05;
+    font-size: clamp(32px, 7.2vw, 48px);
+    line-height: 1.05;
   }
-
-  /* TL;DR — вертикальный стек, HIG Body для текста. */
-  .tldr {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  /* Метрики TL;DR не пересобираются: 15/24 как у prose на всех
-     вьюпортах — единый стандарт текста кейса. */
 
   .sectionTitle {
-  font-size: 24px;
+    font-size: 23px;
   }
 
   .thesis {
-    font-size: 24px;
+    font-size: 25px;
   }
 
   .composerStage {
     border-radius: 24px;
+  }
+}
+
+/* iPhone / узкий телефон */
+@media (max-width: 480px) {
+  .page {
+    --case-pad-x: 16px;
+  }
+
+  .heroTitle {
+    font-size: clamp(28px, 8.2vw, 36px);
+    line-height: 1.08;
+  }
+
+  .composerStage {
+    border-radius: 18px;
+    padding: 16px 10px;
+  }
+
+  .navLinks a {
+    padding: 0 10px;
+    height: 36px;
   }
 }

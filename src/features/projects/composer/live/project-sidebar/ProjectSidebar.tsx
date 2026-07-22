@@ -46,6 +46,8 @@ const NAV_ITEMS: readonly NavItem[] = [
   { icon: "clock", label: "Автоматизации" },
 ];
 
+/* Превью держим коротким: 3+2+1 сессии. Длинный список
+   конкурировал с композером/трейсом по «шуму» кадра. */
 const PROJECTS: readonly ProjectGroup[] = [
   {
     name: "ZenPulse",
@@ -72,20 +74,6 @@ const PROJECTS: readonly ProjectGroup[] = [
         age: "12м",
         status: "review",
       },
-      {
-        title: "Обновить трейс сессии",
-        branch: "trace/session-log",
-        evidence: "лог",
-        age: "8м",
-        status: "running",
-      },
-      {
-        title: "Закрыть сценарий PR",
-        branch: "release/pr-flow",
-        evidence: "PR #42",
-        age: "1ч",
-        status: "done",
-      },
     ],
     more: true,
   },
@@ -100,35 +88,13 @@ const PROJECTS: readonly ProjectGroup[] = [
         status: "review",
       },
       {
-        title: "Проверить права CLI",
-        branch: "chore/permissions",
-        evidence: "policy",
-        age: "3м",
-        status: "running",
-      },
-      {
-        title: "Вернуть потерянный контекст",
-        branch: "fix/context-restore",
-        evidence: "trace",
-        age: "2ч",
-        status: "done",
-      },
-      {
-        title: "Снять браузерный smoke",
-        branch: "test/browser-smoke",
-        evidence: "screenshot",
-        age: "9м",
-        status: "running",
-      },
-      {
         title: "Собрать evidence pack",
         branch: "review/evidence-pack",
         evidence: "PR",
         age: "25м",
-        status: "review",
+        status: "running",
       },
     ],
-    more: true,
   },
   {
     name: "cmux",
@@ -138,11 +104,10 @@ const PROJECTS: readonly ProjectGroup[] = [
         branch: "worktree/auth-flow",
         evidence: "lint",
         age: "5м",
-        status: "running",
+        status: "done",
       },
     ],
   },
-  { name: "Glim", sessions: [], empty: true },
 ];
 
 const STATUS_LABELS: Record<SessionStatus, string> = {
@@ -406,31 +371,34 @@ function SidebarBody() {
   return (
     <>
       <div className={styles.chrome}>
-        {/* Без macOS-светофора: ChatInput и ThinkingModel —
-            чистые компоненты без оконной декорации, сайдбар
-            следует тому же правилу. Chrome начинается сразу
-            с системных кнопок. */}
-        <div className={styles.chromeSysGroup} aria-hidden="true">
-          <span className={styles.chromeSysBtn}>
-            <svg viewBox="0 0 16 16" width="18" height="18" fill="none" aria-hidden="true">
-              <rect x="1.6" y="2.8" width="12.8" height="10.4" rx="2" stroke="currentColor" />
-              <path d="M6 3v10" stroke="currentColor" />
-            </svg>
-          </span>
-          <span className={styles.chromeSysBtn}>
+        {/* Слева: back + forward на одной линии.
+            Справа: Toggle Sidebar в углу.
+            Update pill — между группами, без ломания оси. */}
+        <div className={styles.chromeLeft} aria-hidden="true">
+          <span className={styles.chromeSysBtn} title="Назад">
             <svg viewBox="0 0 16 16" width="18" height="18" fill="none" aria-hidden="true">
               <path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M5.5 8h7" stroke="currentColor" strokeLinecap="round" />
             </svg>
           </span>
-          <span className={styles.chromeSysBtn}>
+          <span className={styles.chromeSysBtn} title="Вперёд">
             <svg viewBox="0 0 16 16" width="18" height="18" fill="none" aria-hidden="true">
               <path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M3.5 8h7" stroke="currentColor" strokeLinecap="round" />
             </svg>
           </span>
+          <UpdatePill />
         </div>
-        <UpdatePill />
+        <span
+          className={`${styles.chromeSysBtn} ${styles.chromeToggle}`}
+          title="Toggle Sidebar"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 16 16" width="18" height="18" fill="none" aria-hidden="true">
+            <rect x="1.6" y="2.8" width="12.8" height="10.4" rx="2" stroke="currentColor" />
+            <path d="M6 3v10" stroke="currentColor" />
+          </svg>
+        </span>
       </div>
 
       <ul className={styles.nav}>
@@ -542,10 +510,10 @@ function SidebarBody() {
                   >
                     <span className={styles.sessionMain}>
                       <span className={styles.sessionTitle}>{session.title}</span>
+                      {/* Одна meta-строка: branch. Evidence убран —
+                         второй чип на каждом ряду делал кадр шумным. */}
                       <span className={styles.sessionMeta}>
                         <span className={styles.sessionBranch}>{session.branch}</span>
-                        <span className={styles.sessionDivider} aria-hidden="true" />
-                        <span className={styles.sessionEvidence}>{session.evidence}</span>
                       </span>
                     </span>
                     <span className={styles.sessionSide}>

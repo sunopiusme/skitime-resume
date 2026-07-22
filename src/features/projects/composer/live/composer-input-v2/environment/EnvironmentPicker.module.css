@@ -27,7 +27,7 @@
 
 .trigger:hover,
 .trigger[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .triggerIcon {
@@ -73,9 +73,9 @@
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 12px 32px rgba(0, 0, 0, 0.32),
-    0 -24px 48px rgba(0, 0, 0, 0.55);
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.16),
+    0 -24px 48px rgba(0, 0, 0, 0.24);
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -136,7 +136,7 @@
 
 .item:hover:not([data-disabled="true"]),
 .item[data-active="true"] {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .item[data-disabled="true"] {
@@ -206,9 +206,9 @@
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 12px 32px rgba(0, 0, 0, 0.32),
-    0 -24px 48px rgba(0, 0, 0, 0.55);
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.16),
+    0 -24px 48px rgba(0, 0, 0, 0.24);
   display: none;
   flex-direction: column;
   gap: 8px;
@@ -253,14 +253,14 @@
   position: relative;
   height: 4px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
 .usageFill {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(0, 0, 0, 0.55);
   border-radius: 999px;
 }
 

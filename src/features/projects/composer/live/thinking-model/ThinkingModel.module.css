@@ -8,7 +8,8 @@
   display: grid;
   gap: clamp(14px, 1.8vw, 20px);
   width: 100%;
-  max-width: 760px;
+  /* Ширину задаёт shell кейса (--case-surface / pin frame). */
+  max-width: 100%;
   margin: 0 auto;
   color: var(--composer-ink);
   font-family: var(--font-sans), sans-serif;
@@ -63,11 +64,11 @@
 .phaseLabelShimmer {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.5) 42%,
-    rgba(255, 255, 255, 0.95) 50%,
-    rgba(255, 255, 255, 0.5) 58%,
-    rgba(255, 255, 255, 0.5) 100%
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.5) 42%,
+    rgba(0, 0, 0, 0.95) 50%,
+    rgba(0, 0, 0, 0.5) 58%,
+    rgba(0, 0, 0, 0.5) 100%
   );
   background-size: 360% 100%;
   background-clip: text;
@@ -81,17 +82,17 @@
    case.module.css), поэтому шапка светлая: текст и шеврон
    лежат прямо на тёмном фоне, вне карточки журнала. */
 .inline .phaseLabel {
-  color: #c2c2c2;
+  color: var(--composer-ink-muted);
 }
 
 .inline .phaseLabelShimmer {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.5) 42%,
-    rgba(255, 255, 255, 0.96) 50%,
-    rgba(255, 255, 255, 0.5) 58%,
-    rgba(255, 255, 255, 0.5) 100%
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.5) 42%,
+    rgba(0, 0, 0, 0.96) 50%,
+    rgba(0, 0, 0, 0.5) 58%,
+    rgba(0, 0, 0, 0.5) 100%
   );
   background-size: 360% 100%;
   background-clip: text;
@@ -101,17 +102,17 @@
 }
 
 .inline .chevron {
-  color: #868686;
+  color: var(--composer-ink-subtle);
 }
 
 .inline .toggle:hover .chevron,
 .inline .toggle:focus-visible .chevron {
-  color: #f5f5f5;
+  color: var(--composer-accent);
 }
 
 .inline .retry {
-  border-color: #4a4a4a;
-  color: #c2c2c2;
+  border-color: var(--composer-hairline-strong);
+  color: var(--composer-ink-muted);
 }
 
 .retry {
@@ -149,7 +150,7 @@
 }
 
 .playButton:hover {
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(0, 0, 0, 0.94);
 }
 
 .playButton:active {
@@ -169,11 +170,11 @@
 /* На тёмной stage кнопка светлая — как дефолтная ink-кнопка. */
 .inline .playButton {
   background: var(--composer-ink);
-  color: #101010;
+  color: var(--composer-surface-sunken);
 }
 
 .inline .playButton:hover {
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(0, 0, 0, 0.94);
 }
 
 .inline .playButton:focus-visible {
@@ -181,7 +182,7 @@
 }
 
 /* Карточка журнала — материал 1:1 с карточкой композера V2:
-   чистый нейтральный серый #232323 (R=G=B, без синеватого подтона)
+   чистый нейтральный белый (R=G=B, без синеватого подтона)
    и то же кольцо + тень, чтобы оба продукта на сцене читались
    как одна система. */
 .traceBody {
@@ -189,10 +190,10 @@
   gap: 16px;
   padding: 16px;
   border-radius: 24px;
-  background: #232323;
+  background: var(--composer-surface);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 16px 40px -20px rgba(0, 0, 0, 0.7);
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 16px 40px -20px rgba(0, 0, 0, 0.32);
 }
 
 .traceList {
@@ -233,7 +234,7 @@
 }
 
 .traceItem[data-status="running"] {
-  background: rgba(255, 255, 255, 0.085);
+  background: rgba(0, 0, 0, 0.085);
   color: var(--composer-ink);
   /* Дыхание активной строки: фон еле заметно пульсирует.
      Период длинный (2.4s) — спокойный «работаю», не алерт. */
@@ -244,10 +245,10 @@
 
 @keyframes traceRunningBreath {
   0%, 100% {
-    background-color: rgba(255, 255, 255, 0.075);
+    background-color: rgba(0, 0, 0, 0.075);
   }
   50% {
-    background-color: rgba(255, 255, 255, 0.115);
+    background-color: rgba(0, 0, 0, 0.115);
   }
 }
 
@@ -279,7 +280,7 @@
   justify-content: flex-start;
   gap: 12px;
   padding: 12px 12px 2px;
-  border-top: 1px solid #353535;
+  border-top: 1px solid var(--composer-hairline-strong);
   color: var(--composer-ink-muted);
   font-size: clamp(0.92rem, 1.05vw, 1.02rem);
   font-weight: 500;
@@ -327,12 +328,12 @@
   height: 28px;
   padding: 0;
   border-radius: 999px;
-  /* Кольцо вокруг фавиконки — цвет поверхности карточки (#232323),
+  /* Кольцо вокруг фавиконки — цвет поверхности карточки,
      чтобы стопка иконок выглядела врезанной в материал. */
-  border: 2px solid #232323;
-  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid var(--composer-surface);
+  background: rgba(0, 0, 0, 0.92);
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.22),
+    0 1px 2px rgba(0, 0, 0, 0.11),
     inset 0 0 0 1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   flex: 0 0 auto;
@@ -344,7 +345,7 @@
 .sourceStackItem[data-active="true"] .sourceItem {
   transform: translateY(-2px) scale(1.08);
   box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.3),
+    0 4px 10px rgba(0, 0, 0, 0.15),
     inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
@@ -421,20 +422,20 @@
 }
 
 .sourceGlobalBase {
-  stroke: #8a8a8a;
+  stroke: #757575;
 }
 
 .sourceGlobalShimmer {
   opacity: 0;
-  stroke: #ffffff;
+  stroke: var(--composer-ink);
   stroke-width: 2.15;
   stroke-linecap: round;
   stroke-dasharray: 10 80;
   stroke-dashoffset: 72;
   filter:
-    drop-shadow(0 0 1px rgba(255, 255, 255, 0.96))
-    drop-shadow(0 0 5px rgba(255, 255, 255, 0.58))
-    drop-shadow(0 0 12px rgba(255, 255, 255, 0.24));
+    drop-shadow(0 0 1px rgba(0, 0, 0, 0.96))
+    drop-shadow(0 0 5px rgba(0, 0, 0, 0.58))
+    drop-shadow(0 0 12px rgba(0, 0, 0, 0.24));
   animation: sourceGlobalStrokeShimmer 3.8s ease-in-out infinite;
 }
 
@@ -524,54 +525,54 @@
     opacity: 0;
     stroke-dashoffset: 72;
     filter:
-      drop-shadow(0 0 1px rgba(255, 255, 255, 0.28))
-      drop-shadow(0 0 4px rgba(255, 255, 255, 0.12))
-      drop-shadow(0 0 10px rgba(255, 255, 255, 0.04));
+      drop-shadow(0 0 1px rgba(0, 0, 0, 0.28))
+      drop-shadow(0 0 4px rgba(0, 0, 0, 0.12))
+      drop-shadow(0 0 10px rgba(0, 0, 0, 0.04));
   }
 
   18% {
     opacity: 0.28;
     stroke-dashoffset: 42;
     filter:
-      drop-shadow(0 0 1px rgba(255, 255, 255, 0.58))
-      drop-shadow(0 0 4px rgba(255, 255, 255, 0.24))
-      drop-shadow(0 0 10px rgba(255, 255, 255, 0.08));
+      drop-shadow(0 0 1px rgba(0, 0, 0, 0.58))
+      drop-shadow(0 0 4px rgba(0, 0, 0, 0.24))
+      drop-shadow(0 0 10px rgba(0, 0, 0, 0.08));
   }
 
   42% {
     opacity: 0.92;
     stroke-dashoffset: 10;
     filter:
-      drop-shadow(0 0 1px rgba(255, 255, 255, 0.96))
-      drop-shadow(0 0 5px rgba(255, 255, 255, 0.58))
-      drop-shadow(0 0 12px rgba(255, 255, 255, 0.24));
+      drop-shadow(0 0 1px rgba(0, 0, 0, 0.96))
+      drop-shadow(0 0 5px rgba(0, 0, 0, 0.58))
+      drop-shadow(0 0 12px rgba(0, 0, 0, 0.24));
   }
 
   58% {
     opacity: 0.92;
     stroke-dashoffset: -34;
     filter:
-      drop-shadow(0 0 1px rgba(255, 255, 255, 0.92))
-      drop-shadow(0 0 5px rgba(255, 255, 255, 0.56))
-      drop-shadow(0 0 12px rgba(255, 255, 255, 0.22));
+      drop-shadow(0 0 1px rgba(0, 0, 0, 0.92))
+      drop-shadow(0 0 5px rgba(0, 0, 0, 0.56))
+      drop-shadow(0 0 12px rgba(0, 0, 0, 0.22));
   }
 
   82% {
     opacity: 0.28;
     stroke-dashoffset: -76;
     filter:
-      drop-shadow(0 0 1px rgba(255, 255, 255, 0.56))
-      drop-shadow(0 0 4px rgba(255, 255, 255, 0.22))
-      drop-shadow(0 0 10px rgba(255, 255, 255, 0.07));
+      drop-shadow(0 0 1px rgba(0, 0, 0, 0.56))
+      drop-shadow(0 0 4px rgba(0, 0, 0, 0.22))
+      drop-shadow(0 0 10px rgba(0, 0, 0, 0.07));
   }
 
   100% {
     opacity: 0;
     stroke-dashoffset: -108;
     filter:
-      drop-shadow(0 0 1px rgba(255, 255, 255, 0.28))
-      drop-shadow(0 0 4px rgba(255, 255, 255, 0.12))
-      drop-shadow(0 0 10px rgba(255, 255, 255, 0.04));
+      drop-shadow(0 0 1px rgba(0, 0, 0, 0.28))
+      drop-shadow(0 0 4px rgba(0, 0, 0, 0.12))
+      drop-shadow(0 0 10px rgba(0, 0, 0, 0.04));
   }
 }
 

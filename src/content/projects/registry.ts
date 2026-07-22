@@ -1,9 +1,10 @@
 import type { ComponentType } from "react";
 
 import { composerEntry } from "./composer";
+import { telegramWalletEntry } from "./telegram-wallet";
 import { xsycoinEntry } from "./xsycoin";
 
-export type ProjectSlug = "composer" | "xsycoin";
+export type ProjectSlug = "composer" | "telegram-wallet" | "xsycoin";
 
 export type ProjectEntry = {
   slug: ProjectSlug;
@@ -20,10 +21,11 @@ export type ProjectEntry = {
 
 export const projects: Record<ProjectSlug, ProjectEntry> = {
   composer: composerEntry,
+  "telegram-wallet": telegramWalletEntry,
   xsycoin: xsycoinEntry,
 };
 
-const ALL_SLUGS: readonly ProjectSlug[] = ["composer", "xsycoin"];
+const ALL_SLUGS: readonly ProjectSlug[] = ["composer", "telegram-wallet", "xsycoin"];
 
 export function isProjectSlug(value: string): value is ProjectSlug {
   return (ALL_SLUGS as readonly string[]).includes(value);

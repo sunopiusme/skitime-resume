@@ -1,36 +1,33 @@
 /* ─────────────────────────────────────────
    Sidebar preview — две карточки бок о бок.
-   Палитра привязана к design-system/composer.ts:
-   фон сайдбара = composer-surface-sunken,
-   шкала чернил и контур — общие токены, чтобы
-   сайдбар, ComposerInput и ThinkingModel жили
-   в одной системе без визуальных швов.
-   Геометрия выровнена по золотому сечению:
-   • базовый ритм: 8 → 13 → 21 → 34,
-   • иконки и системные кнопки одного калибра
-     с traffic lights, чтобы они читались как
-     один уровень иерархии,
-   • тексты на половину ступени крупнее иконок —
-     системные кнопки остаются служебными,
-     а лейблы держат смысл.
-   Две карточки — честные cropped window previews:
-   без fade-to-empty, масок и тумана. Обрезка идёт
-   только через overflow окна, поэтому при скролле
-   нет мерцания и оптической «плёнки».
+   Материал 1:1 с ComposerInput.card и
+   ThinkingModel.traceBody:
+   • чистый нейтральный серый #232323 (R=G=B,
+     без синеватого подтона),
+   • то же кольцо + мягкая тень,
+   • та же шкала ink / hairline.
+   Геометрия — concentric corners (Apple HIG):
+   card-radius 24, corner-inset 6, row 18.
+   Две карточки — cropped window previews:
+   обрезка через overflow, dissolve-градиент
+   растворяет срез в собственный материал панели.
    ───────────────────────────────────────── */
 .root {
-  /* ── Палитра — solid hex. База — холодный графит #202226
-     (тот же подтон, что карточка композера V2 #26282d и журнал
-     ThinkingModel): все тёмные острова на светлой пастельной
-     сцене сделаны из одного материала. ── */
-  --sb-bg: #202226;
-  --sb-ink: #ffffff;
-  --sb-ink-muted: #c4c6cb;
-  --sb-ink-subtle: #94969c;
-  --sb-ink-faint: #6e7076;
-  --sb-hairline: #3d3f44;
-  --sb-hairline-strong: #5e6066;
-  --sb-row-hover: rgba(255, 255, 255, 0.075);
+  /* ── Палитра — solid hex, R=G=B. База = карточка
+     композера и журнала ThinkingModel (#232323).
+     Чернила и hairline — те же, что у input/trace. ── */
+  --sb-bg: var(--composer-surface);
+  --sb-ink: var(--composer-ink);
+  /* Тише, чем у body-кейса: превью — вторичный кадр
+     рядом с prose, не должен спорить контрастом. */
+  --sb-ink-muted: #575757;
+  --sb-ink-subtle: #8a8a8a;
+  --sb-ink-faint: #a3a3a3;
+  --sb-hairline: #cacaca;
+  --sb-hairline-strong: #b5b5b5;
+  --sb-row-hover: rgba(0, 0, 0, 0.05);
+  /* Активный ряд — едва заметная заливка. */
+  --sb-row-active: rgba(0, 0, 0, 0.055);
 
   /* ── concentric corners (Apple HIG):
      R_pane = радиус окна,
@@ -73,28 +70,15 @@
      pane_radius − inset — округление вырастает из
      радиуса окна и стыкуется визуально. ── */
   --sb-row-inset-x: var(--sb-corner-inset);                            /* 6px */
-  --sb-row-radius: calc(var(--sb-pane-radius) - var(--sb-row-inset-x)); /* 12px */
+  --sb-row-radius: calc(var(--sb-pane-radius) - var(--sb-row-inset-x)); /* 18px */
   /* Сдвиг плашки влево/вправо, который при компенсации
      padding сохраняет позицию контента. */
   --sb-row-bleed: calc(var(--sb-pad-x) - var(--sb-row-inset-x));       /* 10px */
 
-  /* ── Микро-выравнивание контента ряда.
-     Иконка-колонка шире точки traffic light, поэтому
-     центры по X не совпадают «само собой».
-     Сдвиг = (icon_col − dot)/2 ставит:
-     • центр иконки на ось красной точки,
-     • начало текста на центр жёлтой точки.
-     Применяется как разница padding-left и
-     padding-right ряда — hover-плашка остаётся
-     симметрично прижатой к боковым закруглениям. ── */
-  --sb-dot-size: 14px;
-  --sb-row-shift: calc((var(--sb-icon-col) - var(--sb-dot-size)) / 2); /* 2px */
-
   width: 100%;
-  /* Узкая направляющая кейса (760px): сайдбар совпадает по ширине
-     с ThinkingModel, ComposerInput и CodeBlock — все «живые» кадры
-     ADE стоят на одном левом крае и в одной ширине. */
-  max-width: 760px;
+  /* Ширину задаёт shell кейса (--case-surface / pin frame).
+     Локальный потолок 760 ломал единую ленту с таблицами. */
+  max-width: 100%;
   margin: 0 auto;
   position: relative;
   isolation: isolate;
@@ -122,7 +106,7 @@
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 16px;
   align-items: stretch;
 }
 
@@ -143,52 +127,28 @@
 
 .pane {
   position: relative;
-  height: clamp(420px, 58vw, 560px);
+  height: clamp(400px, 52vw, 520px);
   border-radius: var(--sb-pane-radius);
   overflow: hidden;
-  /* Mastering: панель — литой материал под светом сверху.
-     Поверх плоской заливк���� --sb-bg лежит длинный вертикальный
-     sheen: ~3% света у верхней кромки, гаснет к 180px. Это
-     снимает «плоскую заливку» и даёт панели вертикальный
-     объём, согласованный с inset-бликом и тенью.
-     Заливка теперь живёт здесь (а не на .sidebar), чтобы
-     sheen был единым на всю высоту pane. */
+  /* Тише ring/тень: композер и трейс плоские —
+     сайдбар не должен «парить» сильнее соседей. */
   background: var(--sb-bg);
-  /* Тени пересчитаны под светлую пастельную сцену: холодные
-     синеватые (как у карточек композера и журнала), не чёрные.
-     Hairline-кольцо по периметру держит край окна на пастели. */
   box-shadow:
-    0 1px 1px rgba(22, 34, 56, 0.3),
-    0 14px 34px rgba(28, 42, 66, 0.26),
-    0 38px 82px -48px rgba(28, 42, 66, 0.4),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.085);
-}
-
-/* Mastering: светлая кромка — не плоский 1px-бордер. */
-.pane::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 0;
-  background: transparent;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
-  pointer-events: none;
-  z-index: 3;
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 10px 28px -18px rgba(0, 0, 0, 0.28);
 }
 
 .paneTop {
-  /* Сре��анная кромка: нижние углы заметно мельче верхних —
+  /* Срезанная кромка: нижние углы заметно мельче верхних —
      окно читается как «продолжается за кадром», а не как
      второе самостоятельное окно. */
   border-radius: var(--sb-pane-radius) var(--sb-pane-radius) 10px 10px;
 }
 
 /* Dissolve на срезе — растворение в СОБСТВЕННЫЙ материал панели
-   (solid #202226), а не в фон страницы. Градиент статичный, лежит
+   (solid #232323), а не в фон страницы. Градиент статичный, лежит
    внутри pane поверх контента: никаких масок поверх page-bg и
-   backdrop-эффектов — значит, никакого мерцания при скролле.
-   Контент мягко гаснет к срезу, как лист, уходящий под рамку. */
+   backdrop-эффектов — значит, никакого мерцания при скролле. */
 .paneTop::before {
   content: "";
   position: absolute;
@@ -198,9 +158,9 @@
   height: 64px;
   background: linear-gradient(
     to bottom,
-    rgba(32, 34, 38, 0) 0%,
-    rgba(32, 34, 38, 0.85) 72%,
-    #202226 100%
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.85) 72%,
+    #ffffff 100%
   );
   pointer-events: none;
   z-index: 2;
@@ -219,9 +179,9 @@
   height: 64px;
   background: linear-gradient(
     to top,
-    rgba(32, 34, 38, 0) 0%,
-    rgba(32, 34, 38, 0.85) 72%,
-    #202226 100%
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.85) 72%,
+    #ffffff 100%
   );
   pointer-events: none;
   z-index: 2;
@@ -246,41 +206,41 @@
   padding: var(--sb-pad-y) var(--sb-pad-x) calc(var(--sb-pad-y) - 4px);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  /* Заливка и sheen перенесены на .pane, чтобы свет был
-     единым на всю высоту окна. Sidebar — прозрачный слой
-     контента поверх материала панели. */
+  gap: 10px;
   background: transparent;
 }
 
-/* ── Хром: только системные кнопки, без macOS-светофора —
-   как ChatInput и ThinkingModel, это чистый компонент без
-   оконной декорации. Весь sidebar имеет padding-x = 16px,
-   поэтому chrome стартует с 16px от края — первая кнопка
-   и иконки nav стоят на одной вертикали.
-   По вертикали chrome выезжает к углу через
-   отрицательный margin-top: кнопки попадают в угол
-   с зазором corner-inset. ── */
+/* ── Хром:
+   • слева — back + forward (+ update pill) на одной линии;
+   • справа — Toggle Sidebar в правом углу.
+   Левая кромка back-кнопки = левая кромка nav-иконок
+   (общая X-ось). Toggle прижат к правому corner-inset. ── */
 .chrome {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: var(--sb-sys-size);
   margin: calc(var(--sb-corner-inset) - var(--sb-pad-y)) calc(0px - var(--sb-pad-x)) 0 calc(0px - var(--sb-pad-x));
-  padding: 0 var(--sb-corner-inset) 0 var(--sb-pad-x);
+  /* Слева: иконка back (20px в 32px-кнопке) совпадает
+     с колонкой nav-иконок. Справа: toggle в corner-inset. */
+  padding:
+    0
+    var(--sb-corner-inset)
+    0
+    calc(var(--sb-pad-x) - (var(--sb-sys-size) - 20px) / 2);
   color: var(--sb-ink-faint);
 }
 
-.chromeSysGroup {
+.chromeLeft {
   display: inline-flex;
   align-items: center;
   gap: 0;
-  flex-shrink: 0;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
-/* Системная кнопка: радиус = pane − inset, размер
-   фиксирован, чтобы дать иконкам внутри больше
-   воздуха. Последняя кнопка ряда попадает в правый
-   верхний угол окна на одном inset с traffic lights. */
+/* Системная кнопка: фиксированный 32×32, иконка 20×20
+   по центру. Радиус = pane − inset (concentric). */
 .chromeSysBtn {
   display: inline-flex;
   align-items: center;
@@ -298,13 +258,20 @@
 }
 
 .chromeSysBtn svg {
+  display: block;
   width: 20px;
   height: 20px;
 }
 
-/* ── Верхняя навигация: вертикальная колонка
-   на одной X-линии с первой системной кнопкой chrome.
-   ── */
+/* Toggle Sidebar — якорь правого угла. */
+.chromeToggle {
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Верхняя навигация: колонка ровных однострочных
+   рядов. Иконка + лейбл (+ shortcut) на одной линии,
+   общая X-ось иконок, одинаковая высота ряда. ── */
 .nav {
   margin: 0;
   padding: 0;
@@ -315,34 +282,27 @@
 }
 
 .navItem {
-  display: grid;
-  grid-template-columns: var(--sb-icon-col) 1fr auto;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   gap: var(--sb-gap-icon);
-  /* Hover-плашка с inset от краёв окна = corner-inset.
-     Отрицательный margin сдвигает её к краям, padding
-     возвращает контент. Асимметрия padding (left vs
-     right на --sb-row-shift) подравнивает иконку под
-     красную точку, а текст — под центр жёлтой. */
   margin-left: calc(0px - var(--sb-row-bleed));
   margin-right: calc(0px - var(--sb-row-bleed));
-  padding: var(--sb-row-pad-y)
-           calc(var(--sb-row-bleed) + var(--sb-row-shift))
-           var(--sb-row-pad-y)
-           calc(var(--sb-row-bleed) - var(--sb-row-shift));
+  padding: 0 var(--sb-row-bleed);
+  height: 34px;
   border-radius: var(--sb-row-radius);
-  font-size: 0.92rem;
-  color: var(--sb-ink);
+  font-size: 0.88rem;
+  /* Nav вторичен к сессиям — muted, не full ink. */
+  color: var(--sb-ink-muted);
   transition:
     background-color var(--composer-duration-hover) ease,
     color var(--composer-duration-hover) ease;
-  line-height: 1.25;
+  line-height: 1;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .navItem:hover {
-  /* Hover — спокойная плоская заливка, без inset-блика.
-     3D-объём на наведении «дёргал» взгляд; ховер должен
-     быть тихим откликом, а не приподнятой кнопкой. */
   background: var(--sb-row-hover);
 }
 
@@ -352,37 +312,46 @@
   height: var(--sb-icon-col);
   align-items: center;
   justify-content: center;
-  color: var(--sb-ink-muted);
+  color: var(--sb-ink-subtle);
+  flex-shrink: 0;
+}
+
+.navIcon svg {
+  display: block;
+  width: 18px;
+  height: 18px;
 }
 
 .navLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 400;
   letter-spacing: -0.005em;
+  line-height: 1;
 }
 
-/* ── Shortcut hint: одна капсула с macOS-сочетанием
-   клавиш. Появляется мгновенно вместе с hover-фоном —
-   никаких transition delay. Отображается только когда
-   ряд под курсором. ── */
-/* Hotkey-хинт в стиле native macOS menu: plain inline-текст
-   без чипа/обводки/фона. Чипованный вариант смотрелся как
-   декоративный «бейдж» поверх ряда, ломая визуальный язык
-   сайдбара (где интерактив — только hover-плашки). Сейчас
-   хоткей — обычная второстепенная подпись, по плотности
-   ниже лейбла, читается как metadata, не как кнопка. */
+/* Hotkey — metadata справа, виден на hover.
+   Всегда занимает место в flex (invisible), чтобы
+   ряд не прыгал по ширине. */
 .shortcut {
-  display: none;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   color: var(--sb-ink-faint);
   font-family: var(--font-sans), sans-serif;
   font-size: 0.82rem;
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1;
+  opacity: 0;
+  transition: opacity var(--composer-duration-hover) ease;
 }
 
 .navItem:hover .shortcut {
-  display: inline-flex;
+  opacity: 1;
 }
 
 /* ── Заголовок секции ──────────────────── */
@@ -398,7 +367,7 @@
   /* Сверху держим воздух между nav и заголовком,
      снизу убираем sidebar-gap отрицательным margin —
      заголовок «прилипает» к списку проектов. */
-  margin: 4px calc(0px - var(--sb-row-shift)) calc(0px - 9px);
+  margin: 4px 0 calc(0px - 9px);
   padding: var(--sb-row-pad-y) 0;
   font-size: 0.92rem;
   color: var(--sb-ink-subtle);
@@ -471,10 +440,7 @@
   gap: var(--sb-gap-icon);
   margin-left: calc(0px - var(--sb-row-bleed));
   margin-right: calc(0px - var(--sb-row-bleed));
-  padding: var(--sb-row-pad-y)
-           calc(var(--sb-row-bleed) + var(--sb-row-shift))
-           var(--sb-row-pad-y)
-           calc(var(--sb-row-bleed) - var(--sb-row-shift));
+  padding: var(--sb-row-pad-y) var(--sb-row-bleed);
   border-radius: var(--sb-row-radius);
   color: var(--sb-ink);
   transition:
@@ -494,9 +460,10 @@
 }
 
 .projectName {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 400;
   letter-spacing: -0.005em;
+  color: var(--sb-ink-muted);
 }
 
 .sessions {
@@ -509,46 +476,35 @@
 }
 
 .sessionRow {
-  --sb-session-font-size: 0.88rem;
-  /* Метаданные на ступень мельче заголовка: две строки одного
-     кегля читались как два равных слоя текста — шум. Иерархия
-     title → meta теперь видна без чтения. */
-  --sb-session-meta-size: 0.8rem;
+  --sb-session-font-size: 0.86rem;
+  --sb-session-meta-size: 0.76rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-left: calc(0px - var(--sb-row-bleed));
   margin-right: calc(0px - var(--sb-row-bleed));
-  padding: 6px
-           calc(var(--sb-row-bleed) + var(--sb-row-shift))
-           6px
-           calc(var(--sb-row-bleed) - var(--sb-row-shift) + var(--sb-indent));
+  padding: 5px var(--sb-row-bleed) 5px calc(var(--sb-row-bleed) + var(--sb-indent));
   border-radius: var(--sb-row-radius);
   color: var(--sb-ink-muted);
   line-height: 1.3;
+  /* Неактивные ряды приглушены — один active несёт вес. */
+  opacity: 0.78;
   transition:
     background-color var(--composer-duration-hover) ease,
-    color var(--composer-duration-hover) ease;
+    color var(--composer-duration-hover) ease,
+    opacity var(--composer-duration-hover) ease;
 }
 
-/* Hover сессии — лёгкая плашка, тише nav (сессии вторичны
-   по иерархии). Без inset-блика: на вторичном уровне он
-   читался бы как «кнопка». */
 .sessionRow:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.035);
+  opacity: 0.92;
 }
 
-/* Активная сессия — единственный всегда-видимый
-   акцент в списке. Плоская tonal-заливка, как selected/
-   expanded-состояние пикеров в ComposerInput (rgba 0.10):
-   материал интерактива в сайдбаре и композере теперь
-   один — плоская заливка, без скевоморфного inset-блика.
-   Глянец-материал живёт только на панели (= card композера),
-   интерактив везде плоский. Заголовок поднят до полного
-   ink — выбор читается текстом, не только фоном. */
+/* Активная — единственный чёткий акцент списка. */
 .sessionRow[data-active="true"] {
-  background: rgba(255, 255, 255, 0.095);
+  background: var(--sb-row-active);
+  opacity: 1;
 }
 
 .sessionRow[data-active="true"] .sessionTitle {
@@ -597,19 +553,14 @@
 }
 
 .sessionBranch {
-  color: var(--sb-ink-subtle);
+  color: var(--sb-ink-faint);
+  font-family: var(--composer-font-mono);
+  font-size: 0.74rem;
+  opacity: 0.9;
 }
 
 .sessionEvidence {
-  flex-shrink: 0;
-}
-
-.sessionDivider {
-  width: 3px;
-  height: 3px;
-  border-radius: 999px;
-  background: var(--sb-ink-faint);
-  flex-shrink: 0;
+  display: none; /* evidence убран из разметки; страховка */
 }
 
 .sessionSide {
@@ -632,31 +583,34 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 46px;
-  height: 20px;
-  padding: 0 8px;
+  min-width: 0;
+  height: 18px;
+  padding: 0;
   border-radius: 999px;
-  color: var(--sb-ink-subtle);
+  /* Ghost-статус: без tonal-chip — чипы «Ревью» спорили
+     с active-рядом и превращали список в россыпь кнопок. */
+  background: transparent;
+  color: var(--sb-ink-faint);
   font-size: var(--sb-session-meta-size);
   font-weight: 400;
-  line-height: 1.3;
+  line-height: 1;
   letter-spacing: 0;
 }
 
 .sessionState[data-status="running"] {
-  min-width: 28px;
-  width: 28px;
+  min-width: 22px;
+  width: 22px;
   padding: 0;
-  color: var(--sb-ink-muted);
+  color: var(--sb-ink-subtle);
 }
 
 .sessionState[data-status="review"] {
-  background: rgba(255, 255, 255, 0.075);
-  color: var(--sb-ink);
+  color: var(--sb-ink-subtle);
 }
 
 .sessionState[data-status="done"] {
   color: var(--sb-ink-faint);
+  opacity: 0.75;
 }
 
 .sessionSpinner {
@@ -673,26 +627,20 @@
 .showMore {
   margin-left: calc(0px - var(--sb-row-bleed));
   margin-right: calc(0px - var(--sb-row-bleed));
-  padding: 4px
-           calc(var(--sb-row-bleed) + var(--sb-row-shift))
-           4px
-           calc(var(--sb-row-bleed) - var(--sb-row-shift) + var(--sb-indent));
+  padding: 4px var(--sb-row-bleed) 4px calc(var(--sb-row-bleed) + var(--sb-indent));
   border-radius: var(--sb-row-radius);
   font-size: 0.84rem;
   color: var(--sb-ink-subtle);
 }
 
 .showMore:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.05);
   color: var(--sb-ink-muted);
 }
 
 .projectEmpty {
   margin: 0 calc(0px - var(--sb-row-bleed));
-  padding: 4px
-           calc(var(--sb-row-bleed) + var(--sb-row-shift))
-           4px
-           calc(var(--sb-row-bleed) - var(--sb-row-shift) + var(--sb-indent));
+  padding: 4px var(--sb-row-bleed) 4px calc(var(--sb-row-bleed) + var(--sb-indent));
   border-radius: var(--sb-row-radius);
   font-size: 0.84rem;
   color: var(--sb-ink-faint);
@@ -705,7 +653,7 @@
    симметричный нижний отступ ~10px от границы
    pane'а — соразмерно corner-inset вверху. */
 .footer {
-  margin: auto calc(0px - var(--sb-row-shift)) 0 calc(0px - var(--sb-row-shift));
+  margin: auto 0 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -739,23 +687,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  height: 24px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.055);
-  color: var(--sb-ink-muted);
-  font-size: 0.78rem;
-  font-weight: 500;
+  min-width: 40px;
+  height: 22px;
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--sb-row-radius);
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--sb-ink-subtle);
+  font-size: 0.74rem;
+  font-weight: 400;
   line-height: 1;
   letter-spacing: 0;
 }
 
 .footerChipStrong {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.095);
-  color: var(--sb-ink);
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--sb-ink-muted);
 }
 
 /* ─────────────────────────────────────────
@@ -799,13 +746,12 @@
 .updatePill {
   --pill-easing: cubic-bezier(0.4, 0, 0.2, 1);
   --pill-height: calc(var(--sb-sys-size) - 8px);                       /* 24px */
-  --pill-radius: calc(var(--sb-pane-radius) - var(--sb-corner-inset)); /* 12px */
+  --pill-radius: calc(var(--sb-pane-radius) - var(--sb-corner-inset)); /* 18px */
   --pill-w-wide: 76px;
   --pill-w-narrow: var(--pill-height);
 
-  /* Pill живёт прямо после стрелки → во flex-потоке
-     chrome. Маленький отступ слева отделяет его от
-     системных кнопок и сохраняет ритм 8px. */
+  /* Pill — сразу после forward, в chromeLeft.
+     Отступ 8px отделяет от стрелок. */
   position: relative;
   margin-left: 8px;
   /* transform-origin: left — анимация ширины
@@ -818,14 +764,12 @@
   justify-content: center;
   height: var(--pill-height);
   border-radius: var(--pill-radius);
-  /* Монохромный CTA: белая пилюля на графите — самый
-     сильный акцент, доступный в языке кейса без цвета.
-     Прежний синий #2454e6 был вторым цветным пятном
-     сайдбара и выбивался из hairline-эстетики. */
-  background: var(--sb-ink);
-  color: var(--sb-bg);
-  font-size: 0.78rem;
-  font-weight: 600;
+  /* Тихий tonal-CTA: full-ink пилюля перетягивала кадр
+     сильнее композера. Заливка как footerChip, не sendBtn. */
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--sb-ink-muted);
+  font-size: 0.74rem;
+  font-weight: 500;
   letter-spacing: -0.005em;
   flex-shrink: 0;
   overflow: hidden;
@@ -873,7 +817,9 @@
 }
 
 .updateLabel {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
 }
 

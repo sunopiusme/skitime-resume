@@ -6,36 +6,33 @@ import { JsonLd } from "@/lib/seo/jsonLd";
 import ProjectCard from "@/features/projects/list/ProjectCard";
 import styles from "@/features/home/home.module.css";
 
-/* Черновики текстов секций «Что делаю» и «Подход».
-   Нейтральные формулировки в духе siteConfig.description —
-   пользователь отредактирует позже. */
 const DO_ITEMS = [
   {
     title: "Продуктовые интерфейсы",
-    text: "Проектирую сценарии и UI сложных продуктов: от структуры экранов до состояний и микровзаимодействий.",
+    text: "Разбираю сложный продукт до сценария: какая задача у пользователя, через какие состояния проходит экран, где решение ломается на практике. Интерфейс собирается вокруг этого, а не вокруг набора функций.",
   },
   {
     title: "Сайты и лендинги в коде",
-    text: "Собираю страницы сразу в коде: типографика, ритм и адаптив ведут себя как задумано, а не как получилось.",
+    text: "Страница финализируется не в макете, а в коде. Типографика, ритм и адаптив проверяются в браузере. То, что видно, и есть результат.",
   },
   {
-    title: "Прототипы и дизайн-системы",
-    text: "Строю рабочие прототипы и системы компонентов, которые команда может развивать без дизайнера рядом.",
+    title: "Прототипы и UI-системы",
+    text: "Прототип отвечает на вопрос, работает ли решение, до того как оно попадёт в разработку. Систему компонентов отдаю в виде, который команда развивает без дизайнера рядом.",
   },
 ] as const;
 
 const APPROACH_STEPS = [
   {
     title: "Сценарии",
-    text: "Начинаю с задач пользователя и пути к результату — интерфейс собирается вокруг сценария, а не наоборот.",
+    text: "Начинаю не с экрана, а с задачи пользователя и пути к результату. Пока сценарий не ясен, макет остаётся догадкой.",
   },
   {
     title: "UI-система",
-    text: "Довожу решение до системы: сетка, типографика, состояния и правила, по которым продукт растёт дальше.",
+    text: "Довожу решение до системы: сетка, типографика, состояния и правила, по которым продукт растёт без переработки с нуля.",
   },
   {
     title: "Рабочий код",
-    text: "Финальная точка — не макет, а работающая страница: то, что вы видите на этом сайте, собрано этим процессом.",
+    text: "Финальная точка не картинка, а работающая страница, проверяемая в браузере. Этот сайт собран тем же процессом.",
   },
 ] as const;
 
@@ -46,7 +43,8 @@ export default function HomePage() {
 
   const socials = siteConfig.socials.filter((s) => s.url.trim().length > 0);
   const currently = siteConfig.currently.trim();
-  const entries = listProjects();
+  /* Избранное — только первый проект (Composer), якорь списка. */
+  const entries = listProjects().slice(0, 1);
 
   const sameAs = [
     telegramUrl,
@@ -85,6 +83,7 @@ export default function HomePage() {
     <main id="main" tabIndex={-1} className={styles.page}>
       <JsonLd data={[personLd, websiteLd]} />
 
+      {/* Хром как в кейсе Composer: только лого, те же поля, тот же nav. */}
       <header className={styles.topbar} aria-label="Шапка сайта">
         <Link
           className={styles.brand}
@@ -92,7 +91,6 @@ export default function HomePage() {
           aria-label={`${siteConfig.name} — на главную`}
           aria-current="page"
         >
-          <span className={styles.brandName}>Фурманов</span>
           <img src="/xlogo.svg" alt="" aria-hidden="true" className={styles.brandLogo} />
         </Link>
 
@@ -104,6 +102,7 @@ export default function HomePage() {
         </nav>
       </header>
 
+      {/* Hero — постер главной, без правок композиции. */}
       <section className={styles.hero} aria-labelledby="hero-title">
         {currently ? (
           <p className={styles.eyebrow} aria-label="Текущий статус">
@@ -123,30 +122,9 @@ export default function HomePage() {
         </p>
 
         <div className={styles.actions} aria-label="Основные действия">
-          {/* Работы теперь живут на этой же странице — кнопка скроллит
-              вниз к секции #works вместо перехода на /projects. */}
           <a className={styles.primaryAction} href="#works">
             Избранные работы
-            <svg
-              className={styles.actionIcon}
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M7 2.5V11.5M7 11.5L2.75 7.25M7 11.5L11.25 7.25"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
           </a>
-          {/* Кнопка-контакт показывается всегда. Пока контакты в siteConfig
-              пустые — ведёт на placeholder «#»; как только задан Telegram или
-              email, href и rel/target подхватываются автоматически. */}
           <a
             className={styles.secondaryAction}
             href={contactUrl ?? "#contact"}
@@ -158,140 +136,114 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── Избранные работы ─── */}
-      <section id="works" className={styles.works} aria-labelledby="works-title">
-        <header className={styles.sectionHead}>
-          <p className={styles.sectionEyebrow}>Избранные работы</p>
-          <h2 id="works-title" className={styles.sectionTitle}>
-            Кейсы: от задачи до работающего интерфейса
-          </h2>
-        </header>
+      {/* Ниже hero — один левый край на shell 1120.
+          Заголовок и контент секции в одном стеке, без
+          прыжка 640→1120 (из-за него h2 «висел» над сеткой). */}
+      <article className={styles.article}>
+        <section id="works" className={styles.part} aria-labelledby="works-title">
+          {/* Заголовок и ссылка-архив на одной линии:
+              title слева, «Смотреть все проекты» справа. */}
+          <div className={styles.worksHead}>
+            <h2 id="works-title" className={styles.sectionTitle}>
+              Избранные работы
+            </h2>
 
-        {/* Карточка = обложка (полностью кликабельна, ведёт на кейс)
-            + одна строка описания. Заголовок, год и номер уже есть
-            на самой обложке — дублирование убрано. */}
-        <ol className={styles.worksList} aria-label="Список избранных работ">
-          {entries.map((entry, idx) => {
-            const issue = String(idx + 1).padStart(2, "0");
-            return (
-              <li key={entry.slug} className={styles.workItem}>
-                <ProjectCard
-                  slug={entry.slug}
-                  title={entry.title}
-                  year={entry.year}
-                  index={issue}
-                />
-                <p className={styles.workSummary}>{entry.summary}</p>
-              </li>
-            );
-          })}
-        </ol>
+            <p className={styles.worksArchive}>
+              <Link href="/projects">Смотреть все проекты →</Link>
+            </p>
+          </div>
 
-        <p className={styles.worksArchive}>
-          <Link href="/projects">Все проекты →</Link>
-        </p>
-      </section>
+          {/* Полка как в App Store / Launchpad: одна линия,
+              только обложки, без описаний. */}
+          <ol className={styles.worksList} aria-label="Список избранных работ">
+            {entries.map((entry, idx) => {
+              const issue = String(idx + 1).padStart(2, "0");
+              return (
+                <li key={entry.slug} className={styles.workItem}>
+                  <ProjectCard
+                    slug={entry.slug}
+                    title={entry.title}
+                    year={entry.year}
+                    index={issue}
+                  />
+                </li>
+              );
+            })}
+          </ol>
+        </section>
 
-      {/* ─── Что делаю ─── */}
-      <section className={styles.block} aria-labelledby="do-title">
-        <header className={styles.sectionHead}>
-          <p className={styles.sectionEyebrow}>Что делаю</p>
+        <section className={styles.part} aria-labelledby="do-title">
           <h2 id="do-title" className={styles.sectionTitle}>
-            Три формата работы
+            Что делаю
           </h2>
-        </header>
 
-        <ul className={styles.doGrid}>
-          {DO_ITEMS.map((item) => (
-            <li key={item.title} className={styles.doItem}>
-              <h3 className={styles.itemTitle}>{item.title}</h3>
-              <p className={styles.itemText}>{item.text}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
+          <ul className={styles.doGrid}>
+            {DO_ITEMS.map((item) => (
+              <li key={item.title} className={styles.doItem}>
+                <h3 className={styles.itemTitle}>{item.title}</h3>
+                <p className={styles.itemText}>{item.text}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      {/* ─── Подход ─── */}
-      <section className={styles.block} aria-labelledby="approach-title">
-        <header className={styles.sectionHead}>
-          <p className={styles.sectionEyebrow}>Подход</p>
+        <section className={styles.part} aria-labelledby="approach-title">
           <h2 id="approach-title" className={styles.sectionTitle}>
-            От сценария до кода
+            Подход
           </h2>
-        </header>
 
-        <ol className={styles.approachList}>
-          {APPROACH_STEPS.map((step, idx) => (
-            <li key={step.title} className={styles.approachItem}>
-              <span className={styles.approachIndex} aria-hidden="true">
-                {String(idx + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h3 className={styles.itemTitle}>{step.title}</h3>
-                <p className={styles.itemText}>{step.text}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
+          <ol className={styles.approachList}>
+            {APPROACH_STEPS.map((step, idx) => (
+              <li key={step.title} className={styles.approachItem}>
+                <span className={styles.approachIndex} aria-hidden="true">
+                  {String(idx + 1).padStart(2, "0")}
+                </span>
+                <div className={styles.approachBody}>
+                  <h3 className={styles.itemTitle}>{step.title}</h3>
+                  <p className={styles.itemText}>{step.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-      {/* ─── Контакты ─── */}
-      <section id="contact" className={styles.contact} aria-labelledby="contact-title">
-        <header className={styles.sectionHead}>
-          <p className={styles.sectionEyebrow}>Контакты</p>
+        <section id="contact" className={styles.part} aria-labelledby="contact-title">
           <h2 id="contact-title" className={styles.sectionTitle}>
             Обсудим задачу?
           </h2>
-        </header>
+          <p className={styles.contactLede}>
+            Открыт к продуктовым командам и проектам, где дизайн не останавливается на макете, а доводится до работающего кода.
+          </p>
 
-        <p className={styles.contactLede}>
-          Открыт к продуктовым командам и проектам, где дизайн доводится до кода.
-        </p>
-
-        <div className={styles.contactActions}>
-          <a
-            className={styles.primaryAction}
-            href={contactUrl ?? "#"}
-            rel={contactRel}
-            target={contactTarget}
-          >
-            Связаться со мной
-          </a>
-
-          {socials.map((s) => (
+          <div className={styles.contactActions}>
             <a
-              key={s.url}
-              className={styles.secondaryAction}
-              href={s.url}
-              rel="noopener noreferrer me"
-              target="_blank"
+              className={styles.primaryAction}
+              href={contactUrl ?? "#"}
+              rel={contactRel}
+              target={contactTarget}
             >
-              {s.label}
+              Связаться со мной
             </a>
-          ))}
-        </div>
-      </section>
 
-      <footer className={styles.footer} aria-label="Подвал">
-        <div className={styles.footerInner}>
-          <span>© {new Date().getFullYear()} {siteConfig.name}</span>
+            {socials.map((s) => (
+              <a
+                key={s.url}
+                className={styles.secondaryAction}
+                href={s.url}
+                rel="noopener noreferrer me"
+                target="_blank"
+              >
+                {s.label}
+              </a>
+            ))}
+          </div>
+        </section>
+      </article>
 
-          {socials.length > 0 ? (
-            <ul className={styles.socials} aria-label="Профили в других сервисах">
-              {socials.map((s) => (
-                <li key={s.url}>
-                  <a
-                    href={s.url}
-                    rel="noopener noreferrer me"
-                    target="_blank"
-                  >
-                    {s.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
+      <footer className={styles.sitefooter} aria-label="Подвал">
+        <p className={styles.footerNote}>
+          © {new Date().getFullYear()} {siteConfig.name}
+        </p>
       </footer>
     </main>
   );

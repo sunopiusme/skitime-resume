@@ -61,7 +61,8 @@ function useTimerChain() {
 }
 
 type ComposerInputV2Props = {
-  /** Превью-обложка: LCD показывает push-сцену вместо живой статус-панели. */
+  /** Превью-обложка: LCD показывает push-сцену «КОМПОЗЕР»
+      вместо живой статус-панели. */
   preview?: boolean;
 };
 

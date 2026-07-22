@@ -12,6 +12,10 @@
   height: 100%;
   box-sizing: border-box;
   padding: clamp(16px, 1.6vw, 24px);
+  /* Радиус постера = внутренний (padding-box) радиус карточки-рамки
+     (14px − 1px рамки). Без него собственный кант/фон постера остаётся
+     прямоугольным и срезается overflow-клипом рамки на углах. */
+  border-radius: calc(var(--composer-radius-md) - 1px);
   background: var(--composer-surface-raised);
   color: var(--composer-ink);
 }
@@ -53,14 +57,10 @@
 }
 
 /* ─────────────────────────────────────────
-   Composer cover — постер на единой mesh-палитре
-   (globals.css, --mesh-*): та же молочно-голубая сцена,
-   что и stage в кейсе, — обложка и кейс читаются как
-   один продукт. Композиция точек под формат 4:3:
-   свет витрины над верхней третью (там живёт индекс),
-   periwinkle/sky держат верхние углы, azure глубже
-   заземляет правый низ под тёмным превью композера,
-   тёплое дыхание у нижней кромки снимает стерильность.
+   Composer cover — тёмная product-сцена, как
+   stageMesh в кейсе. Не pastel mesh + кроп 760:
+   композер целиком в кадре, ширина = % карточки.
+   Индекс / мета — как у xsycoin (единый язык).
    ───────────────────────────────────────── */
 .composerCover {
   position: relative;
@@ -68,54 +68,30 @@
   isolation: isolate;
   overflow: hidden;
   padding: 0;
-  background-color: var(--mesh-surface);
+  background-color: #f2f2f2;
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E"),
-    /* молочное ядро — «свет витрины», чуть влево к индексу */
-    radial-gradient(76% 62% at 40% 24%, var(--mesh-core), transparent 66%),
-    /* верх-лево: пудровый periwinkle */
-    radial-gradient(58% 70% at -8% -12%, var(--mesh-periwinkle), transparent 68%),
-    /* верх-право: холодный sky */
-    radial-gradient(54% 66% at 108% -6%, var(--mesh-sky), transparent 70%),
-    /* низ-лево: молочная лаванда */
-    radial-gradient(56% 70% at -10% 108%, var(--mesh-lavender), transparent 70%),
-    /* низ-право: azure глубже — заземляет тёмное превью */
-    radial-gradient(68% 84% at 108% 110%, var(--mesh-azure), transparent 72%),
-    /* тёплое дыхание у нижней кромки */
-    radial-gradient(50% 36% at 46% 104%, var(--mesh-warm), transparent 62%),
-    linear-gradient(165deg, rgba(255, 255, 255, 0.55) 0%, transparent 38%, rgb(var(--mesh-shade-rgb) / 0.16) 80%, transparent 100%),
-    linear-gradient(135deg, var(--mesh-surface-hi) 0%, var(--mesh-surface) 52%, var(--mesh-surface-lo) 100%);
-  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat,
-    no-repeat, no-repeat, no-repeat, no-repeat;
-  background-size: 220px 220px, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
-    100% 100%, 100% 100%, 100% 100%, 100% 100%;
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
+    radial-gradient(120% 90% at 50% -18%, rgba(0, 0, 0, 0.07), transparent 58%),
+    radial-gradient(70% 55% at 80% 110%, rgba(0, 0, 0, 0.03), transparent 60%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.025) 0%, transparent 42%);
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 220px 220px, 100% 100%, 100% 100%, 100% 100%;
 }
 
-/* Ambient-блик сверху — как stageMesh::before, но мягче:
-   на маленьком постере soft-light быстро пережигает. */
-.composerCover::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(78% 58% at 16% -14%, rgba(255, 255, 255, 0.5), transparent 64%),
-    linear-gradient(125deg, rgba(255, 255, 255, 0.45), transparent 36%, rgba(255, 255, 255, 0.18) 70%, transparent 100%);
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-}
-
-/* Кант сцены: молочная верхняя кромка + слейтовое утяжеление низа. */
+/* Кант сцены — как stageMesh: верхний rim + hairline. */
 .composerCover::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 3;
+  /* box-shadow идёт по border-radius СВОЕГО бокса. Без inherit кант
+     псевдоэлемента остаётся прямоугольным, и round-клип рамки срезает
+     его углы — держим тот же радиус, что и постер. */
+  border-radius: inherit;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
-    inset 0 -1px 0 rgb(var(--mesh-shade-rgb) / 0.34),
-    inset 0 -44px 64px -68px rgb(var(--mesh-shade-rgb) / 0.42);
+    inset 0 1px 0 rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+    inset 0 -36px 48px -40px rgba(0, 0, 0, 0.12);
   pointer-events: none;
 }
 
@@ -124,7 +100,7 @@
   top: 18px;
   left: 18px;
   z-index: 4;
-  color: var(--mesh-ink-subtle);
+  color: rgba(0, 0, 0, 0.28);
   font-size: 2.7rem;
   font-weight: 500;
   letter-spacing: 0;
@@ -132,68 +108,78 @@
   font-variant-numeric: tabular-nums;
 }
 
-.composerPreview {
+/* Сцена под product-shot: композер по центру кадра,
+   поля оставляют место индексу и мете. */
+.composerStage {
   position: absolute;
-  inset: 0;
+  inset: 52px 7% 58px;
   z-index: 2;
-  overflow: hidden;
+  display: grid;
+  place-items: center;
   pointer-events: none;
+  /* Без overflow:hidden — иначе drop-shadow композера (.composerFrame)
+     срезается кромкой сцены. Композер и так вписан в inset-поля,
+     тень мягко ложится в кадр, а не обрубается. */
 }
 
-.composerPreviewScale {
-  position: absolute;
-  left: 100%;
-  top: 50%;
-  transform: translate(-28%, -50%);
-  width: var(--composer-measure-hero);
+/* Ширина = контейнер. Композер с max-width:100%
+   сжимается сам — без transform scale и fixed 760. */
+.composerFrame {
+  width: 100%;
+  max-width: 520px;
+  /* Мягкая «глубина» product-shot, не box карточки. */
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.14));
 }
 
 .composerMeta {
   position: absolute;
   left: 18px;
+  right: 18px;
   bottom: 18px;
   z-index: 4;
-  display: grid;
-  justify-items: start;
-  gap: 6px;
-  max-width: 38%;
-  color: var(--mesh-ink);
-  text-align: left;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--composer-ink);
 }
 
-/* All-caps wordmark: капс закреплён в слое представления (не зависит
-   от написания title в метаданных), трекинг расширен — капс без
-   разрядки читается тесно. Едина с .xsycoinTitle для общего ритма. */
 .composerTitle {
-  font-size: 1.28rem;
+  font-size: 1.22rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   line-height: 1.08;
   text-transform: uppercase;
 }
 
 .composerYear {
-  color: var(--mesh-ink-muted);
+  color: var(--composer-ink-subtle);
   font-size: 0.85rem;
   letter-spacing: 0;
   line-height: 1;
   font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 
-/* Compact (iPhone): карточка сужается до одной колонки (~400px),
-   а превью свёрстано под фикс 760px — правка «кадра» смещением
-   даёт случайный обрезок поверх заголовка. Вместо кропа показываем
-   композер целиком: масштабируем весь блок под ширину карточки
-   и поднимаем в верхнюю зону, освобождая низ под мету. */
 @media (max-width: 767px) {
-  .composerPreviewScale {
-    left: 50%;
-    top: 44%;
-    transform: translate(-50%, -50%) scale(0.48);
+  .composerStage {
+    inset: 48px 6% 54px;
+  }
+
+  .composerIssue {
+    font-size: 2.2rem;
+    top: 14px;
+    left: 14px;
   }
 
   .composerMeta {
-    max-width: 60%;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .composerTitle {
+    font-size: 1.1rem;
   }
 }
 
@@ -254,6 +240,9 @@
   position: absolute;
   inset: 0;
   z-index: 3;
+  /* Как у composerCover::after: box-shadow идёт по радиусу своего бокса,
+     inherit совмещает кант с round-клипом рамки — углы не срезаются. */
+  border-radius: inherit;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     inset 0 0 0 1px rgba(255, 255, 255, 0.05),

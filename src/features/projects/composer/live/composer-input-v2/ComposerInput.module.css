@@ -16,19 +16,19 @@
 .root {
   /* Палитра строго белый/серый, без полупрозрачностей: иконки и
      обводки — сплошные тона, а не «вымытый» белый по альфе. */
-  --c-line: #353535;
-  --c-line-soft: #2c2c2c;
+  --c-line: var(--composer-hairline);
+  --c-line-soft: var(--composer-hairline);
   --c-ink: var(--composer-ink);
-  --c-ink-muted: #c2c2c2;
-  --c-ink-subtle: #868686;
+  --c-ink-muted: var(--composer-ink-muted);
+  --c-ink-subtle: var(--composer-ink-subtle);
   /* Поверхности — чистый нейтральный серый (R=G=B), без
-     синеватого подтона, в тон карточке #232323. */
-  --c-surface: #2a2a2a;
-  --c-surface-soft: #222222;
-  /* Фон плашек warning/context: на тон темнее карточки,
-     но светлее sunken — утопленный «ящик из-под»
+     синеватого подтона, в тон карточке #ffffff. */
+  --c-surface: #d5d5d5;
+  --c-surface-soft: #dddddd;
+  /* Фон плашек warning/context: на тон светлее карточки,
+     но темнее её — утопленный «ящик из-под»
      приподнятой карточки. */
-  --c-drawer: #1a1a1a;
+  --c-drawer: var(--composer-surface-sunken);
   /* Сплошной фон для popover'ов: раньше тут жил полупрозрачный
      glass (rgba(36, 36, 36, 0.72)) с backdrop-filter. На странице
      с несколькими меню рядом — модели, проекты, plus, плагины —
@@ -46,7 +46,10 @@
   --c-gap-icon: 8px;
 
   width: 100%;
-  max-width: 760px;
+  /* Ширину задаёт shell кейса (--case-surface / pin frame),
+     не локальный потолок 760 — иначе live «прыгает» относительно
+     таблиц и шапки на одной ленте. */
+  max-width: 100%;
   margin: 0 auto;
   display: grid;
   gap: 12px;
@@ -565,9 +568,9 @@
   border: 0;
 }
 
-/* ── Card (input + toolbar) — плоский нейтральный серый ──
-   Чистый серый без синеватого подтона (#232323: R=G=B) —
-   заметно светлее сцены (#101010), контраст держит сам тон,
+/* ── Card (input + toolbar) — плоская нейтральная поверхность ──
+   Чистый белый без синеватого подтона (#ffffff: R=G=B) —
+   заметно светлее сцены, контраст держит сам тон,
    один hairline по контуру и мягкая тень. Фон стабильный:
    не меняется н���� при печати, ни при отправке. */
 .card {
@@ -575,17 +578,17 @@
   gap: 14px;
   padding: 16px var(--c-pad-x) 12px;
   border-radius: 24px;
-  background: #232323;
+  background: var(--composer-surface);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 16px 40px -20px rgba(0, 0, 0, 0.7);
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 16px 40px -20px rgba(0, 0, 0, 0.32);
   position: relative;
   z-index: 1;
 }
 
 /* Drag-подсветка остаётся — это функциональный сигнал зоны сброса. */
 .card[data-drag="true"] {
-  background: #2a2a2a;
+  background: #d5d5d5;
 }
 
 .card[data-sending="true"] {
@@ -819,7 +822,7 @@
   padding: 8px 8px 8px 12px;
   border-radius: var(--c-row-radius);
   /* Монохром: нейтральная серая плашка вместо системного синего. */
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.08);
   color: var(--c-ink);
   font-size: 0.82rem;
   font-weight: 400;
@@ -858,7 +861,7 @@
 }
 
 .modeChipClose:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.12);
   opacity: 1;
 }
 
@@ -876,7 +879,7 @@
 }
 
 .input::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.16);
   border-radius: 3px;
 }
 
@@ -946,12 +949,12 @@ button.iconBtn {
 }
 
 button.iconBtn:hover {
-  background: rgba(255, 255, 255, 0.13);
+  background: rgba(0, 0, 0, 0.13);
   color: var(--c-ink);
 }
 
 button.iconBtn[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.17);
+  background: rgba(0, 0, 0, 0.17);
   color: var(--c-ink);
 }
 
@@ -962,12 +965,12 @@ button.iconBtn[aria-expanded="true"] {
    обычная iconBtn с чуть более плотным фоном,
    send остаётся единственным primary в toolbar'е. */
 button.iconBtn[data-active="true"] {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.15);
   color: var(--c-ink);
 }
 
 button.iconBtn[data-active="true"]:hover {
-  background: rgba(255, 255, 255, 0.19);
+  background: rgba(0, 0, 0, 0.19);
   color: var(--c-ink);
 }
 
@@ -1102,14 +1105,14 @@ button.iconBtn[data-loading="true"] svg {
      (а не sunken-фон темнее card, как было раньше) —
      disabled читается как «слот недоступен», а не
      как вдавленная в поверхность negative space. */
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.34);
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.34);
   cursor: not-allowed;
 }
 
 .sendBtn[data-sending="true"] {
   cursor: progress;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(0, 0, 0, 0.78);
   color: var(--composer-surface);
 }
 
@@ -1278,7 +1281,7 @@ button.iconBtn[data-loading="true"] svg {
   /* composer-токены напрямую (см. .tooltip). */
   border: 1px solid var(--composer-hairline);
   border-radius: 5px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.04);
   color: var(--composer-ink-muted);
   flex-shrink: 0;
   font-family: inherit;
@@ -1331,11 +1334,11 @@ button.iconBtn[data-loading="true"] svg {
   border-radius: var(--c-card-radius);
   /* Сплошная приподнятая поверхность + чёткая кромка и чистая тень.
      Без стекла, без верхней -24px тени и без мутного blur-ореола. */
-  background: #1c1c1c;
+  background: var(--composer-surface-raised);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 18px 44px rgba(0, 0, 0, 0.26),
+    0 6px 16px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -1373,7 +1376,7 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .dropdownItem:hover {
-  background: rgba(255, 255, 255, 0.11);
+  background: rgba(0, 0, 0, 0.11);
 }
 
 .dropdownIcon {
@@ -1428,11 +1431,11 @@ button.iconBtn[data-loading="true"] svg {
   min-width: 220px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  background: #1c1c1c;
+  background: var(--composer-surface-raised);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 18px 44px rgba(0, 0, 0, 0.25),
+    0 6px 16px rgba(0, 0, 0, 0.2);
   display: none;
   flex-direction: column;
   gap: 1px;
@@ -1478,7 +1481,7 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .pluginItem:hover {
-  background: rgba(255, 255, 255, 0.11);
+  background: rgba(0, 0, 0, 0.11);
 }
 
 .pluginItemMain {
@@ -1512,7 +1515,7 @@ button.iconBtn[data-loading="true"] svg {
   width: 28px;
   height: 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
   transition: background-color var(--composer-duration-hover) ease;
 }
@@ -1525,17 +1528,17 @@ button.iconBtn[data-loading="true"] svg {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #ffffff;
+  background: #000000;
   transition: transform var(--composer-duration-hover) ease;
 }
 
 .toggle[data-on="true"] {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.85);
 }
 
 .toggle[data-on="true"]::after {
   transform: translateX(12px);
-  background: #141414;
+  background: #ebebeb;
 }
 
 /* ── Адаптация ─────────────────────────── */

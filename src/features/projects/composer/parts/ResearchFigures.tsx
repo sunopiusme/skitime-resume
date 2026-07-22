@@ -205,9 +205,13 @@ export function LabEvidenceStack() {
      доказательства. Высота риски кодирует силу доказательства
      (strength из research.ts), лента из тонких линий проходит
      через все колонки и «дышит» вместе с данными: видно, как
-     доказательная база набирает вес от лога сессии к PR. */
+     доказательная база набирает вес от лога сессии к PR.
+     Колонки стоят ровно в центрах шести равных долей viewBox
+     (80 + 160·i), чтобы HTML-рейл подписей под графиком
+     совпадал с рисками по X — как workflowStageRail
+     совпадает с узлами своего графика. */
   const W = 960;
-  const padX = 64;
+  const padX = 80;
   const cy = 190;
   const innerW = W - padX * 2;
 
@@ -222,10 +226,9 @@ export function LabEvidenceStack() {
 
   const labelY = cy - maxSpan / 2 - 56;
   const strengthY = labelY + 22;
-  const detailY = cy + maxSpan / 2 + 36;
 
   const viewTop = labelY - 14;
-  const viewBottom = detailY + 18;
+  const viewBottom = cy + maxSpan / 2 + 16;
 
   const lineCount = 36;
   const ribbons = Array.from({ length: lineCount }, (_, lineIndex) => {
@@ -285,17 +288,20 @@ export function LabEvidenceStack() {
               >
                 {col.item.strength}/5
               </text>
-              <text
-                x={col.x}
-                y={detailY}
-                textAnchor="middle"
-                className={styles.evidenceFanDetailSvg}
-              >
-                {col.item.detail}
-              </text>
             </g>
           ))}
         </svg>
+
+        {/* Нижние подписи — HTML-рейл из шести равных колонок,
+            а не SVG-тексты: центры колонок совпадают с рисками
+            (80 + 160·i), поэтому подписи стоят ровно под своими
+            колонками, а промежутки между ними одинаковые —
+            без рваных зазоров SVG-версии. */}
+        <ul className={styles.evidenceRail} aria-hidden="true">
+          {evidenceStack.map((item) => (
+            <li key={item.label}>{item.detail}</li>
+          ))}
+        </ul>
 
         <ul className={styles.srOnly} aria-label="Доказательная база">
           {evidenceStack.map((item) => (

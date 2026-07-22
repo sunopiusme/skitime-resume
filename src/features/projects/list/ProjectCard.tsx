@@ -30,15 +30,12 @@ export default function ProjectCard({ slug, title, year, index }: Props) {
     el.style.setProperty("--my", `${e.clientY - rect.top}px`);
   };
 
-  /* Светлая mesh-обложка получает свой вариант spotlight'а:
-     белый блик на пастели не читается, поэтому кольцо — слейтовое,
-     блик — overlay, плюс ambient bloom вокруг карточки (см. CSS). */
-  const light = slug === "composer";
-
+  /* Composer — тёмная product-сцена (как stage кейса),
+     общий dark-spotlight, без coverLight/mesh-bloom. */
   return (
     <div
       ref={coverRef}
-      className={light ? `${styles.cover} ${styles.coverLight}` : styles.cover}
+      className={styles.cover}
       onPointerMove={handlePointerMove}
     >
       <ProjectCover title={title} year={year} index={index} slug={slug} />

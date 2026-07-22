@@ -1,5 +1,12 @@
 .figure {
+  /* Универсальная ширина всех таблиц и графиков кейса
+     (--case-figure из case.module.css = shell полотна).
+     Края каждой фигуры лежат на одних вертикалях независимо
+     от того, куда фигуру поставили, — единая ось сканирования,
+     текст при этом остаётся на своей центрированной мере 640px. */
   width: 100%;
+  max-width: var(--case-figure, 100%);
+  margin-inline: auto;
   color: var(--composer-ink);
   user-select: none;
   -webkit-user-select: none;
@@ -91,7 +98,11 @@
   text-wrap: pretty;
   font-family: var(--font-sans), sans-serif;
   font-size: 15px;
-  font-weight: 400;
+  /* Вес medium — единый стандарт основного текста кейса
+     (prose, TL;DR, описания фигур): первичные ячейки
+     читаются заметнее, иерархию колонок держат muted-цвета
+     второстепенных полей. */
+  font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 24px;
   color: var(--composer-ink);
@@ -292,9 +303,13 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(28px, 3.2vw, 40px) clamp(32px, 4vw, 56px);
+  /* Универсальная мера фигур: края совпадают с таблицей
+     источников, workflow-графиком и evidence fan — никаких
+     собственных 920px, элементы не съезжают относительно
+     друг друга. Раньше max-width: 920px + auto-поля вгоняли
+     график на 20px внутрь ленты с каждой стороны. */
   width: 100%;
-  max-width: 920px;
-  margin-inline: auto;
+  max-width: var(--case-figure, 100%);
 }
 
 .frictionScaleItem {
@@ -333,7 +348,7 @@
   width: 100%;
   height: 8px;
   border-radius: 0;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
@@ -341,11 +356,15 @@
   display: block;
   height: 100%;
   border-radius: 0;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.85);
 }
 
 .frictionScaleItem p {
   margin: 0;
+  /* Описания сигналов — часть основного чтения: тот же
+     medium, что у prose; muted-цвет сохраняет вторичность
+     относительно названия сигнала. */
+  font-weight: 500;
   color: var(--composer-ink-muted);
   font-size: 15px;
   letter-spacing: -0.01em;
@@ -402,17 +421,17 @@
 .workflowTallyTick {
   width: clamp(28px, 3.4vw, 44px);
   height: 1px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* Активная стадия ярче, её верхняя риска — «фронт» накопления. */
 .workflowTallyColumn[data-active="true"] .workflowTallyTick {
-  background: rgba(255, 255, 255, 0.62);
+  background: rgba(0, 0, 0, 0.62);
 }
 
 .workflowTallyColumn[data-active="true"] .workflowTallyTick:first-child {
   height: 2px;
-  background: #ffffff;
+  background: var(--composer-ink);
 }
 
 /* Рейл стадий — ось X графика. Gap 0 и центрирование колонок:
@@ -449,7 +468,7 @@
   width: 28px;
   height: 1px;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .workflowStageHead {
@@ -518,13 +537,13 @@
 
 /* Чертёжная сетка: тонкая кл��тка 40px + усиленная линия каждые 200px. */
 .wfGridMinor {
-  stroke: rgba(255, 255, 255, 0.05);
+  stroke: rgba(0, 0, 0, 0.05);
   stroke-width: 1;
   shape-rendering: crispEdges;
 }
 
 .wfGridMajor {
-  stroke: rgba(255, 255, 255, 0.1);
+  stroke: rgba(0, 0, 0, 0.1);
   stroke-width: 1;
   shape-rendering: crispEdges;
 }
@@ -587,7 +606,7 @@
 }
 
 .workflowWire {
-  stroke: rgba(220, 220, 220, 1);
+  stroke: var(--composer-ink-muted);
   stroke-width: 2.4;
 }
 
@@ -750,7 +769,7 @@
 }
 
 .diskDwell {
-  fill: rgba(255, 255, 255, 0.08);
+  fill: rgba(0, 0, 0, 0.08);
   stroke: var(--composer-ink);
   stroke-width: 1;
 }
@@ -984,7 +1003,7 @@
    база набирает вес от лога сессии к PR.
    ───────────────────────────────────────── */
 .evidenceFan {
-  /* Заполняет общую широкую ленту кейса (960px) наравне
+  /* Заполняет shell полотна кейса (100% рамки) наравне
      с остальными фигурами. */
   width: 100%;
   margin: 0;
@@ -1024,11 +1043,29 @@
   font-variant-numeric: tabular-nums;
 }
 
-.evidenceFanDetailSvg {
-  fill: var(--composer-ink-muted);
-  font-family: var(--font-sans), sans-serif;
+/* Рейл нижних подписей — шесть равных колонок, как
+   workflowStageRail: hairline сверху, центрирование,
+   равные промежутки между подписями при любой их длине.
+   Кегль и цвет повторяют бывший SVG-стандарт подписей. */
+.evidenceRail {
+  list-style: none;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0;
+  padding: clamp(10px, 1.1vw, 14px) 0 0;
+  border-top: 1px solid var(--composer-hairline);
+}
+
+.evidenceRail li {
+  min-width: 0;
+  padding: 2px 8px 0;
+  text-align: center;
+  color: var(--composer-ink-muted);
   font-size: 12.5px;
   letter-spacing: -0.005em;
+  line-height: 1.4;
+  text-wrap: pretty;
 }
 
 .srOnly {

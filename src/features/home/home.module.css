@@ -1,32 +1,32 @@
 /* ─────────────────────────────────────────
-   Home — Antigravity-style центрированный постер
-   • чёрный холст, белая типографика
-   • спокойный размер дисплея, профессиональный ритм
+   Home
+
+   Хром, меры и body-типографика — из кейса Composer.
+   Hero остаётся постером главной (композиция, дисплей,
+   CTA). Ниже — article-поток кейса: shell 1120, prose 640,
+   h2 24/550, body 15/24, без hairline-разделителей.
    ───────────────────────────────────────── */
 
 .page {
   position: relative;
   min-height: 100svh;
-  /* Страница больше не «hero + footer» на один экран, а обычный
-     скролл-поток: hero → работы → что делаю → подход → контакты → футер.
-     Постерность первого экрана держит min-height на .hero. */
   display: flex;
   flex-direction: column;
+
+  /* Те же меры, что у case.module.css */
+  --home-prose: 640px;
+  --home-wide: var(--composer-measure-graphic); /* 1120 */
+  --home-pad-x: clamp(16px, 2.4vw, 40px);
+
   padding:
-    clamp(20px, 2.6vw, 32px)
-    clamp(20px, 4vw, 48px)
+    clamp(16px, 1.6vw, 24px)
+    var(--home-pad-x)
     clamp(24px, 2.6vw, 32px);
   color: var(--composer-ink);
   background: var(--composer-surface);
 }
 
-/* ---------------- Entry choreography ----------------
-   Один common-keyframe, разные задержки.
-   • fill-mode: backwards удерживает начальное состояние
-     во время delay, чтобы избежать «вспышки» уже отрендеренного
-     контента до старта анимации.
-   • Кривая — стандартный «материальный» out: быстрый отрыв,
-     спокойное приземление. */
+/* ---------------- Entry choreography (hero only) ---------------- */
 
 @keyframes homeRise {
   from {
@@ -48,10 +48,11 @@
   }
 }
 
-/* ---------------- Top bar ---------------- */
+/* ─────────────────────────────────────────
+   Top bar — 1:1 с кейсом Composer.
+   Только лого 32px, pad-x общий, nav 16/40.
+   ───────────────────────────────────────── */
 
-/* Идентичен кейсу и списку проектов: fixed, full-bleed фон на всю
-   ширину, контент у краёв экрана, 16px без капса, цвет rgba .6. */
 .topbar {
   position: fixed;
   top: 0;
@@ -65,36 +66,31 @@
   gap: 16px;
   padding:
     clamp(10px, 1vw, 14px)
-    clamp(20px, 2.4vw, 40px);
+    var(--home-pad-x);
   background: var(--composer-surface);
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0em;
   text-transform: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--composer-ink-muted);
   animation: homeFade 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.46em;
+  justify-content: center;
+  min-width: 40px;
   min-height: 40px;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 520;
-  line-height: 1;
-  letter-spacing: -0.01em;
-  text-transform: none;
+  color: var(--composer-ink);
+  line-height: 0;
 }
 
-/* X-марка стоит ПОСЛЕ фамилии, 1.3em — оптическое равенство
-   с заглавной «Ф». Без размера SVG растягивается в натуральную
-   величину — отсюда и «здоровая» иконка. */
 .brandLogo {
-  width: 1.3em;
-  height: 1.3em;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
+  display: block;
   opacity: 0.96;
 }
 
@@ -104,8 +100,6 @@
   gap: clamp(4px, 0.6vw, 8px);
 }
 
-/* Hover-«таблетка» — мягкая нейтральная подложка вокруг ссылки.
-   Высота фиксирована, чтобы шапка не «прыгала» при наведении. */
 .navLinks a {
   display: inline-flex;
   align-items: center;
@@ -120,7 +114,7 @@
 
 .navLinks a:hover,
 .navLinks a:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.06);
   color: var(--composer-ink);
 }
 
@@ -128,7 +122,9 @@
   color: var(--composer-ink);
 }
 
-/* ---------------- Hero — центрированная композиция ---------------- */
+/* ─────────────────────────────────────────
+   Hero — постер главной (композиция без изменений).
+   ───────────────────────────────────────── */
 
 .hero {
   display: grid;
@@ -137,16 +133,8 @@
   text-align: center;
   gap: clamp(20px, 2.4vw, 32px);
   padding: clamp(48px, 8vw, 112px) clamp(16px, 4vw, 56px);
-  /* Постерный первый экран: hero занимает вьюпорт целиком
-     (за вычетом вертикальных полей страницы), карточки работ
-     начинаются сразу под сгибом. */
-  min-height: calc(100svh - 2 * clamp(20px, 2.6vw, 32px));
+  min-height: calc(100svh - 2 * clamp(16px, 1.6vw, 24px));
 }
-
-/* ---------------- Eyebrow «Currently» ----------------
-   Однострочный статус над h1. Капс, тон subtle.
-   Точка слева — живой сигнал «вкл», без агрессивной пульсации:
-   мягкое дыхание opacity, чтобы не отвлекало в периферии. */
 
 .eyebrow {
   display: inline-flex;
@@ -177,19 +165,12 @@
   }
 }
 
-/* ---------------- Display title ---------------- */
-
 .title {
   margin: 0;
-  /* 24ch держит композицию в двух строках на типичных дисплеях
-     и даёт профессиональный, не «постерный» масштаб. */
   max-width: 24ch;
   color: var(--composer-ink);
   font-family: var(--font-sans), sans-serif;
-  /* Спокойнее, чем раньше: на 1440px примерно 4.25rem ≈ 68px. */
   font-size: clamp(2rem, 5vw, 4.5rem);
-  /* Вес базовой (жирной) части выровнен с заголовками composer (500);
-     постерный масштаб и тонкий акцент сохраняются. */
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1.05;
@@ -201,9 +182,6 @@
 }
 
 .accent {
-  /* Тот же sans, что и у заголовка, но в тонком начертании и без курсива.
-     Контраст веса (200 против 600) держит акцент типографикой,
-     без смены гарнитуры и без эффектов. */
   font-family: var(--font-sans), sans-serif;
   font-style: normal;
   font-weight: 300;
@@ -211,7 +189,6 @@
 }
 
 .subtitle {
-  /* Мера и кегль выровнены с .lede на странице проектов. */
   max-width: 52ch;
   color: var(--composer-ink-muted);
   font-size: clamp(1rem, 1.2vw, 1.18rem);
@@ -221,8 +198,6 @@
   text-wrap: balance;
   animation: homeRise 720ms cubic-bezier(0.2, 0.7, 0.2, 1) 160ms both;
 }
-
-/* ---------------- Actions ---------------- */
 
 .actions {
   display: inline-flex;
@@ -265,142 +240,109 @@
 }
 
 .primaryAction:hover {
-  background: #ffffff;
-  border-color: #ffffff;
+  background: #1f1f1f;
+  border-color: #1f1f1f;
 }
 
 .secondaryAction:hover {
   border-color: var(--composer-ink);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
 
-.actionIcon {
-  display: block;
-  transition: transform 180ms ease;
-}
+/* ─────────────────────────────────────────
+   Article — shell 1120, gap section-outer.
+   Секции — один стек на всю ширину article:
+   h2 и контент делят левый край. Без вложенных
+   column/wide с разной мерой (это и давало
+   «висящий» заголовок над сеткой).
+   ───────────────────────────────────────── */
 
-.primaryAction:hover .actionIcon {
-  transform: translate(2px, -2px);
-}
-
-/* ---------------- Колофон / нижняя справка ---------------- */
-
-.colophon {
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px 24px;
-  margin: clamp(8px, 1.6vw, 20px) 0 0;
-  padding: 0;
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
-  animation: homeRise 720ms cubic-bezier(0.2, 0.7, 0.2, 1) 320ms both;
-}
-
-.colophon > div {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.colophon dt {
-  color: var(--composer-ink-subtle);
-}
-
-.colophon dd {
-  margin: 0;
-  color: var(--composer-ink);
-  font-weight: 500;
-}
-
-/* ---------------- Скролл-секции ----------------
-   Общая рамка контентных секций под hero: ограниченная ширина,
-   hairline-разделитель сверху, ритм по существующим spacing-токенам.
-   Без JS-анимаций появления — страница остаётся серверным
-   компонентом; entry-хореография живёт только в hero. */
-
-.works,
-.block,
-.contact {
-  width: min(100%, var(--composer-page-max));
-  margin: 0 auto;
-  padding: var(--composer-space-section-outer) 0;
-  border-top: 1px solid var(--composer-hairline);
-  /* Якорный скролл (#works) не должен прятать заголовок
-     под fixed-топбар. */
-  scroll-margin-top: 96px;
-}
-
-.sectionHead {
+.article {
   display: grid;
-  gap: var(--composer-space-3);
-  margin-bottom: var(--composer-space-section-inner);
+  width: min(100%, var(--home-wide));
+  min-width: 0;
+  margin: 0 auto;
+  gap: var(--composer-space-section-outer);
+  padding-top: clamp(8px, 1.2vw, 16px);
+  padding-bottom: clamp(40px, 4vw, 56px);
 }
 
-/* Капс-eyebrow — тот же голос, что и статус над h1. */
-.sectionEyebrow {
-  margin: 0;
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--composer-ink-subtle);
+/* Сжатие стыка hero → article. */
+.hero + .article {
+  margin-top: calc(-1 * clamp(24px, 3vw, 48px));
 }
 
+.part {
+  display: grid;
+  /* stretch: заголовок и сетка на одной оси, не по центру. */
+  justify-items: stretch;
+  width: 100%;
+  min-width: 0;
+  /* head-gap: заголовок прижат к контенту, не «висит». */
+  gap: var(--composer-head-gap);
+  scroll-margin-top: 80px;
+}
+
+/* Шапка секции works: заголовок слева, ссылка-архив справа,
+   на одной горизонтальной линии по базовой линии текста. */
+.worksHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: clamp(12px, 2vw, 24px);
+  width: 100%;
+}
+
+/* h2 — 24/550 как в кейсе. margin 0: зазор даёт .part. */
 .sectionTitle {
   margin: 0;
-  max-width: 26ch;
-  color: var(--composer-ink);
-  font-size: clamp(1.5rem, 2.6vw, 2.25rem);
-  font-weight: 500;
+  max-width: none;
+  font-size: 24px;
+  font-weight: 550;
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1.25;
+  text-align: left;
   text-wrap: balance;
+  color: var(--composer-ink);
 }
 
-/* ---------------- Избранные работы ---------------- */
+/* ─────────────────────────────────────────
+   Works — полка в духе App Store / Launchpad:
+   одна горизонтальная линия равных карточек,
+   только обложки, без описаний под ними.
+   ───────────────────────────────────────── */
 
-/* На десктопе — две колонки, как в архиве /projects:
-   обложки сохраняют привычный масштаб и не разрастаются
-   в full-bleed постеры. На компакте схлопывается в одну. */
 .worksList {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-  gap: clamp(24px, 3vw, 40px);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: clamp(12px, 1.6vw, 20px);
+  width: 100%;
 }
 
-/* Карточка = обложка + одна строка описания под ней.
-   Вся навигация — на самой обложке (она целиком кликабельна),
-   поэтому здесь никаких кнопок, тегов и дублей заголовка. */
 .workItem {
-  display: grid;
-  gap: var(--composer-space-4);
+  /* Равные «тайлы» в одном ряду — как иконки на полке. */
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
-.workSummary {
-  margin: 0;
-  max-width: 56ch;
-  color: var(--composer-ink-muted);
-  font-size: clamp(0.95rem, 1.1vw, 1.06rem);
-  line-height: 1.5;
-  text-wrap: pretty;
-}
-
-/* Тихая ссылка на полный архив /projects. */
 .worksArchive {
-  margin: var(--composer-space-section-inner) 0 0;
+  margin: 0;
 }
 
 .worksArchive a {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 40px;
   color: var(--composer-ink-muted);
-  font-size: 0.95rem;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   transition: color 160ms ease;
 }
 
@@ -409,7 +351,12 @@
   color: var(--composer-ink);
 }
 
-/* ---------------- Что делаю / Подход ---------------- */
+/* ─────────────────────────────────────────
+   Practice / method
+   Заголовок секции → три колонки / стек шагов
+   с общим левым краем. Body muted — иерархия
+   над кикером, не «две одинаковые строки».
+   ───────────────────────────────────────── */
 
 .doGrid {
   list-style: none;
@@ -420,27 +367,30 @@
   gap: clamp(20px, 2.4vw, 32px);
 }
 
-/* Чистый список без обводок — меньше «коробок», больше воздуха. */
 .doItem {
   display: grid;
   align-content: start;
-  gap: var(--composer-space-3);
+  gap: 8px;
+  min-width: 0;
 }
 
+/* Кикер — ступень под h2, над body. */
 .itemTitle {
   margin: 0;
   color: var(--composer-ink);
-  font-size: 1.06rem;
-  font-weight: 500;
+  font-size: 17px;
+  font-weight: 650;
   letter-spacing: -0.01em;
-  line-height: 1.3;
+  line-height: 24px;
 }
 
 .itemText {
   margin: 0;
   color: var(--composer-ink-muted);
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 24px;
   text-wrap: pretty;
 }
 
@@ -449,44 +399,47 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0;
+  /* Мера чтения: шаги не растягиваются на 1120. */
+  max-width: var(--home-prose);
+  gap: var(--composer-space-5);
 }
 
 .approachItem {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
-  gap: var(--composer-space-4);
-  padding: var(--composer-space-5) 0;
-  border-top: 1px solid var(--composer-hairline);
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  column-gap: var(--composer-space-4);
+  align-items: start;
 }
 
-.approachItem:first-child {
-  border-top: none;
-  padding-top: 0;
-}
-
-.approachItem > div {
+.approachBody {
   display: grid;
-  gap: var(--composer-space-2);
-  max-width: 56ch;
+  gap: 6px;
+  min-width: 0;
 }
 
+/* Индекс выровнен по первой строке кикера (17/24). */
 .approachIndex {
   font-family: var(--composer-font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   color: var(--composer-ink-subtle);
-  line-height: 1.9;
+  line-height: 24px;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ---------------- Контакты ---------------- */
+/* ─────────────────────────────────────────
+   Contact — левый край тот же, lede ≤ prose.
+   ───────────────────────────────────────── */
 
 .contactLede {
-  margin: calc(-1 * var(--composer-space-4)) 0 var(--composer-space-5);
-  max-width: 48ch;
+  margin: 0;
+  max-width: var(--home-prose);
   color: var(--composer-ink-muted);
-  font-size: clamp(1rem, 1.2vw, 1.18rem);
-  line-height: 1.5;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 24px;
   text-wrap: pretty;
 }
 
@@ -494,67 +447,41 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  margin-top: var(--composer-space-2);
 }
 
-/* ---------------- Footer ---------------- */
+/* ─────────────────────────────────────────
+   Footer — 1:1 с .sitefooter кейса.
+   ───────────────────────────────────────── */
 
-/* Зеркало хедера, как в списке проектов: full-bleed (компенсирует
-   горизонтальный паддинг страницы), 16px, цвет rgba .6. */
-.footer {
-  /* margin-top: auto — страховка flex-колонки: если контента вдруг
-     меньше вьюпорта, футер остаётся прижатым вниз (раньше это делал grid). */
-  margin-top: auto;
-  margin-inline: calc(-1 * clamp(20px, 4vw, 48px));
-  padding: clamp(10px, 1vw, 14px) 0 0;
-  animation: homeFade 360ms cubic-bezier(0.2, 0.7, 0.2, 1) 400ms both;
-}
-
-.footerInner {
-  width: 100%;
-  padding-inline: clamp(20px, 2.4vw, 40px);
+.sitefooter {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px 16px;
+  text-align: center;
+  gap: clamp(8px, 1vw, 16px);
+  margin-top: auto;
+  margin-inline: calc(-1 * var(--home-pad-x));
+  padding:
+    clamp(40px, 5vw, 72px)
+    var(--home-pad-x)
+    clamp(28px, 3vw, 40px);
+  background: var(--composer-surface);
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0em;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.socials {
-  display: inline-flex;
-  align-items: center;
-  gap: clamp(4px, 0.6vw, 8px);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.socials a {
-  display: inline-flex;
-  align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 999px;
   color: var(--composer-ink-muted);
-  transition:
-    background-color 160ms ease,
-    color 160ms ease;
+  animation: homeFade 360ms cubic-bezier(0.2, 0.7, 0.2, 1) 400ms both;
 }
 
-.socials a:hover,
-.socials a:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--composer-ink);
+.footerNote {
+  margin: 0;
+  font-size: 13px;
+  color: var(--composer-ink-muted);
+  opacity: 0.6;
 }
 
-/* ---------------- Reduced motion ----------------
-   Глобальный сброс в globals.css обнуляет длительность,
-   но не отменяет delay. Здесь явно гасим оба, чтобы
-   элементы со старшим delay не «мигали» невидимыми
-   перед мгновенным появлением. */
+/* ---------------- Reduced motion ---------------- */
 
 @media (prefers-reduced-motion: reduce) {
   .topbar,
@@ -562,76 +489,53 @@
   .title,
   .subtitle,
   .actions,
-  .colophon,
-  .footer {
+  .sitefooter {
     animation: none;
     opacity: 1;
     transform: none;
   }
 
-  /* Бесконечная пульсация точки — самый явный кандидат на отключение. */
   .eyebrowDot {
     animation: none;
     opacity: 1;
   }
 }
 
-/* ---------------- Responsive — размерные классы Apple HIG ----------------
+/* ─────────────────────────────────────────
+   Responsive — pad и кегли как в кейсе.
+   ───────────────────────────────────────── */
 
-   Regular (iPad, 768–1194px): десктопная композиция сохраняется,
-   но все интерактивные элементы добираются до минимальной
-   HIG-цели касания 44×44pt.
-
-   Compact (iPhone, ≤767px; iPhone 17 Pro Max = 440pt):
-   hero пересобирается как экран нативного приложения:
-   • навбар — 44pt контент + safe-area сверху, поля 20pt (Pro Max class);
-   • типографика по шкале SF: Large Title 34/41, Body 17/22, Footnote 13;
-   • кнопки — полноширинные capsule 50pt, вес semibold;
-   • нижний отступ уважает home-индикатор (safe-area-inset-bottom). */
-
-/* ─── Regular width (iPad) ─── */
-
-@media (min-width: 768px) and (max-width: 1194px) {
-  .navLinks a,
-  .socials a {
-    height: 44px;
+@media (max-width: 840px) {
+  .page {
+    --home-pad-x: clamp(16px, 3.5vw, 28px);
   }
 
-  .brand {
-    min-height: 44px;
+  .sectionTitle {
+    font-size: 22px;
   }
 
-  .topbar {
-    padding-top: max(clamp(10px, 1vw, 14px), env(safe-area-inset-top));
+  .doGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
   }
 }
 
-/* ─── Compact width (iPhone) ─── */
-
 @media (max-width: 767px) {
   .page {
-    /* Поля 20pt — layout margin класса Pro Max; safe areas по краям. */
     padding:
       calc(env(safe-area-inset-top) + 8px)
-      max(20px, env(safe-area-inset-left))
+      max(16px, env(safe-area-inset-left))
       calc(env(safe-area-inset-bottom) + 12px)
-      max(20px, env(safe-area-inset-right));
+      max(16px, env(safe-area-inset-right));
+    --home-pad-x: max(16px, env(safe-area-inset-left));
   }
 
-  /* Навбар как в нативном приложении: контентная зона 44pt,
-     сверху — статус-бар (safe-area), поля 20pt. */
   .topbar {
     padding:
       calc(env(safe-area-inset-top) + 6px)
-      max(20px, env(safe-area-inset-left))
+      max(16px, env(safe-area-inset-left))
       6px
-      max(20px, env(safe-area-inset-right));
-    font-size: 17px; /* HIG Body */
-  }
-
-  /* На компакте фамилия уходит — остаётся только X-марка. */
-  .brandName {
-    display: none;
+      max(16px, env(safe-area-inset-right));
   }
 
   .brand {
@@ -644,35 +548,22 @@
     height: 28px;
   }
 
-  .navLinks {
-    gap: 4px;
-  }
-
   .navLinks a {
-    height: 44px; /* минимальная цель касания HIG */
-    padding: 0 14px;
-    font-size: 17px;
+    height: 44px;
+    padding: 0 12px;
   }
 
-  /* Hero: ритм экранного «первого вью» приложения.
-     Выравнивание влево — как Large Title в нативном iOS-экране:
-     на компакте центрированный дисплей ломается на рваные строки,
-     а левый флаг даёт ровный, предсказуемый набор. */
   .hero {
     justify-items: start;
     text-align: left;
-    padding: 96px 0 48px;
+    padding: 88px 0 40px;
     gap: 20px;
-  }
-
-  .eyebrow {
-    font-size: 13px; /* HIG Footnote */
-    letter-spacing: 0.08em;
+    min-height: calc(
+      100svh - (env(safe-area-inset-top) + 8px) - (env(safe-area-inset-bottom) + 12px)
+    );
   }
 
   .title {
-    /* HIG Large Title: 34/41. Полная ширина колонки —
-       строки набираются естественно, без принудительных переносов. */
     max-width: none;
     font-size: 34px;
     line-height: 41px;
@@ -682,14 +573,10 @@
 
   .subtitle {
     max-width: none;
-    font-size: 17px; /* HIG Body */
+    font-size: 17px;
     line-height: 24px;
-    letter-spacing: -0.01em;
-    text-wrap: pretty;
   }
 
-  /* Кнопки — полноширинный стек, как action-блок нативного экрана:
-     capsule, высота 50pt, Body semibold. */
   .actions {
     width: 100%;
     display: grid;
@@ -698,136 +585,72 @@
     margin-top: 8px;
   }
 
-  /* Постерный первый экран на компакте: вычитаем реальные
-     вертикальные поля страницы (safe-area + 8/12px). */
-  .hero {
-    min-height: calc(
-      100svh - (env(safe-area-inset-top) + 8px) - (env(safe-area-inset-bottom) + 12px)
-    );
+  .primaryAction,
+  .secondaryAction {
+    min-height: 50px;
+    font-size: 17px;
+    font-weight: 600;
   }
 
-  /* ─── Скролл-секции на компакте ─── */
+  .article {
+    gap: 48px;
+    padding-top: 0;
+    padding-bottom: 32px;
+  }
 
-  .works,
-  .block,
-  .contact {
-    padding: 48px 0;
+  .part {
+    gap: 16px;
     scroll-margin-top: 72px;
   }
 
-  .sectionHead {
-    margin-bottom: 28px;
-  }
-
-  .sectionEyebrow {
-    font-size: 13px; /* HIG Footnote */
-    letter-spacing: 0.08em;
-  }
-
   .sectionTitle {
-    max-width: none;
-    font-size: 28px; /* HIG Title 1 */
-    line-height: 34px;
-    letter-spacing: -0.015em;
-    text-wrap: pretty;
+    font-size: 22px;
   }
 
-  /* Карточка: обложка + строка описания, ритм 12pt. */
-  .workItem {
+  /* На компакте — вертикальный стек: обложки на всю ширину,
+     без горизонтального жеста. При двух проектах peek-полка
+     читается как срез, а не как «свайпни дальше». */
+  .worksList {
+    flex-direction: column;
     gap: 12px;
   }
 
-  .worksList {
-    gap: 40px;
+  .workItem {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
   }
 
-  .workSummary {
-    max-width: none;
-    font-size: 17px; /* HIG Body */
-    line-height: 24px;
-  }
-
-  .worksArchive {
-    margin-top: 28px;
-  }
-
-  .worksArchive a {
-    font-size: 17px;
-  }
-
-  /* Что делаю / Подход — одна колонка, без боксов. */
   .doGrid {
     grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .itemTitle {
-    font-size: 17px;
-    line-height: 22px;
-  }
-
-  .itemText {
-    font-size: 15px; /* HIG Subheadline */
-    line-height: 21px;
+    gap: 20px;
   }
 
   .approachItem {
-    grid-template-columns: 40px minmax(0, 1fr);
-    gap: 12px;
-    padding: 20px 0;
-  }
-
-  /* Контакты — кнопки полноширинным стеком. */
-  .contactLede {
-    margin: -12px 0 20px;
-    max-width: none;
-    font-size: 17px;
-    line-height: 24px;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    column-gap: 12px;
   }
 
   .contactActions {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
+    margin-top: 4px;
   }
 
-  /* Колофон тоже на левый флаг, в ритме остального экрана. */
-  .colophon {
-    justify-content: flex-start;
-    gap: 6px 20px;
+  .sitefooter {
+    margin-inline: calc(-1 * max(16px, env(safe-area-inset-left)));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    --home-pad-x: 16px;
   }
 
-  .primaryAction,
-  .secondaryAction {
-    min-height: 50px;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-
-  /* Футер: Footnote 13pt, центрирован, уважает home-индикатор. */
-  .footer {
-    margin-inline: calc(-1 * max(20px, env(safe-area-inset-left)));
-    padding-top: 8px;
-  }
-
-  .footerInner {
-    padding-inline: max(20px, env(safe-area-inset-left));
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-    font-size: 13px;
-  }
-
-  .socials {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .socials a {
-    height: 44px;
-    padding: 0 14px;
-    font-size: 15px; /* HIG Subheadline */
+  .navLinks a {
+    padding: 0 10px;
+    height: 36px;
   }
 }
