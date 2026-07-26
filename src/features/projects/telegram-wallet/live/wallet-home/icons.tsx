@@ -1,22 +1,7 @@
-/* ─────────────────────────────────────────
-   Иконки экрана Wallet Home.
-
-   Две группы:
-   1. Интерфейсные (currentColor, штрих 1.6–2px
-      под 24px-сетку) — в стиле composer-демо:
-      геометрия Lucide, тонкий равномерный штрих.
-      В Figma это были SF Symbols; в вебе их нет.
-   2. Брендовые логотипы токенов — заливка белым
-      поверх цветного круга (tint задаётся в CSS).
-      Рисуем контуром, а не эмодзи, чтобы держать
-      резкость на любом размере.
-   ───────────────────────────────────────── */
 import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
-/* Общие props для штриховых иконок — единый штрих
-   и стыки, как в composer/icons.tsx. */
 const stroke = {
   viewBox: "0 0 24 24",
   fill: "none",
@@ -27,19 +12,14 @@ const stroke = {
   "aria-hidden": true,
 } as const;
 
-/* Заливочные брендовые марки — свой viewBox, currentColor
-   не нужен: цвет знака задаётся прямо (обычно белый). */
 const brand = {
   viewBox: "0 0 24 24",
-  fill: "none",
+  fill: "currentColor",
+  "data-brand": "true",
   "aria-hidden": true,
   xmlns: "http://www.w3.org/2000/svg",
 } as const;
 
-/* ── Интерфейсные ──────────────────────── */
-
-/* Шестерёнка — настройки (􀣋). Настоящий cog с зубцами
-   (Lucide «settings»), а не звезда/солнце из радиальных лучей. */
 export function GearIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props} strokeWidth={1.6}>
@@ -49,7 +29,6 @@ export function GearIcon(props: IconProps) {
   );
 }
 
-/* QR-код (􀖂). */
 export function QrIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -61,7 +40,6 @@ export function QrIcon(props: IconProps) {
   );
 }
 
-/* Шеврон вниз (􀆈). */
 export function ChevronDownIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props} strokeWidth={2}>
@@ -70,7 +48,6 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
-/* Стрелка вверх — отправить (􀄨). */
 export function SendIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props} strokeWidth={2.2}>
@@ -79,7 +56,6 @@ export function SendIcon(props: IconProps) {
   );
 }
 
-/* Плюс — пополнить (􀅼). */
 export function PlusIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props} strokeWidth={2.2}>
@@ -88,7 +64,6 @@ export function PlusIcon(props: IconProps) {
   );
 }
 
-/* Две встречные стрелки — обмен (􀄭). */
 export function ExchangeIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -97,7 +72,6 @@ export function ExchangeIcon(props: IconProps) {
   );
 }
 
-/* Купить/продать — стопка монет (􁽈). */
 export function BuySellIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -108,7 +82,6 @@ export function BuySellIcon(props: IconProps) {
   );
 }
 
-/* Стрелка вверх-вправо — badge кнопки OPEN (􀋦). */
 export function ArrowUpRightIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props} strokeWidth={2}>
@@ -117,7 +90,6 @@ export function ArrowUpRightIcon(props: IconProps) {
   );
 }
 
-/* Закрыть промо (✕). */
 export function CloseIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props} strokeWidth={2}>
@@ -126,7 +98,6 @@ export function CloseIcon(props: IconProps) {
   );
 }
 
-/* Проценты в круге — Wallet Earn (заменяет 🪙). */
 export function EarnIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -136,7 +107,6 @@ export function EarnIcon(props: IconProps) {
   );
 }
 
-/* Стопка изображений — коллекционные/NFT в TON Space. */
 export function CollectiblesIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -147,7 +117,6 @@ export function CollectiblesIcon(props: IconProps) {
   );
 }
 
-/* Стрелка вправо — переход к разделу (􀯻). */
 export function ChevronRightIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props} strokeWidth={2}>
@@ -156,7 +125,6 @@ export function ChevronRightIcon(props: IconProps) {
   );
 }
 
-/* Часы — пустое состояние History. */
 export function ClockIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -166,7 +134,6 @@ export function ClockIcon(props: IconProps) {
   );
 }
 
-/* Две встречные стрелки в круге — P2P Market. */
 export function P2pIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -175,7 +142,6 @@ export function P2pIcon(props: IconProps) {
   );
 }
 
-/* Карта — вывод на банковскую карту. */
 export function CardIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -185,7 +151,6 @@ export function CardIcon(props: IconProps) {
   );
 }
 
-/* Молния — Web3 Mini Apps / сервисы. */
 export function BoltIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -194,7 +159,6 @@ export function BoltIcon(props: IconProps) {
   );
 }
 
-/* Подарок — розыгрыши и кампании. */
 export function GiftIcon(props: IconProps) {
   return (
     <svg {...stroke} {...props}>
@@ -204,39 +168,38 @@ export function GiftIcon(props: IconProps) {
   );
 }
 
-/* ── Брендовые логотипы токенов ────────── */
-
-/* Tether (USDT) — «T» на фоне круга (сам круг рисует CSS). */
 export function TetherMark(props: IconProps) {
   return (
     <svg {...brand} {...props}>
       <path
-        d="M13.4 10.6V9.1h3.5V6.8H7.1v2.3h3.5v1.5c-2.8.13-4.9.68-4.9 1.35 0 .66 2.1 1.22 4.9 1.35v4.4h2.8v-4.4c2.8-.13 4.9-.69 4.9-1.35 0-.67-2.1-1.22-4.9-1.35Zm0 2.29c-.07.01-.75.05-1.36.05-.49 0-.85-.02-1.44-.05-2.35-.1-4.1-.51-4.1-1 0-.48 1.75-.89 4.1-1v1.6c.6.04.97.06 1.45.06.6 0 1.24-.04 1.35-.05v-1.61c2.35.11 4.09.52 4.09 1 0 .49-1.74.9-4.09 1Z"
-        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        transform="translate(0 .85)"
+        d="M19.4658 10.6604c0-.8068-2.5515-1.4799-5.9473-1.6369V7.195h4.186V4.4055H6.3076V7.195h4.1852v1.8286c-3.4018.1562-5.9601.83-5.9601 1.6376 0 .8075 2.5583 1.4806 5.9601 1.6376v5.8618h3.025v-5.8639c3.394-.1563 5.948-.8295 5.948-1.6363ZM18.7538 10.5176c0 .6251-2.2379 1.1483-5.2381 1.2812l.0028.0007c-.0848.0064-.5233.0325-1.5012.0325-.7778 0-1.33-.0233-1.5237-.0325-3.0059-.1322-5.2495-.6555-5.2495-1.2819s2.2436-1.149 5.2495-1.2834v2.0442c.1965.0142.7594.0474 1.5372.0474.9334 0 1.4008-.0389 1.4849-.0466V9.2356c2.9994.1337 5.2381.657 5.2381 1.282Z"
       />
     </svg>
   );
 }
 
-/* Toncoin (TON) — фирменный «алмаз» с внутренними гранями. */
 export function TonMark(props: IconProps) {
   return (
     <svg {...brand} {...props}>
       <path
-        d="M6.2 8.3h11.6c.5 0 .8.55.55.98l-5.8 9.9a.64.64 0 0 1-1.1 0L5.65 9.28a.63.63 0 0 1 .55-.98Zm5.15 1.4H7.9l3.45 5.9V9.7Zm1.3 0v5.9l3.45-5.9h-3.45Z"
-        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M7.902 6.697h8.196c1.505 0 2.462 1.628 1.705 2.94l-5.059 8.765a.86.86 0 0 1-1.488 0L6.199 9.637c-.758-1.314.197-2.94 1.703-2.94Zm4.844 1.496v7.58l1.102-2.128 2.656-4.756a.465.465 0 0 0-.408-.696h-3.35ZM7.9 8.195a.464.464 0 0 0-.408.694l2.658 4.754 1.102 2.13V8.195H7.9Z"
       />
     </svg>
   );
 }
 
-/* Bitcoin (BTC) — символ ₿. */
 export function BitcoinMark(props: IconProps) {
   return (
     <svg {...brand} {...props}>
       <path
-        d="M15.3 10.9c.24-1.5-.9-2.3-2.47-2.83l.51-2.04-1.24-.31-.5 1.99c-.33-.08-.66-.16-1-.23l.5-2-1.24-.31-.51 2.03c-.27-.06-.53-.12-.79-.19l-1.71-.43-.33 1.33s.92.21.9.22c.5.13.6.46.58.73l-1.4 5.6c-.06.15-.22.38-.57.29.01.02-.9-.22-.9-.22l-.62 1.42 1.61.4c.3.08.6.16.89.23l-.52 2.06 1.24.31.51-2.04c.34.09.67.18 1 .26l-.5 2.03 1.24.31.51-2.06c2.12.4 3.71.24 4.38-1.67.54-1.54-.03-2.42-1.14-3 .81-.19 1.42-.72 1.58-1.82Zm-2.83 3.97c-.39 1.54-2.98.71-3.82.5l.68-2.72c.84.21 3.54.62 3.14 2.22Zm.39-3.99c-.35 1.4-2.51.69-3.21.51l.62-2.47c.7.18 2.96.5 2.59 1.96Z"
-        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M17.288 10.291c.24-1.59-.974-2.45-2.64-3.03l.54-2.153-1.315-.33-.525 2.107c-.345-.087-.705-.167-1.064-.25l.526-2.127-1.32-.33-.54 2.165c-.285-.067-.565-.132-.84-.2l-1.815-.45-.35 1.407s.975.225.955.236c.535.136.63.486.615.766l-1.477 5.92c-.075.166-.24.406-.614.314.015.02-.96-.24-.96-.24l-.66 1.51 1.71.426.93.242-.54 2.19 1.32.327.54-2.17c.36.1.705.19 1.05.273l-.51 2.154 1.32.33.545-2.19c2.24.427 3.93.257 4.64-1.774.57-1.637-.03-2.58-1.217-3.196.854-.193 1.5-.76 1.68-1.93h.01zm-3.01 4.22c-.404 1.64-3.157.75-4.05.53l.72-2.9c.896.23 3.757.67 3.33 2.37zm.41-4.24c-.37 1.49-2.662.735-3.405.55l.654-2.64c.744.18 3.137.524 2.75 2.084v.006z"
       />
     </svg>
   );

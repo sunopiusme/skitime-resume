@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="./doc-page.js"></script>
+<style>
+@font-face{font-family:"InterVar";src:url("assets/fonts/InterVariable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"InterVar",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img,svg{display:block}
+a{color:#101828;text-decoration:none}
+a:hover{color:#475467}
+</style>
+</helmet>
+
+<doc-page size="a4" orientation="landscape">
+
+  <section class="page" data-screen-label="Лист 1. Экран целиком" style="position:relative;display:grid;grid-template-rows:auto 1fr auto;gap:24px;padding:48px;background-color:#e9edf3;background-image:linear-gradient(to right,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to right,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px);background-size:48px 48px,48px 48px,8px 8px,8px 8px;color:#0f172a;overflow:hidden">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-bottom:8px;border-bottom:1px solid rgba(15,23,42,.72)">
+      <p style="margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em">Wallet Home. Главный экран 720 × 480</p>
+      <p style="margin:0;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">ЛИСТ 1 ИЗ 5, МАСШТАБ 1 К 1, МОДУЛЬ 8 И 48</p>
+    </div>
+
+    <div style="display:grid;place-items:center;min-height:0">
+      <div style="display:grid;grid-template-columns:48px 720px;grid-template-rows:32px auto 24px;gap:8px">
+        <div aria-hidden="true" style="grid-column:2;grid-row:1;position:relative;background-image:linear-gradient(to right,rgba(15,23,42,.72) 0,rgba(15,23,42,.72) 1px,transparent 1px),linear-gradient(to right,rgba(15,23,42,.38) 0,rgba(15,23,42,.38) 1px,transparent 1px);background-size:48px 10px,8px 4px;background-position:left bottom,left bottom;background-repeat:repeat-x,repeat-x">
+          <sc-for list="{{ xLabels }}" as="l" hint-placeholder-count="9">
+            <span style="position:absolute;bottom:14px;font-size:10px;line-height:1;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);transform:translateX(-50%);left:{{ l.pos }}">{{ l.value }}</span>
+          </sc-for>
+        </div>
+        <div aria-hidden="true" style="grid-column:1;grid-row:2;position:relative;background-image:linear-gradient(to bottom,rgba(15,23,42,.72) 0,rgba(15,23,42,.72) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.38) 0,rgba(15,23,42,.38) 1px,transparent 1px);background-size:10px 48px,4px 8px;background-position:right top,right top;background-repeat:repeat-y,repeat-y">
+          <sc-for list="{{ yLabels }}" as="l" hint-placeholder-count="5">
+            <span style="position:absolute;right:14px;font-size:10px;line-height:1;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);transform:translateY(-50%);top:{{ l.pos }}">{{ l.value }}</span>
+          </sc-for>
+        </div>
+
+        <div style="grid-column:2;grid-row:2;width:720px;padding:24px;display:flex;flex-direction:column;gap:24px;background:#ffffff;color:#000;border-radius:44px;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 2px 5px -2px rgba(15,23,42,.2),0 34px 64px -28px rgba(15,23,42,.52)">
+          <div style="display:grid;grid-template-columns:304px minmax(0,1fr);gap:24px;align-items:stretch;height:432px">
+            <section style="position:relative;display:grid;grid-template-rows:40px minmax(112px,1fr) 96px auto;gap:16px;min-width:0">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span aria-hidden="true" style="flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:999px;background:#e5e2e9;color:#000"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
+                <div style="position:relative;flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:999px;background:#e5e2e9;isolation:isolate">
+                  <span aria-hidden="true" style="position:absolute;z-index:0;top:3px;left:3px;width:calc(50% - 3px);height:calc(100% - 6px);border-radius:999px;background:#ffffff;box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)"></span>
+                  <span style="position:relative;z-index:1;padding:8px 6px;border-radius:999px;color:#000;font-weight:600;font-size:14px;line-height:18px;letter-spacing:-.1px;text-align:center">Main Wallet</span>
+                  <span style="position:relative;z-index:1;padding:8px 6px;border-radius:999px;color:#6e6e73;font-weight:600;font-size:14px;line-height:18px;letter-spacing:-.1px;text-align:center">TON Space</span>
+                </div>
+                <span aria-hidden="true" style="flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:999px;background:#e5e2e9;color:#000"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><rect x="4" y="4" width="6" height="6" rx="1.4"></rect><rect x="4" y="14" width="6" height="6" rx="1.4"></rect><rect x="14" y="4" width="6" height="6" rx="1.4"></rect><path d="M14 14h2.5M20 14v2.5M14 17.5V20M17.5 20H20M20 17.5v.01M17.5 14h.01"></path></svg></span>
+              </div>
+              <div style="min-height:0;display:grid;place-items:center">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center">
+                  <p style="margin:0;font-weight:600;font-size:18px;line-height:20px;letter-spacing:-.3px;color:#000">Total balance</p>
+                  <p style="margin:0;display:inline-flex;align-items:baseline;gap:2px;font-weight:700;letter-spacing:-1px;line-height:54px;font-variant-numeric:tabular-nums"><span style="font-size:30px;color:#6e6e73">$</span><span style="font-size:50px;color:#000">12,480</span><span style="font-size:28px;color:#6e6e73">.35</span></p>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0;border-radius:14px">
+                  <span style="width:52px;height:52px;display:grid;place-items:center;border-radius:22px;background:#007afa;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><path d="M12 19V5.5M12 5.5 6.5 11M12 5.5 17.5 11"></path></svg></span>
+                  <span style="font-weight:500;font-size:14px;line-height:20px;letter-spacing:.1px;color:#000">Send</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0;border-radius:14px">
+                  <span style="width:52px;height:52px;display:grid;place-items:center;border-radius:22px;background:#007afa;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><path d="M12 5.5v13M5.5 12h13"></path></svg></span>
+                  <span style="font-weight:500;font-size:14px;line-height:20px;letter-spacing:.1px;color:#000">Deposit</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0;border-radius:14px">
+                  <span style="width:52px;height:52px;display:grid;place-items:center;border-radius:22px;background:#007afa;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><path d="M6 8h12M18 8l-3.2-3.2M18 8l-3.2 3.2M18 16H6M6 16l3.2-3.2M6 16l3.2 3.2"></path></svg></span>
+                  <span style="font-weight:500;font-size:14px;line-height:20px;letter-spacing:.1px;color:#000">Exchange</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0;border-radius:14px">
+                  <span style="width:52px;height:52px;display:grid;place-items:center;border-radius:22px;background:#007afa;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><ellipse cx="12" cy="6" rx="6.5" ry="2.6"></ellipse><path d="M5.5 6v5c0 1.44 2.91 2.6 6.5 2.6s6.5-1.16 6.5-2.6V6"></path><path d="M5.5 11v5c0 1.44 2.91 2.6 6.5 2.6s6.5-1.16 6.5-2.6v-5"></path></svg></span>
+                  <span style="font-weight:500;font-size:14px;line-height:20px;letter-spacing:.1px;color:#000">Buy/Sell</span>
+                </div>
+              </div>
+              <div style="position:relative;display:flex;align-items:center;gap:14px;width:100%;height:76px;padding:0 12px 0 14px;border-radius:20px;overflow:hidden;background:radial-gradient(78% 150% at 4% 108%,rgba(255,176,92,.92) 0%,rgba(255,176,92,0) 62%),radial-gradient(66% 130% at 20% -12%,rgba(255,118,176,.8) 0%,rgba(255,118,176,0) 60%),radial-gradient(76% 150% at 68% 118%,rgba(150,112,255,.72) 0%,rgba(150,112,255,0) 64%),radial-gradient(80% 150% at 104% -10%,rgba(64,196,255,.85) 0%,rgba(64,196,255,0) 62%),linear-gradient(100deg,#fff6ed 0%,#fff0f7 38%,#f4f0ff 68%,#ecf9ff 100%);color:#17181c;box-shadow:0 10px 22px -16px rgba(255,122,84,.45),0 18px 36px -20px rgba(104,78,200,.55)">
+                <span aria-hidden="true" style="flex:none;width:48px;height:48px;display:grid;place-items:center;border-radius:20px;background:#ffffff;color:#6d4dff;box-shadow:0 8px 16px -10px rgba(23,24,28,.55)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><circle cx="12" cy="12" r="9"></circle><path d="M9 9h.01M15 15h.01M15.5 8.5 8.5 15.5" stroke-width="2"></path></svg></span>
+                <span style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1">
+                  <span style="font-weight:600;font-size:16px;line-height:20px;letter-spacing:-.2px;color:#17181c">Earn 50% APY</span>
+                  <span style="font-weight:500;font-size:13px;line-height:17px;letter-spacing:-.1px;color:rgba(23,24,28,.62)">on USDT, daily</span>
+                </span>
+                <span aria-hidden="true" style="flex:none;display:inline-flex;align-items:center;gap:2px;height:32px;padding:0 10px 0 14px;border-radius:999px;background:#17181c;color:#fff;font-weight:600;font-size:13px;line-height:32px;letter-spacing:-.1px">Start<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="m9 6 6 6-6 6"></path></svg></span>
+              </div>
+            </section>
+
+            <section style="position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;margin-right:-24px;color:#000">
+              <div aria-hidden="true" style="position:absolute;z-index:0;top:-24px;right:-24px;bottom:-24px;left:0;background:#ffffff;border-radius:44px 0 0 44px"></div>
+              <div style="position:relative;z-index:1;flex:1;min-height:0;display:flex;flex-direction:column">
+                <div style="border-bottom:1px solid rgba(0,0,0,.08);flex:1;display:flex;flex-direction:column;min-height:0">
+                  <div style="display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#000">
+                    <span style="flex:none">Assets</span>
+                    <span style="flex:1;font-weight:500;font-size:13px;line-height:17px;color:#6e6e73;font-variant-numeric:tabular-nums">4</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;width:20px;height:20px;color:#a6a6ad;transform:rotate(-90deg)"><path d="m9 6 6 6-6 6"></path></svg>
+                  </div>
+                  <ul style="list-style:none;margin:0;padding:2px 16px 12px;display:flex;flex-direction:column;gap:0">
+                    <sc-for list="{{ printAssets }}" as="r" hint-placeholder-count="4">
+                      <li style="position:relative;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 10px;border-radius:14px;margin-top:{{ r.gapTop }}">
+                        <sc-if value="{{ r.divider }}" hint-placeholder-val="{{ false }}">
+                          <span aria-hidden="true" style="position:absolute;top:0;right:10px;height:1px;background:rgba(0,0,0,.07);left:{{ r.dividerLeft }}"></span>
+                        </sc-if>
+                        <span aria-hidden="true" style="flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:999px;overflow:hidden;background:{{ r.tint }};color:{{ r.markInk }}">{{ r.icon }}</span>
+                        <span style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1">
+                          <span style="font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#000">{{ r.title }}</span>
+                          <sc-if value="{{ r.hint }}" hint-placeholder-val="{{ false }}">
+                            <span style="font-weight:500;font-size:13px;line-height:17px;color:#6e6e73">{{ r.hint }}</span>
+                          </sc-if>
+                        </span>
+                        <sc-if value="{{ r.value }}" hint-placeholder-val="{{ false }}">
+                          <span style="flex:none;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#000;font-variant-numeric:tabular-nums">{{ r.value }}</span>
+                        </sc-if>
+                        <sc-if value="{{ r.chevron }}" hint-placeholder-val="{{ false }}">
+                          <span aria-hidden="true" style="flex:none;display:grid;place-items:center;width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:#a6a6ad"><path d="m9 6 6 6-6 6"></path></svg></span>
+                        </sc-if>
+                      </li>
+                    </sc-for>
+                  </ul>
+                </div>
+                <div style="border-bottom:1px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#6e6e73">
+                  <span style="flex:none">Explore</span>
+                  <span style="flex:1;font-weight:500;font-size:13px;line-height:17px;font-variant-numeric:tabular-nums">5</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;width:20px;height:20px;color:#a6a6ad;transform:rotate(90deg)"><path d="m9 6 6 6-6 6"></path></svg>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#6e6e73">
+                  <span style="flex:none">History</span>
+                  <span style="flex:1;font-weight:500;font-size:13px;line-height:17px;font-variant-numeric:tabular-nums">4</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;width:20px;height:20px;color:#a6a6ad;transform:rotate(90deg)"><path d="m9 6 6 6-6 6"></path></svg>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div aria-hidden="true" style="grid-column:2;grid-row:3;display:flex;align-items:stretch">
+          <span style="width:24px;border-left:1px solid rgba(15,23,42,.72)"></span>
+          <span style="width:304px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);font-size:10px;line-height:1;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85)">304</span>
+          <span style="width:24px;border-left:1px solid rgba(15,23,42,.72)"></span>
+          <span style="width:344px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);font-size:10px;line-height:1;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85)">344</span>
+          <span style="width:24px;border-left:1px solid rgba(15,23,42,.72);border-right:1px solid rgba(15,23,42,.72)"></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-top:8px;border-top:1px solid rgba(15,23,42,.72);font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;color:rgba(15,23,42,.85)">
+      <span>720 × 480 равно 15 × 10 крупных клеток</span>
+      <span>Wallet in Telegram, редизайн главного экрана, 2024</span>
+    </div>
+  </section>
+
+  <section class="page" data-screen-label="Лист 2. Кнопки" style="position:relative;display:grid;grid-template-rows:auto 1fr auto;gap:24px;padding:48px;background-color:#e9edf3;background-image:linear-gradient(to right,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to right,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px);background-size:48px 48px,48px 48px,8px 8px,8px 8px;color:#0f172a;overflow:hidden">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-bottom:8px;border-bottom:1px solid rgba(15,23,42,.72)">
+      <p style="margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em">Кнопки. Быстрое действие 52 / 22 и круглая 40 / 999</p>
+      <p style="margin:0;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">ЛИСТ 2 ИЗ 5, МАСШТАБ 1 К 1, МОДУЛЬ 8 И 48</p>
+    </div>
+
+    <div style="display:grid;align-content:center;justify-items:center;gap:48px;min-height:0">
+      <div>
+        <div style="display:grid;grid-template-columns:repeat(4,72px);gap:8px;width:312px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(15,23,42,.28)">
+            <span style="width:52px;height:52px;display:grid;place-items:center;border-radius:22px;background:#007afa;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><path d="M12 19V5.5M12 5.5 6.5 11M12 5.5 17.5 11"></path></svg></span>
+            <span style="font-weight:500;font-size:14px;line-height:20px;letter-spacing:.1px;color:#000">Send</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0;border-radius:14px">
+            <span style="width:52px;height:52px;display:grid;place-items:center;border-radius:22px;background:#007afa;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><path d="M12 5.5v13M5.5 12h13"></path></svg></span>
+            <span style="font-weight:500;font-size:14px;line-height:20px;letter-spacing:.1px;color:#000">Deposit</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0;border-radius:14px;background:rgba(0,0,0,.05)">
+            <span style="width:52px;height:52px;display:grid;place-items:center;border-radius:22px;background:#007afa;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><path d="M6 8h12M18 8l-3.2-3.2M18 8l-3.2 3.2M18 16H6M6 16l3.2-3.2M6 16l3.2 3.2"></path></svg></span>
+            <span style="font-weight:500;font-size:14px;line-height:20px;letter-spacing:.1px;color:#000">Exchange</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0;border-radius:14px;outline:2px solid #007afa;outline-offset:2px">
+            <span style="width:52px;height:52px;display:grid;place-items:center;border-radius:22px;background:#007afa;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><ellipse cx="12" cy="6" rx="6.5" ry="2.6"></ellipse><path d="M5.5 6v5c0 1.44 2.91 2.6 6.5 2.6s6.5-1.16 6.5-2.6V6"></path><path d="M5.5 11v5c0 1.44 2.91 2.6 6.5 2.6s6.5-1.16 6.5-2.6v-5"></path></svg></span>
+            <span style="font-weight:500;font-size:14px;line-height:20px;letter-spacing:.1px;color:#000">Buy/Sell</span>
+          </div>
+        </div>
+        <div aria-hidden="true" style="display:flex;align-items:stretch;margin-top:8px;width:312px">
+          <span style="width:72px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">72</span>
+          <span style="width:8px;height:24px;border-left:1px solid rgba(15,23,42,.72)"></span>
+          <span style="width:72px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">72</span>
+          <span style="width:8px;height:24px;border-left:1px solid rgba(15,23,42,.72)"></span>
+          <span style="width:72px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">72</span>
+          <span style="width:8px;height:24px;border-left:1px solid rgba(15,23,42,.72)"></span>
+          <span style="width:72px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);border-right:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">72</span>
+        </div>
+        <p aria-hidden="true" style="margin:10px 0 0;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">312 = 4 × 72 + 3 × 8, значок 52, радиус 22, глиф 26, подпись от 14 до 20, зона нажатия 72 × 88</p>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:32px">
+        <div style="display:grid;gap:8px;justify-items:center">
+          <span style="width:40px;height:40px;display:grid;place-items:center;border-radius:999px;background:#e5e2e9;color:#000"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
+          <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">40, #e5e2e9</span>
+        </div>
+        <div style="display:grid;gap:8px;justify-items:center">
+          <span style="width:40px;height:40px;display:grid;place-items:center;border-radius:999px;background:#dcd8e1;color:#000"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><rect x="4" y="4" width="6" height="6" rx="1.4"></rect><rect x="4" y="14" width="6" height="6" rx="1.4"></rect><rect x="14" y="4" width="6" height="6" rx="1.4"></rect><path d="M14 14h2.5M20 14v2.5M14 17.5V20M17.5 20H20M20 17.5v.01M17.5 14h.01"></path></svg></span>
+          <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">наведение, #dcd8e1</span>
+        </div>
+        <div style="display:grid;gap:8px;justify-items:center;padding:12px;background:#17181c;border-radius:16px">
+          <span style="width:40px;height:40px;display:grid;place-items:center;border-radius:999px;background:#2c2f37;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
+          <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:#9a9ea6">TON, #2c2f37</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-top:8px;border-top:1px solid rgba(15,23,42,.72);font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;color:rgba(15,23,42,.85)">
+      <span>обводка зоны нажатия, наведение, фокус клавиатуры 2 с отступом 2</span>
+      <span>Wallet in Telegram, редизайн главного экрана, 2024</span>
+    </div>
+  </section>
+
+  <section class="page" data-screen-label="Лист 3. Переключатель и баланс" style="position:relative;display:grid;grid-template-rows:auto 1fr auto;gap:24px;padding:48px;background-color:#e9edf3;background-image:linear-gradient(to right,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to right,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px);background-size:48px 48px,48px 48px,8px 8px,8px 8px;color:#0f172a;overflow:hidden">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-bottom:8px;border-bottom:1px solid rgba(15,23,42,.72)">
+      <p style="margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em">Переключатель 248 × 40 и слот фокуса 304</p>
+      <p style="margin:0;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">ЛИСТ 3 ИЗ 5, МАСШТАБ 1 К 1, МОДУЛЬ 8 И 48</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:auto auto;align-content:center;justify-content:center;gap:48px;min-height:0">
+      <div style="display:grid;gap:24px;align-content:start">
+        <div style="display:grid;gap:8px;width:248px">
+          <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:999px;background:#e5e2e9;isolation:isolate">
+            <span aria-hidden="true" style="position:absolute;z-index:0;top:3px;left:3px;width:calc(50% - 3px);height:calc(100% - 6px);border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)"></span>
+            <span style="position:relative;z-index:1;padding:8px 6px;border-radius:999px;color:#000;font-weight:600;font-size:14px;line-height:18px;letter-spacing:-.1px;text-align:center">Main Wallet</span>
+            <span style="position:relative;z-index:1;padding:8px 6px;border-radius:999px;color:#6e6e73;font-weight:600;font-size:14px;line-height:18px;letter-spacing:-.1px;text-align:center">TON Space</span>
+          </div>
+          <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">A, подложка слева</span>
+        </div>
+        <div style="display:grid;gap:8px;width:248px">
+          <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:999px;background:#e5e2e9;isolation:isolate">
+            <span aria-hidden="true" style="position:absolute;z-index:0;top:3px;left:3px;width:calc(50% - 3px);height:calc(100% - 6px);border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04);transform:translateX(100%)"></span>
+            <span style="position:relative;z-index:1;padding:8px 6px;border-radius:999px;color:#6e6e73;font-weight:600;font-size:14px;line-height:18px;letter-spacing:-.1px;text-align:center">Main Wallet</span>
+            <span style="position:relative;z-index:1;padding:8px 6px;border-radius:999px;color:#000;font-weight:600;font-size:14px;line-height:18px;letter-spacing:-.1px;text-align:center">TON Space</span>
+          </div>
+          <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">B, подложка справа</span>
+        </div>
+        <div style="display:grid;gap:8px;width:248px;padding:12px;background:#17181c;border-radius:16px;box-sizing:content-box">
+          <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:999px;background:#2f323b;isolation:isolate">
+            <span aria-hidden="true" style="position:absolute;z-index:0;top:3px;left:3px;width:calc(50% - 3px);height:calc(100% - 6px);border-radius:999px;background:#ffffff;box-shadow:0 2px 6px rgba(0,0,0,.45),0 0 0 .5px rgba(0,0,0,.35);transform:translateX(100%)"></span>
+            <span style="position:relative;z-index:1;padding:8px 6px;border-radius:999px;color:#a8acb5;font-weight:600;font-size:14px;line-height:18px;letter-spacing:-.1px;text-align:center">Main Wallet</span>
+            <span style="position:relative;z-index:1;padding:8px 6px;border-radius:999px;color:#101216;font-weight:600;font-size:14px;line-height:18px;letter-spacing:-.1px;text-align:center">TON Space</span>
+          </div>
+          <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:#9a9ea6">тёмная тема: белая подложка</span>
+        </div>
+        <div aria-hidden="true" style="display:flex;align-items:stretch;width:248px">
+          <span style="width:124px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">124</span>
+          <span style="width:124px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);border-right:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">124</span>
+        </div>
+      </div>
+
+      <div style="display:grid;gap:24px;align-content:start">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;width:304px;padding:16px 0;background:#fff;border-radius:16px">
+          <p style="margin:0;font-weight:600;font-size:18px;line-height:20px;letter-spacing:-.3px;color:#000">Total balance</p>
+          <p style="margin:0;display:inline-flex;align-items:baseline;gap:2px;font-weight:700;letter-spacing:-1px;line-height:54px;font-variant-numeric:tabular-nums"><span style="font-size:30px;color:#6e6e73">$</span><span style="font-size:50px;color:#000">12,480</span><span style="font-size:28px;color:#6e6e73">.35</span></p>
+          <span style="margin-top:8px;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">30 / 50 / 28, интерлиньяж 54, вес 700, трекинг минус 1</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;width:304px;padding:16px 0;background:#17181c;border-radius:16px">
+          <span aria-hidden="true" style="width:56px;height:56px;display:grid;place-items:center;border-radius:999px;background:#fff;color:#101216;box-shadow:0 8px 20px -10px rgba(0,0,0,.55)"><svg viewBox="0 0 24 24" fill="currentColor" style="width:30px;height:30px"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.902 6.697h8.196c1.505 0 2.462 1.628 1.705 2.94l-5.059 8.765a.86.86 0 0 1-1.488 0L6.199 9.637c-.758-1.314.197-2.94 1.703-2.94Zm4.844 1.496v7.58l1.102-2.128 2.656-4.756a.465.465 0 0 0-.408-.696h-3.35ZM7.9 8.195a.464.464 0 0 0-.408.694l2.658 4.754 1.102 2.13V8.195H7.9Z"></path></svg></span>
+          <p style="margin:0;font-weight:500;font-size:14px;line-height:18px;letter-spacing:-.1px;color:#9a9ea6">Your TON address</p>
+          <p style="margin:0;font-weight:700;font-size:30px;line-height:36px;letter-spacing:-.4px;color:#fff">UQCK…nv6U</p>
+          <span style="margin-top:8px;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:#9a9ea6">аватар 56, подпись 14 / 18, адрес 30 / 36</span>
+        </div>
+        <div aria-hidden="true" style="display:flex;align-items:stretch;width:304px">
+          <span style="width:304px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);border-right:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">304, ширина секции кошелька</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-top:8px;border-top:1px solid rgba(15,23,42,.72);font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;color:rgba(15,23,42,.85)">
+      <span>темп 180 мс, одна кривая на пилюлю, тему и содержимое</span>
+      <span>Wallet in Telegram, редизайн главного экрана, 2024</span>
+    </div>
+  </section>
+
+  <section class="page" data-screen-label="Лист 4. Строка списка" style="position:relative;display:grid;grid-template-rows:auto 1fr auto;gap:24px;padding:48px;background-color:#e9edf3;background-image:linear-gradient(to right,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to right,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px);background-size:48px 48px,48px 48px,8px 8px,8px 8px;color:#0f172a;overflow:hidden">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-bottom:8px;border-bottom:1px solid rgba(15,23,42,.72)">
+      <p style="margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em">Строка списка 344 × 56 и складка разделов</p>
+      <p style="margin:0;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">ЛИСТ 4 ИЗ 5, МАСШТАБ 1 К 1, МОДУЛЬ 8 И 48</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:auto auto;align-content:center;justify-content:center;gap:48px;min-height:0">
+      <div>
+        <div style="width:344px;background:#fff;border-radius:20px;overflow:hidden">
+          <div style="border-bottom:1px solid rgba(0,0,0,.08)">
+            <div style="display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#000">
+              <span style="flex:none">Assets</span>
+              <span style="flex:1;font-weight:500;font-size:13px;line-height:17px;color:#6e6e73;font-variant-numeric:tabular-nums">4</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;width:20px;height:20px;color:#a6a6ad;transform:rotate(-90deg)"><path d="m9 6 6 6-6 6"></path></svg>
+            </div>
+            <ul style="list-style:none;margin:0;padding:2px 16px 12px;display:flex;flex-direction:column;gap:0">
+              <sc-for list="{{ printAssets }}" as="r" hint-placeholder-count="4">
+                <li style="position:relative;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 10px;border-radius:14px;margin-top:{{ r.gapTop }}">
+                  <sc-if value="{{ r.divider }}" hint-placeholder-val="{{ false }}">
+                    <span aria-hidden="true" style="position:absolute;top:0;right:10px;height:1px;background:rgba(0,0,0,.07);left:{{ r.dividerLeft }}"></span>
+                  </sc-if>
+                  <span aria-hidden="true" style="flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:999px;overflow:hidden;background:{{ r.tint }};color:{{ r.markInk }}">{{ r.icon }}</span>
+                  <span style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1">
+                    <span style="font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#000">{{ r.title }}</span>
+                    <sc-if value="{{ r.hint }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-weight:500;font-size:13px;line-height:17px;color:#6e6e73">{{ r.hint }}</span>
+                    </sc-if>
+                  </span>
+                  <sc-if value="{{ r.value }}" hint-placeholder-val="{{ false }}">
+                    <span style="flex:none;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#000;font-variant-numeric:tabular-nums">{{ r.value }}</span>
+                  </sc-if>
+                  <sc-if value="{{ r.chevron }}" hint-placeholder-val="{{ false }}">
+                    <span aria-hidden="true" style="flex:none;display:grid;place-items:center;width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:#a6a6ad"><path d="m9 6 6 6-6 6"></path></svg></span>
+                  </sc-if>
+                </li>
+              </sc-for>
+            </ul>
+          </div>
+          <div style="border-bottom:1px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#6e6e73">
+            <span style="flex:none">Explore</span>
+            <span style="flex:1;font-weight:500;font-size:13px;line-height:17px;font-variant-numeric:tabular-nums">5</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;width:20px;height:20px;color:#a6a6ad;transform:rotate(90deg)"><path d="m9 6 6 6-6 6"></path></svg>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#6e6e73">
+            <span style="flex:none">History</span>
+            <span style="flex:1;font-weight:500;font-size:13px;line-height:17px;font-variant-numeric:tabular-nums">4</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;width:20px;height:20px;color:#a6a6ad;transform:rotate(90deg)"><path d="m9 6 6 6-6 6"></path></svg>
+          </div>
+        </div>
+        <div aria-hidden="true" style="display:flex;align-items:stretch;margin-top:8px;width:344px">
+          <span style="width:26px;height:24px;border-left:1px solid rgba(15,23,42,.72)"></span>
+          <span style="width:40px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">40</span>
+          <span style="width:12px;height:24px;border-left:1px solid rgba(15,23,42,.72)"></span>
+          <span style="width:266px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);border-right:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">разделитель от 62</span>
+        </div>
+      </div>
+
+      <div style="display:grid;gap:16px;align-content:start;width:344px">
+        <div style="display:grid;gap:8px">
+          <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">Тот же паттерн, сервис Explore</span>
+          <div style="background:#fff;border-radius:20px;overflow:hidden">
+            <div style="position:relative;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 10px;background:rgba(0,0,0,.04)">
+              <span aria-hidden="true" style="flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:999px;background:#2ac281;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px"><path d="M7 9h9m0 0-2.5-2.5M16 9l-2.5 2.5M17 15H8m0 0 2.5-2.5M8 15l2.5 2.5"></path></svg></span>
+              <span style="flex:1;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#000">P2P Market</span>
+              <span aria-hidden="true" style="flex:none;display:grid;place-items:center;width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:#a6a6ad"><path d="m9 6 6 6-6 6"></path></svg></span>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;gap:8px">
+          <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">Тот же паттерн, операция History</span>
+          <div style="background:#fff;border-radius:20px;overflow:hidden">
+            <div style="position:relative;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 10px">
+              <span aria-hidden="true" style="flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:999px;background:#f7931a;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5V12l3 2" stroke-width="2"></path></svg></span>
+              <span style="display:flex;flex-direction:column;gap:2px;flex:1">
+                <span style="font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#000">Card top-up</span>
+                <span style="font-weight:500;font-size:13px;line-height:17px;color:#6e6e73">Pending, Jul 20</span>
+              </span>
+              <span style="flex:none;font-weight:600;font-size:15px;line-height:20px;letter-spacing:-.2px;color:#000;font-variant-numeric:tabular-nums">+$120.00</span>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;line-height:1.6;color:rgba(15,23,42,.85);background:#e9edf3;padding:2px 3px">строка не ниже 56, отступы 8 и 10, радиус 14, жетон 40 с радиусом 999, имя 600 кегля 15 с интерлиньяжом 20, сумма 500 кегля 13 с интерлиньяжом 17, хвост списка отбит на 8, разделитель во всю ширину от 10</p>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-top:8px;border-top:1px solid rgba(15,23,42,.72);font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;color:rgba(15,23,42,.85)">
+      <span>заголовок складки не ниже 48, открыт ровно один раздел, он забирает свободную высоту</span>
+      <span>Wallet in Telegram, редизайн главного экрана, 2024</span>
+    </div>
+  </section>
+
+  <section class="page" data-screen-label="Лист 5. Промо и токены" style="position:relative;display:grid;grid-template-rows:auto 1fr auto;gap:24px;padding:48px;background-color:#e9edf3;background-image:linear-gradient(to right,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to right,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px);background-size:48px 48px,48px 48px,8px 8px,8px 8px;color:#0f172a;overflow:hidden">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-bottom:8px;border-bottom:1px solid rgba(15,23,42,.72)">
+      <p style="margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em">Промо 304 × 76, палитра и лестница радиусов</p>
+      <p style="margin:0;font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">ЛИСТ 5 ИЗ 5, МАСШТАБ 1 К 1, МОДУЛЬ 8 И 48</p>
+    </div>
+
+    <div style="display:grid;align-content:center;justify-items:center;gap:40px;min-height:0">
+      <div>
+        <div style="position:relative;display:flex;align-items:center;gap:14px;width:304px;height:76px;padding:0 12px 0 14px;border-radius:20px;overflow:hidden;background:radial-gradient(78% 150% at 4% 108%,rgba(255,176,92,.92) 0%,rgba(255,176,92,0) 62%),radial-gradient(66% 130% at 20% -12%,rgba(255,118,176,.8) 0%,rgba(255,118,176,0) 60%),radial-gradient(76% 150% at 68% 118%,rgba(150,112,255,.72) 0%,rgba(150,112,255,0) 64%),radial-gradient(80% 150% at 104% -10%,rgba(64,196,255,.85) 0%,rgba(64,196,255,0) 62%),linear-gradient(100deg,#fff6ed 0%,#fff0f7 38%,#f4f0ff 68%,#ecf9ff 100%);color:#17181c;box-shadow:0 10px 22px -16px rgba(255,122,84,.45),0 18px 36px -20px rgba(104,78,200,.55)">
+          <span aria-hidden="true" style="flex:none;width:48px;height:48px;display:grid;place-items:center;border-radius:20px;background:#fff;color:#6d4dff;box-shadow:0 8px 16px -10px rgba(23,24,28,.55)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><circle cx="12" cy="12" r="9"></circle><path d="M9 9h.01M15 15h.01M15.5 8.5 8.5 15.5" stroke-width="2"></path></svg></span>
+          <span style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1">
+            <span style="font-weight:600;font-size:16px;line-height:20px;letter-spacing:-.2px;color:#17181c">Earn 50% APY</span>
+            <span style="font-weight:500;font-size:13px;line-height:17px;letter-spacing:-.1px;color:rgba(23,24,28,.62)">on USDT, daily</span>
+          </span>
+          <span aria-hidden="true" style="flex:none;display:inline-flex;align-items:center;gap:2px;height:32px;padding:0 10px 0 14px;border-radius:999px;background:#17181c;color:#fff;font-weight:600;font-size:13px;line-height:32px;letter-spacing:-.1px">Start<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="m9 6 6 6-6 6"></path></svg></span>
+        </div>
+        <div aria-hidden="true" style="display:flex;align-items:stretch;margin-top:8px;width:304px">
+          <span style="width:14px;height:24px;border-left:1px solid rgba(15,23,42,.72)"></span>
+          <span style="width:48px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">48</span>
+          <span style="width:14px;height:24px;border-left:1px solid rgba(15,23,42,.72)"></span>
+          <span style="width:228px;height:24px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(15,23,42,.72);border-right:1px solid rgba(15,23,42,.72);font-size:10px;font-variant-numeric:tabular-nums;color:rgba(15,23,42,.85);background:#e9edf3">76 высота, радиус 20, кнопка действия 32 / 999</span>
+        </div>
+      </div>
+
+      <div style="display:grid;gap:16px;justify-items:center;padding:16px;background:#e9edf3">
+        <div style="display:grid;grid-template-columns:repeat(6,104px);gap:8px">
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#ffffff;box-shadow:inset 0 0 0 1px rgba(15,23,42,.18)"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#ffffff</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#f4f4f6"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#f4f4f6</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#e5e2e9"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#e5e2e9</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#007afa"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#007afa</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#000000"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#000000</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#6e6e73"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#6e6e73</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(6,104px);gap:8px">
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#17181c"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#17181c</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#24262c"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#24262c</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#2c2f37"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#2c2f37</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#4a4e58"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#4a4e58</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#9a9ea6"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#9a9ea6</span></div>
+          <div style="display:grid;gap:6px"><span style="height:40px;border-radius:8px;background:#101216"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">#101216</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:16px;padding:16px 0;background-image:linear-gradient(to right,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.22) 0,rgba(15,23,42,.22) 1px,transparent 1px),linear-gradient(to right,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,23,42,.11) 0,rgba(15,23,42,.11) 1px,transparent 1px);background-size:48px 48px,48px 48px,8px 8px,8px 8px">
+          <div style="display:grid;gap:6px;justify-items:center"><span style="width:56px;height:56px;background:#fff;box-shadow:inset 0 0 0 1px rgba(15,23,42,.18);border-radius:14px"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">14</span></div>
+          <div style="display:grid;gap:6px;justify-items:center"><span style="width:56px;height:56px;background:#fff;box-shadow:inset 0 0 0 1px rgba(15,23,42,.18);border-radius:20px"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">20</span></div>
+          <div style="display:grid;gap:6px;justify-items:center"><span style="width:56px;height:56px;background:#fff;box-shadow:inset 0 0 0 1px rgba(15,23,42,.18);border-radius:22px"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">22</span></div>
+          <div style="display:grid;gap:6px;justify-items:center"><span style="width:56px;height:56px;background:#fff;box-shadow:inset 0 0 0 1px rgba(15,23,42,.18);border-radius:44px"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">44</span></div>
+          <div style="display:grid;gap:6px;justify-items:center"><span style="width:56px;height:56px;background:#fff;box-shadow:inset 0 0 0 1px rgba(15,23,42,.18);border-radius:999px"></span><span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:10px;color:rgba(15,23,42,.85);background:#e9edf3;padding:0 3px">999</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding-top:8px;border-top:1px solid rgba(15,23,42,.72);font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:11px;color:rgba(15,23,42,.85)">
+      <span>верхний ряд Main Wallet, нижний TON Space, радиусы: 14 зона нажатия, 20 строка и промо, 22 значок, 44 окно, 999 капсула</span></span>
+      <span>Wallet in Telegram, редизайн главного экрана, 2024</span>
+    </div>
+  </section>
+
+</doc-page>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+class Component extends DCLogic {
+  stroke(children, sw) {
+    return React.createElement("svg", {
+      viewBox: "0 0 24 24", fill: "none", stroke: "currentColor",
+      strokeWidth: sw || 1.7, strokeLinecap: "round", strokeLinejoin: "round",
+      "aria-hidden": true, style: { width: 24, height: 24, display: "block" }
+    }, children);
+  }
+
+  brandMark(d, tf) {
+    return React.createElement("svg", {
+      viewBox: "0 0 24 24", fill: "currentColor", "aria-hidden": true,
+      style: { width: "100%", height: "100%", display: "block" }
+    }, React.createElement("path", { fillRule: "evenodd", clipRule: "evenodd", transform: tf, d: d }));
+  }
+
+  icon(name) {
+    switch (name) {
+      case "plus": return this.stroke(React.createElement("path", { d: "M12 5.5v13M5.5 12h13" }), 2.2);
+      case "ton": return this.brandMark("M7.902 6.697h8.196c1.505 0 2.462 1.628 1.705 2.94l-5.059 8.765a.86.86 0 0 1-1.488 0L6.199 9.637c-.758-1.314.197-2.94 1.703-2.94Zm4.844 1.496v7.58l1.102-2.128 2.656-4.756a.465.465 0 0 0-.408-.696h-3.35ZM7.9 8.195a.464.464 0 0 0-.408.694l2.658 4.754 1.102 2.13V8.195H7.9Z");
+      case "tether": return this.brandMark("M19.4658 10.6604c0-.8068-2.5515-1.4799-5.9473-1.6369V7.195h4.186V4.4055H6.3076V7.195h4.1852v1.8286c-3.4018.1562-5.9601.83-5.9601 1.6376 0 .8075 2.5583 1.4806 5.9601 1.6376v5.8618h3.025v-5.8639c3.394-.1563 5.948-.8295 5.948-1.6363ZM18.7538 10.5176c0 .6251-2.2379 1.1483-5.2381 1.2812l.0028.0007c-.0848.0064-.5233.0325-1.5012.0325-.7778 0-1.33-.0233-1.5237-.0325-3.0059-.1322-5.2495-.6555-5.2495-1.2819s2.2436-1.149 5.2495-1.2834v2.0442c.1965.0142.7594.0474 1.5372.0474.9334 0 1.4008-.0389 1.4849-.0466V9.2356c2.9994.1337 5.2381.657 5.2381 1.282Z", "translate(0 .85)");
+      case "bitcoin": return this.brandMark("M17.288 10.291c.24-1.59-.974-2.45-2.64-3.03l.54-2.153-1.315-.33-.525 2.107c-.345-.087-.705-.167-1.064-.25l.526-2.127-1.32-.33-.54 2.165c-.285-.067-.565-.132-.84-.2l-1.815-.45-.35 1.407s.975.225.955.236c.535.136.63.486.615.766l-1.477 5.92c-.075.166-.24.406-.614.314.015.02-.96-.24-.96-.24l-.66 1.51 1.71.426.93.242-.54 2.19 1.32.327.54-2.17c.36.1.705.19 1.05.273l-.51 2.154 1.32.33.545-2.19c2.24.427 3.93.257 4.64-1.774.57-1.637-.03-2.58-1.217-3.196.854-.193 1.5-.76 1.68-1.93h.01zm-3.01 4.22c-.404 1.64-3.157.75-4.05.53l.72-2.9c.896.23 3.757.67 3.33 2.37zm.41-4.24c-.37 1.49-2.662.735-3.405.55l.654-2.64c.744.18 3.137.524 2.75 2.084v.006z");
+      default: return null;
+    }
+  }
+
+  renderVals() {
+    const rows = [
+      { title: "Dollars", hint: "8,420.00 USDT", value: "$8,420.00", icon: "tether", tint: "#009393" },
+      { title: "Toncoin", hint: "620.4 TON", value: "$3,102.00", icon: "ton", tint: "#0098ea" },
+      { title: "Bitcoin", hint: "0.0154 BTC", value: "$958.35", icon: "bitcoin", tint: "#f7931a" },
+      { title: "More assets", icon: "plus", tint: "#eef0f3", markInk: "#8e8e92", chevron: true, tail: true }
+    ];
+
+    return {
+      xLabels: [0, 96, 192, 288, 384, 480, 576, 672, 720].map((v) => ({ value: v, pos: v + "px" })),
+      yLabels: [96, 192, 288, 384, 480].map((v) => ({ value: v, pos: v + "px" })),
+      printAssets: rows.map((r, i) => ({
+        title: r.title,
+        hint: r.hint || null,
+        value: r.value || null,
+        chevron: !!r.chevron,
+        tint: r.tint,
+        markInk: r.markInk || "#ffffff",
+        icon: this.icon(r.icon),
+        divider: i > 0,
+        dividerLeft: r.tail ? "10px" : "62px",
+        gapTop: r.tail ? "8px" : "0px"
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

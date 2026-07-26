@@ -1,0 +1,172 @@
+.stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--case-wide);
+  margin-inline: auto;
+  padding: clamp(28px, 4.5vw, 64px) clamp(16px, 3vw, 48px);
+  border-radius: 0;
+
+  --blueprint-paper: #e9edf3;
+
+  background-color: var(--blueprint-paper);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.14);
+
+  --blueprint-unit: 8px;
+  --blueprint-major: 48px;
+
+  --blueprint-bleed: 2400px;
+
+  --blueprint-line: rgba(15, 23, 42, 0.11);
+  --blueprint-line-major: rgba(15, 23, 42, 0.22);
+
+  --blueprint-tick: rgba(15, 23, 42, 0.38);
+  --blueprint-tick-major: rgba(15, 23, 42, 0.72);
+  --blueprint-ink: rgba(15, 23, 42, 0.85);
+
+  display: grid;
+  grid-template-areas: "card";
+  grid-template-columns: min(100%, 720px);
+  justify-content: center;
+  align-content: center;
+}
+
+.gridLayer {
+  grid-area: card;
+  z-index: 0;
+  width: calc(100% + 2 * var(--blueprint-bleed));
+  height: calc(100% + 2 * var(--blueprint-bleed));
+  margin: calc(-1 * var(--blueprint-bleed));
+  background-image:
+    linear-gradient(to right, var(--blueprint-line-major) 0, var(--blueprint-line-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--blueprint-line-major) 0, var(--blueprint-line-major) 1px, transparent 1px),
+    linear-gradient(to right, var(--blueprint-line) 0, var(--blueprint-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--blueprint-line) 0, var(--blueprint-line) 1px, transparent 1px);
+  background-size:
+    var(--blueprint-major) var(--blueprint-major),
+    var(--blueprint-major) var(--blueprint-major),
+    var(--blueprint-unit) var(--blueprint-unit),
+    var(--blueprint-unit) var(--blueprint-unit);
+  background-position: 0 0;
+  pointer-events: none;
+}
+
+.cell {
+  grid-area: card;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.rulerX,
+.rulerY,
+.dims {
+  display: none;
+}
+
+@media (min-width: 1000px) {
+  .stage {
+    grid-template-areas:
+      ".      rulerx"
+      "rulery card"
+      ".      dims";
+    grid-template-columns: 48px 720px;
+    grid-template-rows: 32px auto 24px;
+    gap: 8px;
+
+    width: fit-content;
+    max-width: 100%;
+    padding: 56px 96px 64px 88px;
+  }
+
+  .rulerX {
+    grid-area: rulerx;
+    position: relative;
+    display: block;
+    background-image:
+      linear-gradient(to right, var(--blueprint-tick-major) 0, var(--blueprint-tick-major) 1px, transparent 1px),
+      linear-gradient(to right, var(--blueprint-tick) 0, var(--blueprint-tick) 1px, transparent 1px);
+    background-size:
+      var(--blueprint-major) 10px,
+      var(--blueprint-unit) 4px;
+    background-position: left bottom, left bottom;
+    background-repeat: repeat-x, repeat-x;
+  }
+
+  .rulerY {
+    grid-area: rulery;
+    position: relative;
+    display: block;
+    background-image:
+      linear-gradient(to bottom, var(--blueprint-tick-major) 0, var(--blueprint-tick-major) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--blueprint-tick) 0, var(--blueprint-tick) 1px, transparent 1px);
+    background-size:
+      10px var(--blueprint-major),
+      4px var(--blueprint-unit);
+    background-position: right top, right top;
+    background-repeat: repeat-y, repeat-y;
+  }
+
+  .labelX,
+  .labelY {
+    position: absolute;
+    /* Бумага под подписью гасит сетку, иначе линии идут сквозь цифры. */
+    background: var(--blueprint-paper);
+    padding: 0 3px;
+    color: var(--blueprint-ink);
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .labelX {
+    bottom: 14px;
+    transform: translateX(-50%);
+  }
+
+  .rulerX .labelX:first-child {
+    transform: none;
+  }
+
+  .rulerX .labelX:last-child {
+    transform: translateX(-100%);
+  }
+
+  .labelY {
+    right: 14px;
+    transform: translateY(-50%);
+  }
+
+  .rulerY .labelY:last-child {
+    transform: translateY(-100%);
+  }
+
+  .dims {
+    grid-area: dims;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .dim {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-left: 1px solid var(--blueprint-tick-major);
+    background: var(--blueprint-paper);
+    color: var(--blueprint-ink);
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dim:last-child {
+    border-right: 1px solid var(--blueprint-tick-major);
+  }
+}
